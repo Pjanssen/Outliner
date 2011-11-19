@@ -1,9 +1,6 @@
 global outlinerInstaller;
 global outliner_restart_required;
 
-global KeyboardActionsFile;
-fileIn ((GetDir #temp) + "/outliner/script/keyboardActionsFile.ms");
-
 rollout outliner_install ""
 (
    edittext progress_txt height:200 readonly:true;
@@ -30,7 +27,9 @@ private product_info_file    = (GetDir #userScripts) + "/outliner_product_info.i
 --Retrieves the string from the strings ini file.
 public function getString key section:#Strings = 
 (
-   local str = getINISetting strings_file section key;
+   local str;
+   if (section != undefined AND key != undefined) do
+      str = getINISetting strings_file section key;
    
    if (str == undefined) do 
    (
@@ -70,15 +69,38 @@ public function getInstalledVersion =
 --Returns true if the Outliner is installed for this 3dsmax installation.
 public function getIsOutlinerInstalled =
 (
-   ((getInstalledVersion()) < 2.1) OR \
    (getINISetting product_info_file #General #outlinerInstalled) == "true";
+),
+
+private function setIsOutlinerInstalled i =
+(
+   setINISetting product_info_file #General #outlinerInstalled (i as string);
 ),
 
 
 --Returns true if the Workflow Tools are installed for this 3dsmax installation.
 public function getIsWorkflowToolsInstalled =
 (
-   (getINISetting prefs_file #General #workflowtoolsinstalled) == "true";
+   (getINISetting product_info_file #General #workflowtoolsinstalled) == "true";
+),
+
+private function setIsWorkflowToolsInstalled i =
+(
+   setINISetting product_info_file #General #workflowtoolsinstalled (i as string);
+),
+
+
+--Load an assembly with shadow-copy enabled.
+private function loadAssembly dll =
+(
+   local AppDomain    = dotNetClass "System.AppDomain";
+   local AssemblyName = dotNetClass "System.Reflection.AssemblyName";
+
+   AppDomain.CurrentDomain.SetShadowCopyPath (GetDir #temp);
+   AppDomain.CurrentDomain.SetShadowCopyFiles();
+
+   local assemblyName = AssemblyName.GetAssemblyName dll;
+   AppDomain.CurrentDomain.Load assemblyName;
 ),
 
 
@@ -236,6 +258,8 @@ private function removeWorkflowTools =
    (
       if (not (deleteFile mcr)) do success = false;
    )
+   
+   setIsWorkflowToolsInstalled false; 
 
    success;
 ),
@@ -258,15 +282,15 @@ private function removeHotkeys =
    local success = true;
    try
    (
-      local kbd_man = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
-      for a = kbd_man.actions.count to 1 by -1 where \
-              kbd_man.actions[a].macro_category == "Outliner" do
-      (
-         deleteItem kbd_man.actions a;
-      )
+      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
+                                        (kbdFileClass.MaxGetActiveKbdFile());
       
-      kbd_man.write();
-      kbd_man.maxReloadKeyboardFile();
+      if ((kbdFile.RemoveAction "Outliner") > 0) do
+      (
+         kbdFile.Write();
+         kbdFile.MaxLoadKbdFile();
+      )
    )
    catch 
    (
@@ -285,10 +309,12 @@ private function removeHotkeys =
  * INSTALL FUNCTIONS
  */
  
---Returns true if version is equal to or above 12 (2010).
+--Returns true if this max version is equal to or above the required version.
 private function checkMaxVersion =
 (
-   ((maxVersion())[1] >= 12000);
+   local reqMaxVersion = (getINISetting installer_data_file #Requirements \
+                                                            #maxVersion) as float;
+   ((maxVersion())[1] >= (reqMaxVersion - 1998) * 1000);
 ),
 
 
@@ -337,18 +363,34 @@ private function updatePreferencesFile =
    (
       --Copy existing entries from prefs_file to product_info_file.
       if (hasINISetting prefs_file #General #product_id_a) do 
-         setINISetting product_info_file #General #product_id_a \
+      (
+         setINISetting product_info_file \
+                       #General \
+                       #product_id_a \
                        (getINISetting prefs_file #General #product_id_a);
+      )                 
       if (hasINISetting prefs_file #General #product_id_b) do 
-         setINISetting product_info_file #General #product_id_b \
+      (
+         setINISetting product_info_file \
+                       #General \
+                       #product_id_b \
                        (getINISetting prefs_file #General #product_id_b);
+      )                
       if (hasINISetting prefs_file #General #workflowToolsInstalled) do 
-         setINISetting product_info_file #General #workflowToolsInstalled \
+      (
+         setINISetting product_info_file \
+                       #General \
+                       #workflowToolsInstalled \
                        (getINISetting prefs_file #General #workflowToolsInstalled);
+      )                
       if (hasINISetting prefs_file #General #crashReportEmail) do 
-         setINISetting product_info_file #General #crashReportEmail \
+      (
+         setINISetting product_info_file \
+                       #General \
+                       #crashReportEmail \
                        (getINISetting prefs_file #General #crashReportEmail);
-                       
+      )
+       
       --Remove old entries in prefs_file.
       delINISetting prefs_file #General #version;
       delINISetting prefs_file #General #versionString;
@@ -459,16 +501,133 @@ private function loadMacroScripts =
 
 
 
+private function removeToolbars =
+(
+   local success = true;
+   
+   try
+   (
+      local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
+      local cuiFile      = dotnetObject "ScriptCenter.Max.CuiFile" \
+                                        (cuiFileClass.MaxGetActiveCuiFile());
+      
+      local removedSortTb   = cuiFile.RemoveToolbar "Outliner SortMode";
+      local removedFilterTb = cuiFile.RemoveToolbar "Outliner Filters";
+      
+      if (removedSortTb OR removedFilterTb) do
+      (
+         cuiFile.Write();
+         cuiFile.MaxLoadCuiFile();
+      )
+   )
+   catch
+   (
+      printException "removeToolbars" (getCurrentException());
+      success = false;
+   )
+   
+   success;
+),
+
+private function createToolbars =
+(
+   local success = true;
+   
+   try
+   (
+      local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
+      local cuiFile      = dotnetobject "ScriptCenter.Max.CuiFile" \
+                                        (cuiFileClass.MaxGetActiveCuiFile());
+      local mcrCat = "Outliner";
+      local writeCuiFile = false;
+
+      --Sortmode toolbar.
+      local tbName = "Outliner SortMode";
+      local sortmodes = #("Alphabetical", "Chronological", "Layer", \
+                          "Material", "Type", "Visibility");
+      
+      if (not cuiFile.ContainsToolbar tbName) do
+      (
+         local toolbar = cuiFile.AddToolbar tbName sortmodes.count 0;
+         toolbar.Bounds.Y += 80;
+      
+         for s in sortmodes do
+            toolbar.AddButton ("outliner_sortmode_" + s) mcrCat;
+         
+         writeCuiFile = true;
+      )
+
+
+      --Filter toolbar.
+      tbName = "Outliner Filters";
+      local filters = #("Geometry", "Shapes", "Lights", "Cameras", "Helpers", \
+                        "SpaceWarps", "Bones", "Particles", "Xrefs", \
+                        "Hidden", "Frozen");
+      
+      if (not cuiFile.ContainsToolbar tbName) do
+      (
+         local toolbar = cuiFile.AddToolbar tbName (2 + filters.count) 2;
+      
+         toolbar.AddButton "outliner_filter_toggle" "Outliner";
+         toolbar.AddSeparator();
+      
+         for f in filters do
+            toolbar.AddButton ("outliner_filter_" + f) mcrCat;
+      
+         toolbar.AddSeparator();
+         toolbar.AddButton "outliner_filter_affectvpt" "Outliner";
+      
+         writeCuiFile = true;
+      )
+      
+      --Write and reload cui file.
+      if (writeCuiFile) do 
+      (
+         cuiFile.Write();
+         cuiFile.MaxLoadCuiFile();
+      )
+   )
+   catch
+   (
+      printException "createToolbars" (getCurrentException());
+      success = false;
+   )
+   
+   success;
+),
+
+
+
+private function containsHotkeyAction macroName macroCategory =
+(
+   local result = false;
+   try
+   (
+      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
+                                        (kbdFileClass.MaxGetActiveKbdFile());
+                                        
+      result = kbdFile.ContainsAction macroName macroCategory;
+   )
+   catch 
+   (
+      printException "getHotkeyAction" (getCurrentException());
+   )
+   
+   result;
+),
+
 private function getHotkeyAction =
 (
    local action;
    try
    (
-      local kbd_man = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
-      action = kbd_man.getActionFromKeyCode (kbd_man.getModKeyCodeFromString "") \
-                                            (kbd_man.getKeyCodeFromString "H") \
-                                            table_id1:kbd_man.macro_table_id \
-                                            table_id2:kbd_man.main_table_id;
+      local keysClass    = dotnetClass "System.Windows.Forms.Keys";
+      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
+                                        (kbdFileClass.MaxGetActiveKbdFile());
+                                        
+      action = kbdFile.GetAction keysClass.H;
    )
    catch 
    (
@@ -484,14 +643,16 @@ private function assignHotkey =
    local success = true;
    try
    (  
-      local kbd_man = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
-      kbd_man.addActionFromKeyString "H" \
-                                     kbd_man.macro_table_id \
-                                     macro_name:"toggleOutliner" \
-                                     macro_category:"Outliner" \
-                                     replace:true;
+      local keysClass    = dotnetClass "System.Windows.Forms.Keys";
+      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
+                                        (kbdFileClass.MaxGetActiveKbdFile());
       
-      kbd_man.write();
+      if (kbdFile.AddAction "toggleOutliner" "Outliner" keysClass.H) do
+      (
+         kbdFile.Write();
+         kbdFile.MaxLoadKbdFile();
+      )
    )
    catch
    (
@@ -618,7 +779,7 @@ public function uninstall silent:false =
    else
    (
       addStatusText (getString #failed) newline:false;
-      installation_failed (getString uninst) \
+      installation_failed (getString #uninst) \
                           (getString #remScriptFiles section:#Error) \
                           silent:silent;
       return false;
@@ -637,7 +798,7 @@ public function uninstall silent:false =
          else
          (
             addStatusText (getString #failed) newline:false;
-            installation_failed (getString uninst) \
+            installation_failed (getString #uninst) \
                                 (getString #remWFTools section:#Error) \
                                  silent:silent;
             return false;
@@ -648,6 +809,18 @@ public function uninstall silent:false =
    )
    
    
+   --Remove toolbars.
+   addStatusText (getString #remToolbars);
+   if (removeToolbars()) then
+      addStatusText (getString #done) newline:false;
+   else
+   (
+      addStatusText (getString #failed) newline:false;
+      installation_failed (getString #uninst) \
+                          (getString #remToolbars section:#Error);
+      return false;
+   )
+   
    
    --Remove hotkey.
    addStatusText (getString #remHotkeys);
@@ -656,7 +829,7 @@ public function uninstall silent:false =
    else
    (
       addStatusText (getString #failed) newline:false;
-      installation_failed (getString uninst) \
+      installation_failed (getString #uninst) \
                           (getString #remHotkeys section:#Error) \
                            silent:silent;
       return false;
@@ -673,7 +846,7 @@ public function uninstall silent:false =
       else
       (
          addStatusText (getString #failed) newline:false;
-         installation_failed (getString uninst) \
+         installation_failed (getString #uninst) \
                              (getString #remPrefsFile section:#Error) \
                               silent:silent;
          return false;
@@ -684,11 +857,9 @@ public function uninstall silent:false =
 
 
    
-   setINISetting product_info_file #General #outlinerInstalled "false";
+   setIsOutlinerInstalled false;
    
    uninstallation_success silent:silent;
-   
-   clearTempDir();
    
    true;
 ),--End uninstall function.
@@ -704,13 +875,15 @@ public function install silent:false =
 (
    if (not silent) do
    (
-      openInstallWindow 180;
+      openInstallWindow 220;
       setStatusTitle ((getString #title) + " " + (getString #inst));
       addStatusText (getString #begInst);
    )
    
+   addStatusText (getString #checkReq);
    if (not checkMaxVersion()) do
    (
+      addStatusText (getString #failed) newline:false;
       installation_failed (getString #inst) \
                           (getString #maxVersion section:#Error) \
                           silent:silent;
@@ -719,11 +892,13 @@ public function install silent:false =
    
    if (not checkDotNetVersion()) do
    (
+      addStatusText (getString #failed) newline:false;
       installation_failed (getString #inst) \
                           (getString #dotNetVersion section:#Error) \
                           silent:silent;
       return false;
    )
+   addStatusText (getString #done) newline:false;
    
    
    --Uninstall previous version.
@@ -738,6 +913,7 @@ public function install silent:false =
                           silent:silent;
       return false;
    )
+   
    
    
    --Update preferences.
@@ -783,35 +959,47 @@ public function install silent:false =
    )
       
       
+   --Create toolbars.
+   addStatusText (getString #createToolbars);
+   if (createToolbars()) then
+      addStatusText (getString #done) newline:false;
+   else
+   (
+      addStatusText (getString #failed) newline:false;
+      installation_failed (getString #inst) \
+                          (getString #createToolbars section:#Error);
+      return false;
+   )
+      
    
    --Assign hotkey.
    addStatusText (getString #assignHotkey);
-   local action = getHotkeyAction();
-   local do_assignHotkey = false;
-   if (action == undefined OR action.macro_name != "toggleOutliner" \
-                           OR action.macro_category != "Outliner") then
+   local showHelp = false;
+   if (not (containsHotkeyAction "toggleOutliner" "Outliner")) then
    (
-      local queryStr = getString #assignHotkey section:#Queries;
-      if (action != undefined) do
+      local queryStr   = getString #assignHotkey section:#Queries;
+      local queryTitle = getString #assignHotkeyTitle section:#Queries
+      local existingAction = getHotkeyAction();
+      if (existingAction != undefined) do
       (
-         if (action.isAction() == true) then
+         if (existingAction.PersistentId != 0) then
          (
-            if (action.persistent_id == "50029" AND action.table_id == 0) then
+            if (existingAction.PersistentId == "50029" AND existingAction.TableId == 0) then
                queryStr += getString #replaceSelectByName section:#Queries;
             else
                queryStr += getString #replaceOtherHotkey section:#Queries;
          )
-         else if (action.isMacro() == true) then
+         else
          (
             queryStr += (getString #replaceOtherHotkey section:#Queries) + ":\n";
-            queryStr += action.macro_category + " - " + action.macro_name;
+            queryStr += existingAction.MacroCategory + " - " + existingAction.MacroName;
          )
       )
       
-      do_assignHotkey = not silent AND \
-                        queryBox queryStr \
-                                 title:(getString #assignHotkeyTitle section:#Queries);
-      if (do_assignHotkey) then
+      local do_assignHotkey = queryBox queryStr title:queryTitle;
+      showHelp = not do_assignHotkey;
+      
+      if (not silent AND do_assignHotkey) then
       (
          if (assignHotkey()) then
             addStatusText (getString #done) newline:false;
@@ -830,7 +1018,6 @@ public function install silent:false =
    else
       addStatusText (getString #skipped) newline:false;
    
-   try ( KeyboardActionsFile.maxReloadKeyboardFile(); ) catch()
    
    
    
@@ -843,16 +1030,22 @@ public function install silent:false =
       addStatusText "no" newline:false;
    
    
-   setINISetting product_info_file #General #outlinerInstalled "true";
+   setIsOutlinerInstalled true;
    
    installation_success (getString #inst) \
                         silent:silent \
-                        showHowToUse:(not do_assignHotkey);
-   
-   clearTempDir();
+                        showHowToUse:showHelp;
+                        
    
    true;
-)--End install function.
+),--End install function.
+
+
+on create do
+(
+   clearTempDir();
+   loadAssembly (tempDir + "/script/ScriptCenter.Max.dll");
+)
 
 
 )

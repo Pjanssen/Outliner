@@ -47,7 +47,6 @@ rollout outliner_pre_install ((outlinerInstaller.getString #title) + " " + \
    on close_btn pressed do
    (
       destroyDialog outliner_pre_install;
-      outlinerInstaller.clearTempDir();
    )
 )--End rollout.
 

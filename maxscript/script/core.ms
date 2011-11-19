@@ -73,7 +73,7 @@ struct outlinerCore
 		if (not e.Cancelled AND e.Error == undefined) do
 		(
 			latestVersion = e.Result as float;
-			if (latestVersion != undefined AND outliner.version < latestVersion) do
+			if (latestVersion != undefined AND outliner != undefined AND outliner.version < latestVersion) do
 			(
 				outliner.askDownloadUpdate latestVersion;
 			)
@@ -116,10 +116,16 @@ struct outlinerCore
 	function getUpdateVersionAsync showLatestInstalledMessage =
 	(
 		webClient = dotNetObject "System.Net.WebClient";
-		local product_id = (prefs.getValue #General #product_id) as string;
-		product_id = substring product_id 1 (product_id.count - 1);
-		local url = "http://script.threesixty.nl/outliner/get_latest.php?fn=getLatestVersionNr&product_id=" + product_id;
-		local getLatestUri = dotnetObject "System.Uri" url;
+		local product_id_a = (prefs.getValue #General #product_id_a) as string;
+		local product_id_b = (prefs.getValue #General #product_id_b) as string;
+		local url = "http://script.threesixty.nl/outliner/update.php"
+		local args = "?product_id_a=" + product_id_a + "&product_id_b=" + product_id_b + "&outliner_version=" + (version as string) + "&max_version=" + (maxV as string) + "&is_64bit=";
+		if (is64bitApplication()) then
+			args += "1";
+		else
+			args += "0";
+			
+		local getLatestUri = dotnetObject "System.Uri" (url + args);
 		
 		if (showLatestInstalledMessage) then
 			dotnet.addEventHandler webClient "DownloadStringCompleted" onUpdateDownloadCompletedFull;
@@ -137,9 +143,9 @@ struct outlinerCore
 		(
 			local checkInterval = prefs.getValue #General #checkUpdatesInterval;
 			local lastCheckTicks = prefs.getValue #General #lastUpdateCheck;
-			local nowTicks = (dotNetClass "System.DateTime").Now.Ticks;
+			local nowTicks = (dotNetClass "System.DateTime").Today.Ticks;
 			local lastCheckSpan = dotNetObject "System.TimeSpan" (nowTicks - lastCheckTicks);
-			if (lastCheckSpan.TotalDays > checkInterval) do
+			if (lastCheckSpan.TotalDays >= checkInterval) do
 				getUpdateVersionAsync false;
 
 			prefs.setValue #General #lastUpdateCheck nowTicks;
@@ -352,7 +358,7 @@ struct outlinerCore
 					(
 						--Find any groupheads that have to be opened. Groups can be nested, so loop until root is reached.
 						local n_parent = n.parent;
-						while (n_parent != undefined) do
+						while (isValidNode n_parent) do
 						(
 							if (isGroupHead n_parent) do
 							(
@@ -375,7 +381,7 @@ struct outlinerCore
 				)
 			)
 	
-			-- Close groups that should node longer be opened. -groups that were opened by the outliner, but are no longer selected-
+			-- Close groups that should node longer be opened.
 			local groupHeadsToClose = openGroupHeads - newOpenGroupHeads;
 			for groupHandle in groupHeadsToClose do
 			(
@@ -552,13 +558,10 @@ struct outlinerCore
 					for handle in handles do
 					(
 						local n = GetAnimByHandle handle;
-						if (isValidNode n) do
-						(
-							if (isKindOf n Node) then
-								delete n;
-							else if (isKindOf n Base_Layer AND n.name != "0") then
-								deleteLayer n;
-						)
+						if (isValidNode n) then
+							delete n;
+						else if (isKindOf n Base_Layer AND n.name != "0") then
+							deleteLayer n;
 					)
 				)
 			)
@@ -975,29 +978,40 @@ struct outlinerCore
 	(
 		local success = true;
 		
-		CreateDialog outliner_initializing 150 40 style:#(#style_toolwindow);;
-		
 		try
 		(
-			loadAssembly "Outliner.dll";
+			CreateDialog outliner_initializing 150 40 style:#(#style_toolwindow);;
+			
+			try
+			(
+				loadAssembly "Outliner.dll";
+			)
+			catch
+			(
+				print (getCurrentException());
+				messageBox "Loading Outliner core failed.\n\nTip: make sure you have the latest .NET Framework installed.\nPlease see the Maxscript Listener (F11) for details." title:"Error";
+				return false;
+			)
 			
 			prefs = outlinerPreferences iniFile:((GetDir #userScripts) + "/outliner_prefs.ini");
 			prefs.loadPreferences();
-			
+				
 			version = prefs.getValue #General #version;
-			
+				
 			ui = outlinerUI();
-			
+				
 			checkUpdate();
 		)
 		catch
 		(
-			print (getCurrentException());
-			messageBox "Loading Outliner core failed.\n\nTip: make sure you have the latest .NET Framework installed.\nPlease see the Maxscript Listener (F11) for details." title:"Error";
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+			
 			success = false;
 		)
 		
-		destroyDialog outliner_initializing;
+		
+		try ( destroyDialog outliner_initializing; ) catch ()
 		
 		success;
 	),

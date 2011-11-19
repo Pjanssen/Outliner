@@ -326,13 +326,18 @@
 		
 		function setLayers l =
 		(
-			layers = l;
-			storeOldProperties();
+			if (l == undefined OR l.count == 0) then
+				outliner_layerprops.closeDialog();
+			else
+			(
+				layers = l;
+				storeOldProperties();
 			
-			--set UI states.
-			outliner_layerprops_general.setUIValues();
-			outliner_layerprops_advlighting.setUIValues();
-			outliner_layerprops_layerinfo.setUIValues();
+				--set UI states.
+				outliner_layerprops_general.setUIValues();
+				outliner_layerprops_advlighting.setUIValues();
+				outliner_layerprops_layerinfo.setUIValues();
+			)
 		)
 		
 		function setLayerProperty prop value =

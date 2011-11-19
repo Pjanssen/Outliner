@@ -505,15 +505,49 @@ struct outliner_TreeEventHandlers
 	(
 		try
 		(
-			local targetLayer = if (e.TargetHandle != -1) then (GetAnimByHandle e.TargetHandle) else undefined;
-			
-			for h in e.Handles do
+			local targetHandle = e.TargetHandle;
+			local layerHandles = e.Handles;
+			local targetLayer = if (targetHandle != -1) then (GetAnimByHandle targetHandle) else undefined;
+
+			local failedLinks = #();
+
+			for h in layerHandles do
 			(
 				local layer = GetAnimByHandle h;
 				if (layer != undefined) do
 				(
-					outliner_NestedLayers.setLayerParent layer targetLayer;
+					if (not (outliner_NestedLayers.setLayerParent layer targetLayer)) do
+						append failedLinks layer.name;
 				)
+			)
+			
+			if (failedLinks.count > 0) do
+			(
+				outliner.pushSceneToTree();
+				outliner.tree.FillTree();
+			
+				local errTxt = "Failed to link layers (possible dependency loop)\n";
+				local numLayersListed = failedLinks.count;
+				if (failedLinks.count > 4) do
+					numLayersListed = 4;
+				for i = 1 to numLayersListed do
+				(
+					errTxt += "- " + failedLinks[i];
+					if (i != numLayersListed) do
+						errTxt += "\n";
+				)
+				if (failedLinks.count > 4) do
+					errTxt += "\n + " + ((failedLinks.count - 4) as string) + " more";
+					
+				errTxt += "\n\nWould you like to send an error report to let the developer know about the issue?\n(Only do this if you think this issue should not have occurred)"
+				
+				local mb = dotNetClass "System.Windows.Forms.MessageBox";
+				local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
+				local mbIcon = dotNetClass "System.Windows.Forms.MessageBoxIcon";
+				local res = mb.Show errTxt "Failed to link layers" mbBtn.YesNo mbIcon.Warning;
+				
+				if (res == (dotNetClass "System.Windows.Forms.DialogResult").Yes) do
+					throw "Failed to link layers (possible dependency loop). ";
 			)
 		)
 		catch

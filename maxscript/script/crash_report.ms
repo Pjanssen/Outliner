@@ -27,12 +27,61 @@ struct outliner_crash_report
 	
 	
 	
+	/**
+	 * WRITE OUTLINER STATUS TO STREAM
+	 */
+	function writeOutlinerStatus stream =
+	(
+		format "Outliner Status\n--------------\n" to:stream;
+		local errStr = "-Unable to retreive-\n\n";
+		if (outliner_status == undefined) then
+			format errStr to:stream;
+		else
+		(
+			format ".windowOpen: " to:stream;
+			try (
+				format "%\n" outliner_status.windowOpen to:stream;
+			) catch (
+				format errStr to:stream;
+			)
+			
+			format ".optionsOpen: " to:stream;
+			try (
+				format "%\n" outliner_status.optionsOpen to:stream;
+			) catch (
+				format errStr to:stream;
+			)
+			
+			format ".filterConfigOpen: " to:stream;
+			try (
+				format "%\n" outliner_status.filterConfigOpen to:stream;
+			) catch (
+				format errStr to:stream;
+			)
+			
+			format ".sortModeOpen: " to:stream;
+			try (
+				format "%\n" outliner_status.sortModeOpen to:stream;
+			) catch (
+				format errStr to:stream;
+			)
+			
+			format ".closingOutliner: " to:stream;
+			try (
+				format "%\n\n" outliner_status.closingOutliner to:stream;
+			) catch (
+				format errStr to:stream;
+			)
+		)
+	),
+	
 	
 	/**
 	 * WRITE OUTLINER SETTINGS TO STREAM
 	 */
 	function writeOutlinerSettings stream =
 	(
+		
 		format "Outliner Settings\n-----------------\n" to:stream;
 		local errStr = "-Unable to retreive-\n";
 		if (outliner == undefined) then
@@ -206,6 +255,20 @@ struct outliner_crash_report
 		else
 			t;
 	),
+	function doHeapCheck =
+	(
+		local heapChk = heapCheck();
+		if (heapChk == -1) then
+			return "-1 - Heap has not been initialized (_HEAPEMPTY)";
+		else if (heapChk == -3) then
+			return "-3 - Initial header information is bad or cannot be found. (_HEAPBADBEGIN)";
+		else if (heapChk == -4) then
+			return "-4 - Bad node has been found or heap is damaged. (_HEAPBADNODE)";
+		else if (heapChk == -6) then
+			return "-6 - Pointer into Heap is not valid (_HEAPBADPTR)";
+		else
+			return "OK - Heap appears to be consistent (_HEAPOK)";
+	),
 	function writeOutlinerDataToFile file =
 	(
 		local stream = createFile file;
@@ -222,10 +285,24 @@ struct outliner_crash_report
 		format "3dsmax version: % %\n" (if (maxv[1] < 10) then maxv[1] else 2008 + (maxv[1] / 1000 - 10)) (if (is64bitapplication()) then "64bit" else "32bit") to:stream;
 		
 		--Write Outliner version.
+		local prefsFile = (GetDir #userScripts) + "/outliner_prefs.ini";
 		local outlinerVersion = "unknown";
-		if (outliner != undefined) do outlinerVersion = outliner.version;
-		format "Outliner version: %\n\n" outlinerVersion to:stream;
+		if (hasINISetting prefsFile "General" "version") then
+			outlinerVersion = getINISetting prefsFile "General" "version";
+		else if (outliner != undefined) then
+			outlinerVersion = outliner.version;
+		format "Outliner version: %\n" outlinerVersion to:stream;
 		
+		--Write Outliner product id's.
+		format "Product ID A: %\n" (getINISetting prefsFile "General" "product_id_a") to:stream;
+		format "Product ID B: %\n" (getINISetting prefsFile "General" "product_id_b") to:stream;
+		
+		format "Heap Size: %\n" (heapSize as string) to:stream;
+		format "Heap Free: %\n" (heapFree as string) to:stream;
+		format "Heap Check: %\n\n" (doHeapCheck()) to:stream;
+		
+		--Write Outliner status to stream.
+		writeOutlinerStatus stream;
 		
 		--Write Outliner settings to stream.
 		writeOutlinerSettings stream;

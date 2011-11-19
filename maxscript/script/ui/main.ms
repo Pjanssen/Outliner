@@ -15,7 +15,7 @@ rollout outliner_main "Outliner"
 	--Button y position is set in positionElements()
 	checkbutton listmode_h tooltip:"Hierarchy Mode" width:btn_w height:btn_h pos:[margin, 0] border:false;
 	checkbutton listmode_l tooltip:"Layer Mode" width:btn_w height:btn_h pos:[margin + btn_w, 0] border:false;
-	checkbutton listmode_m tooltip:"Material Mode (beta)" width:btn_w height:btn_h pos:[margin + btn_w*2, 0] border:false;
+	checkbutton listmode_m tooltip:"Material Mode" width:btn_w height:btn_h pos:[margin + btn_w*2, 0] border:false;
 	
 	button sortmode_btn width:btn_w height:btn_h pos:[margin + btn_w * 3 + 4, 0] border:false;
 	checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filter" width:btn_w height:btn_h pos:[margin + btn_w * 4 + 8, 0] border:false;
@@ -142,13 +142,6 @@ rollout outliner_main "Outliner"
 		else
 		(
 			listmode_h.checked = listmode_l.checked = false;
-			
-			if ((getPrefFn #General #matModeFirstRun) == true) do
-			(
-				setPrefFn #General #matModeFirstRun false;
-				messageBox "Warning: beta code ahead!\nThe material mode is currently in development, so some things might not work as you'd expect.\nIf you encounter crashes or have other feedback, let me know!\nMy contact details can be found in the options dialog." title:"Material mode beta";
-			)
-			
 			outliner.switchListMode "Material";
 		)
 	)
@@ -198,6 +191,7 @@ rollout outliner_main "Outliner"
 		
 		setHideByCategory();
 		
+		filter_enabled.checked = enabled;
 		tree.Filter.Enabled = enabled;
 		tree.FillTree();
 	)
@@ -357,8 +351,15 @@ rollout outliner_main "Outliner"
 		tree.TreeViewNodeSorter 	= dotNetObject ("Outliner.NodeSorters." + (getPrefFn #Tree #sortMode) + "Sorter");	
 		
 		tree.ShowNodeHideButton			= getPrefFn #Tree #showNodeHideButton;
+		tree.NodeHideButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeHideButtonLocation);
 		tree.ShowNodeFreezeButton		= getPrefFn #Tree #showNodeFreezeButton;
+		tree.NodeFreezeButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeFreezeButtonLocation);
 		tree.ShowNodeBoxModeButton		= getPrefFn #Tree #showNodeBoxModeButton;
+		tree.NodeBoxModeButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeBoxModeButtonLocation);
+		tree.ShowNodeAddButton		= getPrefFn #Tree #showNodeAddButton;
+		tree.NodeAddButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeAddButtonLocation);
+		tree.InvertNodeHideButton = getPrefFn #Tree #invertNodeHideButton;
+		
 		tree.HighlighLastSelectedObject	= getPrefFn #Tree #highlightLastSel;
 		tree.AutoExpandHierarchy		= getPrefFn #Tree #autoExpandHierarchy;
 		tree.AutoExpandLayer			= getPrefFn #Tree #autoExpandLayer;
@@ -367,7 +368,6 @@ rollout outliner_main "Outliner"
 		
 		tree.ListMode				= outliner.parseDotNetEnum "Outliner.OutlinerListMode" (getPrefFn #Tree #listMode);
 		tree.IconClickAction		= outliner.parseDotNetEnum "Outliner.IconClickAction" (getPrefFn #Tree #iconClickAction);
-		tree.NodeButtonsLocation	= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeButtonsLocation);
 		tree.DoubleClickAction		= outliner.parseDotNetEnum "Outliner.DoubleClickAction" (getPrefFn #Tree #doubleClickAction);
 		tree.DragMouseButton		= outliner.parseDotNetEnum "System.Windows.Forms.MouseButtons" (getPrefFn #Tree #dragMouseButton);
 		tree.ExpandHierarchyKey 	= outliner.parseDotNetEnum "System.Windows.Forms.Keys" (getPrefFn #Tree #expandHierarchyKey);

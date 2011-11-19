@@ -63,6 +63,7 @@ struct outlinerCallbacks (
 	tree_setObjectFrozenFn,
 	tree_setObjectMaterialFn,
 	tree_setObjectLayerFn,
+	tree_setObjectClassFn,
 	tree_SetLayerNameFn,
 	scene_IsValidLayerName,
 	tree_SetLayerActiveFn,
@@ -94,6 +95,7 @@ struct outlinerCallbacks (
 		tree_setObjectFrozenFn			= outliner.tree.SetObjectFrozen;
 		tree_setObjectMaterialFn		= outliner.tree.SetObjectMaterial;
 		tree_setObjectLayerFn			= outliner.tree.SetObjectLayer;
+		tree_setObjectClassFn			= outliner.tree.SetObjectClass;
 		tree_SetLayerNameFn				= outliner.tree.SetLayerName;
 		scene_IsValidLayerName			= outliner.tree.Scene.IsValidLayerName;
 		tree_SetLayerActiveFn			= outliner.tree.SetLayerActive;
@@ -125,6 +127,7 @@ struct outlinerCallbacks (
 		tree_setObjectFrozenFn			= undefined;
 		tree_setObjectMaterialFn		= undefined;
 		tree_setObjectLayerFn			= undefined;
+		tree_setObjectClassFn			= undefined;
 		tree_SetLayerNameFn				= undefined;
 		scene_IsValidLayerName			= undefined;
 		tree_SetLayerActiveFn			= undefined;
@@ -179,7 +182,7 @@ struct outlinerCallbacks (
 		createLayerChangeHandlers();
 		
 		if (outliner.maxv > 10) do
-			nodeEventCallbackItem = NodeEventCallback modelStructured:(function ms_fn evt n = ( outliner_callbacks.modelStructured evt n; )); --workaround to avoid issue with function not yet being declared.
+			nodeEventCallbackItem = NodeEventCallback modelStructured:(function ms_fn evt n = ( outliner_callbacks.modelStructured evt n; )) delay:500; --workaround to avoid issue with function not yet being declared.
  		
 		outliner_callbacks.setLayerNames();
 	),
@@ -416,13 +419,13 @@ struct outlinerCallbacks (
 		try
 		(
 			-- Avoid calling outliner.tree.SetObjectClass when Outliner has been closed (caused a crash before).
-			if (outliner_status != undefined AND outliner_status.windowOpen) do
+			if (outliner_status != undefined AND outliner_status.windowOpen AND outliner != undefined) do
 			(
 				for n in nodes do
 				(
 					local obj = GetAnimByHandle n;
 					if (isValidNode obj AND (classof obj) != undefined) do
-						outliner.tree.SetObjectClass n (getClassName obj) ((superClassOf obj) as string);
+						tree_setObjectClassFn n (getClassName obj) ((superClassOf obj) as string);
 				)
 			)
 		)
@@ -444,18 +447,21 @@ struct outlinerCallbacks (
 		(
 			if (outliner_status.matChangedInOutliner == false AND isMerging == false) do
 			(
-				local node = callbacks.notificationParam();
-				local matHandle = if (node.material != undefined) then (GetHandleByAnim node.material) else -1;
-				tree_setObjectMaterialFn (GetHandleByAnim node) matHandle;
-				if ((tree_containsMaterialFn matHandle) == false) do
+				local n = callbacks.notificationParam();
+				if (isValidNode n) do
 				(
-					outliner_addMaterialToTreeFn node.material -1;
-					tree_addMaterialToTreeFn matHandle;
-						
-					if (matHandle != -1) do
+					local matHandle = if (n.material != undefined) then (GetHandleByAnim n.material) else -1;
+					tree_setObjectMaterialFn (GetHandleByAnim n) matHandle;
+					if ((tree_containsMaterialFn matHandle) == false) do
 					(
-						when name node.material changes id:#outliner_materials mat do
-				 			outliner_callbacks.materialNameSet mat;
+						outliner_addMaterialToTreeFn n.material -1;
+						tree_addMaterialToTreeFn matHandle;
+							
+						if (matHandle != -1) do
+						(
+							when name n.material changes id:#outliner_materials mat do
+								outliner_callbacks.materialNameSet mat;
+						)
 					)
 				)
 			)

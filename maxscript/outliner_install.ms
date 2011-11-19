@@ -1,6 +1,6 @@
 (
-	local version = 2.05;
-	local versionStr = "2.0.5";
+	local version = 2.06;
+	local versionStr = "2.0.6";
 	
 	global outliner_restart_required;
 	

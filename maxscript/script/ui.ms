@@ -150,6 +150,8 @@ struct outlinerUI
 		--outliner.dispose();
 		outliner.disposeFunctionCache();
 		
+		gc light:true;
+		
 		outliner_status.windowOpen = false;
 		updateToolbarButtons();
 	),

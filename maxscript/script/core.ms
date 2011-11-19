@@ -91,7 +91,6 @@ struct outlinerCore
 				latestVersion = e.Result as float;
 				if (latestVersion != undefined) do
 				(
-				print latestVersion;
 					if (outliner.version < latestVersion) then
 						outliner.askDownloadUpdate latestVersion;
 					else
@@ -117,7 +116,10 @@ struct outlinerCore
 	function getUpdateVersionAsync showLatestInstalledMessage =
 	(
 		webClient = dotNetObject "System.Net.WebClient";
-		local getLatestUri = dotnetObject "System.Uri" "http://script.threesixty.nl/outliner/get_latest.php?fn=getLatestVersionNr";
+		local product_id = (prefs.getValue #General #product_id) as string;
+		product_id = substring product_id 1 (product_id.count - 1);
+		local url = "http://script.threesixty.nl/outliner/get_latest.php?fn=getLatestVersionNr&product_id=" + product_id;
+		local getLatestUri = dotnetObject "System.Uri" url;
 		
 		if (showLatestInstalledMessage) then
 			dotnet.addEventHandler webClient "DownloadStringCompleted" onUpdateDownloadCompletedFull;
@@ -550,7 +552,7 @@ struct outlinerCore
 					for handle in handles do
 					(
 						local n = GetAnimByHandle handle;
-						if (n != undefined) do
+						if (isValidNode n) do
 						(
 							if (isKindOf n Node) then
 								delete n;

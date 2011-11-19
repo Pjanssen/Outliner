@@ -415,11 +415,15 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			for n in nodes do
+			-- Avoid calling outliner.tree.SetObjectClass when Outliner has been closed (caused a crash before).
+			if (outliner_status != undefined AND outliner_status.windowOpen) do
 			(
-				local obj = GetAnimByHandle n;
-				if (isValidNode obj AND (classof obj) != undefined) do
-					outliner.tree.SetObjectClass n (getClassName obj) ((superClassOf obj) as string);
+				for n in nodes do
+				(
+					local obj = GetAnimByHandle n;
+					if (isValidNode obj AND (classof obj) != undefined) do
+						outliner.tree.SetObjectClass n (getClassName obj) ((superClassOf obj) as string);
+				)
 			)
 		)
 		catch

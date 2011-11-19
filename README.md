@@ -9,8 +9,7 @@ more efficiently. The interface is nimble enough to keep it open constantly.
 
 License
 -------
-This project is licensed under the BSD license. 
-For the complete license, see LICENSE.txt
+This project is licensed under the BSD license, see LICENSE.txt
 
 
 Requirements
@@ -22,7 +21,6 @@ Requirements
 
 Building
 --------
-
 1. Obtain a copy of the source. You can do this by using the git version control
    system (http://git-scm.com/) to pull the project in. 
    If you're unsure how this works, you can download a .zip from one of these sources:

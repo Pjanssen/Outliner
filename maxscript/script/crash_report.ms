@@ -311,13 +311,14 @@ struct outliner_crash_report
 		local filesToPack = #();
 		if (writeStackSuccess) do append filesToPack stackFile;
 		if (writeOutlinerDataSuccess) do append filesToPack outlinerDataFile;
-		if (details != "") do
+		if (fromEmail != "" OR details != "") do
 		(
 			local detailsFile = (GetDir #temp) + "/outliner_crash_details.txt";
 			local stream = createFile detailsFile;
 			if (stream != undefined) do
 			(
-				format "%" details to:stream;
+				format "Email address:\n%\n\n" fromEmail to:stream;
+				format "Details:\n%" details to:stream;
 				close stream;
 				append filesToPack detailsFile;
 			)
@@ -339,6 +340,16 @@ struct outliner_crash_report
 				url += report_instance.exception;
 				url += "\r\n\r\nStack summary:\r\n";
 				url += report_instance.stackSummary;
+				url += "\r\n\r\nEmail address:\r\n";
+				if (fromEmail != "") then
+					url += fromEmail;
+				else
+					url += "-Not provided";
+				url += "\r\n\r\nDetails:\r\n";
+				if (details != "") then
+					url += details;
+				else
+					url += "-Not provided-";
 							
 	            local uploadUri = dotNetObject "System.Uri" url;
 	            dotNet.addEventHandler webClient "UploadFileCompleted" uploadCompleted;
@@ -417,6 +428,11 @@ struct outliner_crash_report
 		
 		on cancelBtn pressed do
 			close();
+			
+		on crashReport_rollout close do
+		(
+			global outliner_handling_exception = false;
+		)
 	),
 	
 
@@ -424,35 +440,42 @@ struct outliner_crash_report
 	
 	function handle_exception report_instance additionalInfo:"" =
 	(
-		exception = getCurrentException();
-		
-		local tmpStack = stringStream "";
-		stack to:tmpStack;
-		seek tmpStack 0;
-		skipToString tmpStack "**	[stack level: 1]";
-		local pos = (filePos tmpStack) - 19;
-		skipToNextLine tmpStack;
-		stackSummary = readLine tmpStack;
-		seek tmpStack pos;
-		stackFull = readDelimitedString tmpStack "";
-		
-		stackFile = (GetDir #temp) + "/outliner_crash_stack.txt";
-		writeStackSuccess = writeExceptionDataToFile stackFile;
-		
-		outlinerDataFile = (GetDir #temp) + "/outliner_crash_data.txt";
-		writeOutlinerDataSuccess = writeOutlinerDataToFile outlinerDataFile;
-	
-		try (
-			outliner.close();
-		) catch ()
+		global outliner_handling_exception
 
-		createDialog crashReport_rollout dialog_w dialog_h;
-		crashReport_rollout.report_instance = report_instance;
-		crashReport_rollout.contentLink1.address = outlinerDataFile;
-		crashReport_rollout.contentLink2.address = stackFile;
+		if (outliner_handling_exception != true) do
+		(
+			outliner_handling_exception = true;
+			
+			exception = getCurrentException();
+			
+			local tmpStack = stringStream "";
+			stack to:tmpStack;
+			seek tmpStack 0;
+			skipToString tmpStack "**	[stack level: 1]";
+			local pos = (filePos tmpStack) - 19;
+			skipToNextLine tmpStack;
+			stackSummary = readLine tmpStack;
+			seek tmpStack pos;
+			stackFull = readDelimitedString tmpStack "";
+			
+			stackFile = (GetDir #temp) + "/outliner_crash_stack.txt";
+			writeStackSuccess = writeExceptionDataToFile stackFile;
+			
+			outlinerDataFile = (GetDir #temp) + "/outliner_crash_data.txt";
+			writeOutlinerDataSuccess = writeOutlinerDataToFile outlinerDataFile;
 		
-		try (
-			crashReport_rollout.emailTxt.text = outliner.prefs.getValue #General #crashReportEmail;
-		) catch ()
+			try (
+				outliner.close();
+			) catch ()
+	
+			try 
+			(
+				createDialog crashReport_rollout dialog_w dialog_h;
+				crashReport_rollout.report_instance			= report_instance;
+				crashReport_rollout.contentLink1.address	= outlinerDataFile;
+				crashReport_rollout.contentLink2.address	= stackFile;
+				crashReport_rollout.emailTxt.text			= outliner.prefs.getValue #General #crashReportEmail;
+			) catch ()
+		)
 	)
 )

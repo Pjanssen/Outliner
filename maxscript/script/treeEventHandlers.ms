@@ -166,7 +166,6 @@ struct outliner_TreeEventHandlers
 				(
 					with redraw off
 					(
-						
 						for h in e.Handles do
 						(
 							local n = GetAnimByHandle h;
@@ -309,26 +308,25 @@ struct outliner_TreeEventHandlers
 				undoString = "Unlink";
 			
 			
-			try
+			undo undoString on
 			(
-				undo undoString on
+				with redraw off
 				(
-					with redraw off
+					for handle in e.Handles do
 					(
-						for handle in e.Handles do
+						local n = GetAnimByHandle handle;
+						if (isValidNode n) do
 						(
-							local n = GetAnimByHandle handle;
-							if (isValidNode n) do
+							if (not refs.dependencyLoopTest targetNode n) then
 								n.Parent = targetNode;
+							else
+							(
+								messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
+								outliner_callbacks.nodeLinkedIntern n;
+							)
 						)
 					)
 				)
-			)
-			catch 
-			(
-				messagebox ("Linking failed:\n" + (getCurrentException())) title:"Link error";
-				outliner.pushSceneToTree();
-				outliner.tree.fillTree();
 			)
 			
 			outliner_status.linkedInOutliner = false;
@@ -355,19 +353,20 @@ struct outliner_TreeEventHandlers
 			local undoString = if (e.IsGroupMember) then "Add to group" else "Remove from group";
 			local targetNode = if (e.TargetHandle != -1) then (GetAnimByHandle e.TargetHandle) else undefined;
 			
-			try
+			undo undoString on
 			(
-				undo undoString on
+				with redraw off
 				(
-					with redraw off
+					for handle in e.Handles do
 					(
-						for handle in e.Handles do
+						local n = GetAnimByHandle handle;
+						if (isValidNode n) do
 						(
-							local n = GetAnimByHandle handle;
-							if (isValidNode n) do
+							if (not refs.dependencyLoopTest targetNode n) then
 							(
 								if (e.Linked) do
 								(
+									
 									local parentToDelete;
 									if (n.parent != undefined AND isGroupHead n.parent AND n.parent.children.count == 1) do
 										parentToDelete = n.parent;
@@ -376,20 +375,18 @@ struct outliner_TreeEventHandlers
 									if (parentToDelete != undefined) do
 										delete parentToDelete;
 								)
-								
 								setGroupMember n e.IsGroupMember;
+							)
+							else
+							(
+								messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
+								outliner_callbacks.nodeLinkedIntern n;
 							)
 						)
 					)
 				)
 			)
-			catch 
-			(
-				messagebox ("Grouping failed:\n" + (getCurrentException())) title:"Group error";
-				outliner.pushSceneToTree();
-				outliner.tree.fillTree();
-			)
-					
+				
 			outliner_status.linkedInOutliner = false;
 		)
 		catch
@@ -646,7 +643,11 @@ struct outliner_TreeEventHandlers
 					for lHandle in outliner.tree.SelectedLayerHandles do
 					(
 						local layer = GetAnimByHandle lHandle;
-						if (layer != undefined) do append layers layer;
+						if (layer != undefined) do
+						(
+							append layers layer;
+							join layers (outliner_NestedLayers.getAllChildLayers layer);
+						)
 					)
 					outliner.UI.openLayerProperties layers;
 				)

@@ -20,11 +20,10 @@
 		checkbutton checkNowBtn "Check now" width:70 pos:[marginX + 220, marginY - 2];
 		
 		checkbox openAtStartup "Open at 3dsMax startup" pos:[marginX, marginY + chkbxDY];
-		checkbox filterAffectVpt "Filter affects viewports" pos:[marginX, marginY + chkbxDY * 2];
-		dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 3];
-		label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 3];
-		dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 4];
-		label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 4 + 3];
+		dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 2];
+		label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 3];
+		dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 3];
+		label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 3];
 
 		on checkForUpdates changed checked do
 			setPrefFn #General #checkForUpdates checked;
@@ -50,11 +49,6 @@
 		on openAtStartup changed checked do
 			setPrefFn #General #openAtStartup checked;
 		
-		on filterAffectVpt changed checked do
-		(
-			setPrefFn #Tree #objFilterAffectsVpt checked;
-			outliner_main.setHideByCategory();
-		)
 		
 		on dragMouseButton selected sel do
 		(
@@ -73,7 +67,6 @@
 			checkForUpdates.checked = getPrefFn #General #checkForUpdates;
 			checkUpdatesInterval.value = getPrefFn #General #checkUpdatesInterval;
 			openAtStartup.checked = getPrefFn #General #openAtStartup;
-			filterAffectVpt.checked = getPrefFn #Tree #objFilterAffectsVpt;
 			dragMouseButton.selection = findItem dragMouseButton.items (getPrefFn #Tree #dragMouseButton);
 			doubleClickAction.selection = findItem doubleClickAction.items (getPrefFn #Tree #doubleClickAction);
 		)
@@ -81,13 +74,17 @@
 	
 	
 	
-	rollout outliner_options_visual "Visual"
+	rollout outliner_options_visual "User Interface"
 	(
-		dropdownList colorScheme "" width:drpDwnW pos:[marginX, marginY];
-		label colorSchemeLbl "Color Scheme" pos:[drpDwnLblX, marginY + 4];
-		dropdownList iconset "" width:drpDwnW pos:[marginX, marginY + chkbxDY];
-		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY + 4];
-		checkbox invertIcons "Adjust icons to dark color scheme" pos:[marginX, marginY + chkbxDY * 2];
+		dropdownList buttonsLocation "" items:#("Top", "Bottom") width:drpDwnW pos:[marginX, marginY];
+		label buttonsLocationLbl "Main UI Buttons location" pos:[drpDwnLblX, marginY + 4];
+		
+		dropdownList colorScheme "" width:drpDwnW pos:[marginX, marginY + chkbxDY];
+		label colorSchemeLbl "Color Scheme" pos:[drpDwnLblX, marginY + chkbxDY + 4];
+		dropdownList iconset "" width:drpDwnW pos:[marginX, marginY + chkbxDY * 2];
+		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 4];
+		checkbox invertIcons "Adjust icons to dark color scheme" pos:[marginX, marginY + chkbxDY * 3];
+		
 		
 		on colorScheme selected sel do
 		(
@@ -109,13 +106,20 @@
 			outliner.tree.InvertIcons = checked;
 		)
 		
+		on buttonsLocation selected sel do
+		(
+			setPrefFn #Visual #buttonsAtTop (sel == 1);
+			outliner_main.positionElements();
+		)
+		
 		function setUIValues = 
 		(
-			colorScheme.items		= getINISetting (outliner.dir + "colorSchemes.ini");
-			colorScheme.selection	= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
+			colorScheme.items			= getINISetting (outliner.dir + "colorSchemes.ini");
+			colorScheme.selection		= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
 			iconSet.Items				= outliner.getNamesDotNetEnum "Outliner.IconSet";
 			iconSet.selection			= findItem iconSet.items (getPrefFn #Visual #iconSet);
-			invertIcons.checked		= getPrefFn #Visual #invertIcons;
+			invertIcons.checked			= getPrefFn #Visual #invertIcons;
+			buttonsLocation.selection	= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
 		)
 	)
 	
@@ -264,6 +268,7 @@
 	rollout outliner_options_about "About \x26 Donate"
 	(
 		imgTag logoImg width:262 height:66 align:#center offset:[0, -10]
+		label versionLbl "";
 		label nameLbl "Copyright \xa9 2010, Pier Janssen"
 		hyperlink mailLbl "pier@threesixty.nl" address:"mailto:pier@threesixty.nl" align:#center;
 		hyperlink siteLbl "www.threesixty.nl" address:"http://www.threesixty.nl/" align:#center offset:[0, -2];
@@ -287,7 +292,10 @@
 			)
 		)
 		
-		function setUIValues = ()
+		function setUIValues = 
+		(
+			versionLbl.text = "Version " + outliner.prefs.getValue #General #versionString;
+		)
 	)
 	
 	

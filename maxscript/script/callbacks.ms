@@ -241,8 +241,11 @@ struct outlinerCallbacks (
 			(
 				isCreatingNode = true;
 				local createdObject = callbacks.notificationParam();
-				outliner_addObjectToTreeFn createdObject;
-				tree_addObjectToTreeFn (GetHandleByAnim createdObject);
+				if (isValidNode createdObject) do
+				(
+					outliner_addObjectToTreeFn createdObject;
+					tree_addObjectToTreeFn (GetHandleByAnim createdObject);
+				)
 			)
 		)
 		catch
@@ -265,22 +268,28 @@ struct outlinerCallbacks (
 	/*
 	 * NODE LINKED.
 	 */
-	function nodeLinked = 
+	function nodeLinkedIntern linkedNode =
 	(
 		try
 		(
-			if (not outliner_status.linkedInOutliner AND not isDeleting AND not isMerging) do
+			if (isValidNode linkedNode) do
 			(
-				local nodeLinked = callbacks.notificationParam();
-			
-				local parentHandle = if (nodeLinked.parent != undefined) then (GetHandleByAnim nodeLinked.parent) else -1;
-				tree_setObjectParentFn (GetHandleByAnim nodeLinked) parentHandle (isGroupMember nodeLinked);
+				local parentHandle = if (linkedNode.parent != undefined) then (GetHandleByAnim linkedNode.parent) else -1;
+				tree_setObjectParentFn (GetHandleByAnim linkedNode) parentHandle (isGroupMember linkedNode);
 			)
 		)
 		catch
 		(
 			local crashReport = outliner_crash_report();
 			crashReport.handle_exception crashReport;
+		)
+	),
+	
+	function nodeLinked = 
+	(
+		if (not outliner_status.linkedInOutliner AND not isDeleting AND not isMerging) do
+		(
+			nodeLinkedIntern (callbacks.notificationParam());
 		)
 	),
 	
@@ -297,12 +306,15 @@ struct outlinerCallbacks (
 			isDeleting = true;
 			
 			local deletedObject = callbacks.notificationParam();
-			local deletedObjectHandle = GetHandleByAnim deletedObject;
-			
-			if (isGrouphead deletedObject) do 
-				outliner.openGroupHeads[deletedObjectHandle] = false;
-	
-			tree_deleteObjectFn deletedObjectHandle;
+			if (deletedObject != undefined) do
+			(
+				local deletedObjectHandle = GetHandleByAnim deletedObject;
+				
+				if (isGrouphead deletedObject) do 
+					outliner.openGroupHeads[deletedObjectHandle] = false;
+		
+				tree_deleteObjectFn deletedObjectHandle;
+			)
 		)
 		catch
 		(
@@ -329,7 +341,8 @@ struct outlinerCallbacks (
 			if (not outliner_status.renamedInOutliner AND not isMerging) do
 			(
 				local notifParams = (callbacks.notificationParam());
-				tree_setObjectNameFn (GetHandleByAnim notifParams[3]) notifParams[2];
+				if (isValidNode notifParams[3]) do
+					tree_setObjectNameFn (GetHandleByAnim notifParams[3]) notifParams[2];
 			)
 		)
 		catch
@@ -352,7 +365,10 @@ struct outlinerCallbacks (
 			if (not outliner_status.hiddenInOutliner AND not isMerging) do
 			(
 				local node = callbacks.notificationParam();
-				tree_setObjectHiddenFn (GetHandleByAnim node) node.isHiddenInVpt;
+				if (isValidNode node) do
+				(
+					tree_setObjectHiddenFn (GetHandleByAnim node) node.isHiddenInVpt;
+				)
 			)
 		)
 		catch
@@ -406,7 +422,7 @@ struct outlinerCallbacks (
 						
 					if (matHandle != -1) do
 					(
-						when name node.material changes id:#outliner mat do
+						when name node.material changes id:#outliner_materials mat do
 				 			outliner_callbacks.materialNameSet mat;
 					)
 				)
@@ -510,12 +526,15 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			tree_DeleteLayerFn (GetHandleByAnim layer.layerAsRefTarg);
-	
-			local layerIndex = (findItem layerNames layer.name);
-			if (layerIndex != 0) do 
+			if (layer != undefined) do
 			(
-				deleteItem layerNames layerIndex;
+				tree_DeleteLayerFn (GetHandleByAnim layer.layerAsRefTarg);
+		
+				local layerIndex = (findItem layerNames layer.name);
+				if (layerIndex != 0) do 
+				(
+					deleteItem layerNames layerIndex;
+				)
 			)
 		)
 		catch
@@ -620,6 +639,7 @@ struct outlinerCallbacks (
 	 */
 	function sceneUndo =
 	(
+	/*
 		try
 		(
 			local undoName = callbacks.notificationParam();
@@ -637,7 +657,7 @@ struct outlinerCallbacks (
 		(
 			local crashReport = outliner_crash_report();
 			crashReport.handle_exception crashReport;
-		)
+		)*/
 	),
 	
 	

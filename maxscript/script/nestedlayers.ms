@@ -5,6 +5,8 @@ outlinerNestedLayerData = attributes outlinerNestedLayerData version:1 attribID:
 		outliner_parentLayer type:#MaxObject;
 		outliner_isHidden type:#Boolean;
 		outliner_isFrozen type:#Boolean;
+		--outliner_autoObjectsDisplayByLayer type:#Boolean;
+		--outliner_autoObjectsRenderByLayer type:#Boolean;
 	)
 )
 
@@ -218,6 +220,8 @@ struct outliner_NestedLayers
 	),
 	
 	
+
+	
 	
 	
 	function setLayerParent layer parent =
@@ -244,6 +248,68 @@ struct outliner_NestedLayers
 					ca.outliner_parentLayer = undefined;
 					outliner_NestedLayers.updateLayerProperties layer;
 					outliner_NestedLayers.deleteLayerData layer;
+				)
+			)
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
+	
+	
+	
+	function getAllChildLayers layer =
+	(
+		try
+		(
+			if (not (isKindOf layer Base_Layer)) do
+				layer = layer.layerAsRefTarg;
+				
+			local childLayers = #();
+			for i = 0 to LayerManager.count - 1 do
+			(
+				local childLayer = (LayerManager.getLayer i).layerAsRefTarg;
+				if (childLayer != layer) do
+				(
+					local childCA = outliner_NestedLayers.getLayerData childLayer;
+					if (childCA != undefined AND childCA.outliner_parentLayer == layer AND (findItem childLayers childLayer) == 0) do
+					(
+						append childLayers childLayer;
+						join childLayers (outliner_NestedLayers.getAllChildLayers childLayer);
+					)
+				)
+			)
+			
+			childLayers;
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
+	
+	
+	function propagatePropertyToChildLayers layer prop value =
+	(
+		try
+		(
+			if (not (isKindOf layer Base_Layer)) do
+				layer = layer.layerAsRefTarg;
+			
+			for i = 0 to LayerManager.count - 1 do
+			(
+				local childLayer = (LayerManager.getLayer i).layerAsRefTarg;
+				if (childLayer != layer) do
+				(
+					local childCA = outliner_NestedLayers.getLayerData childLayer;
+					if (childCA != undefined AND childCA.outliner_parentLayer == layer AND (isProperty childLayer prop)) do
+					(
+						setProperty childLayer prop value;
+						outliner_NestedLayers.propagatePropertyToChildLayers childLayer prop value;
+					)
 				)
 			)
 		)

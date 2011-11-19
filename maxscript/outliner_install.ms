@@ -1,6 +1,6 @@
 (
-	local version = 2.04;
-	local versionStr = "2.0.4";
+	local version = 2.05;
+	local versionStr = "2.0.5";
 	
 	global outliner_restart_required;
 	
@@ -77,9 +77,8 @@
 		
 		local System_IO_Directory = dotNetClass "System.IO.Directory";
 		
-		local startupDir = (GetDir #startupScripts);
-		local oldOutlinerDirs = #((startupDir + "/outliner"), 
-								  (startupDir + "/grin_tools/outliner"), 
+		local oldOutlinerDirs = #(((GetDir #startupScripts) + "/outliner"), 
+								  ((GetDir #startupScripts) + "/grin_tools/outliner"), 
 								  ((GetDir #Scripts) + "/outliner"), 
 								  ((GetDir #maxroot) + "/stdplugs/stdscripts/outliner"),
 								  ((GetDir #ui) + "macroscripts/outliner"),
@@ -199,7 +198,6 @@
 			local oldVersion = (getINISetting prefsFile "General" "version") as float; 
 			if (oldVersion == undefined OR oldVersion < 2.0) then
 				deleteFile prefsFile;
-			--actual updating can be implemented for later versions...
 		)
 		
 		setINISetting prefsFile "General" "version" (version as string);
@@ -285,7 +283,9 @@
 	
 	function restartRequired =
 	(
-		(dotNetClass "Outliner.TreeView") != undefined;
+		true;
+		--There were some issues with the macroscripts trying to load from (deleted) temp dir -> always require restart.
+		--(dotNetClass "Outliner.TreeView") != undefined;
 	)
 	
 	

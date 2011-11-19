@@ -8,6 +8,7 @@ struct outlinerStatus
 	
 	selectedInOutliner,
 	hiddenInOutliner,
+	frozenInOutliner,
 	renamedInOutliner,
 	linkedInOutliner,
 	layerChangedInOutliner,
@@ -54,7 +55,7 @@ struct outlinerUI
 	(
 		try
 		(
-			if (outliner_status != undefined AND outliner_status.windowOpen) do closeOutliner();
+			if (outliner_status != undefined AND outliner_status.windowOpen AND outliner != undefined) do outliner.close();
 			
 			if (outliner_status == undefined) then
 				outliner_status = outlinerStatus();

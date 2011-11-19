@@ -77,13 +77,21 @@
 	rollout outliner_options_visual "User Interface"
 	(
 		dropdownList buttonsLocation "" items:#("Top", "Bottom") width:drpDwnW pos:[marginX, marginY];
-		label buttonsLocationLbl "Main UI Buttons location" pos:[drpDwnLblX, marginY + 4];
+		label buttonsLocationLbl "Main UI Buttons Location" pos:[drpDwnLblX, marginY + 4];
 		
 		dropdownList colorScheme "" width:drpDwnW pos:[marginX, marginY + chkbxDY];
 		label colorSchemeLbl "Color Scheme" pos:[drpDwnLblX, marginY + chkbxDY + 4];
 		dropdownList iconset "" width:drpDwnW pos:[marginX, marginY + chkbxDY * 2];
 		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 4];
-		checkbox invertIcons "Adjust icons to dark color scheme" pos:[marginX, marginY + chkbxDY * 3];
+		checkbox invertIcons "Invert" pos:[marginX + 170, marginY + chkbxDY * 2 + 4];
+		
+		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 3 + 4];
+		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 4 + 1];
+		
+		dropdownList nodeButtonsLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX, marginY + chkbxDY * 5];
+		label nodeButtonsLocationLbl "Node Buttons Location" pos:[drpDwnLblX, marginY + chkbxDY * 5 + 4];
+		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 6];
+		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 6 + 4];
 		
 		
 		on colorScheme selected sel do
@@ -112,14 +120,65 @@
 			outliner_main.positionElements();
 		)
 		
+		on showNodeHideButton changed e do
+		(
+			setPrefFn #Tree #showNodeHideButton e;
+			outliner.tree.ShowNodeHideButton = e;
+		)
+		
+		on showNodeFreezeButton changed e do
+		(
+			setPrefFn #Tree #showNodeFreezeButton e;
+			outliner.tree.ShowNodeFreezeButton = e;
+		)
+		
+		on nodeButtonsLocation selected sel do
+		(
+			local val = case sel of
+			(
+				1 : "BeforeNode";
+				2 : "AfterNode";
+				3 : "AlignRight";
+			)
+			setPrefFn #Tree #nodeButtonsLocation val;
+			outliner.tree.NodeButtonsLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
+		)
+		
+		on nodeIconClickAction selected sel do
+		(
+			local val = case sel of
+			(
+				1 : "Hide";
+				2 : "Freeze";
+				3 : "SetActive";
+			)
+			setPrefFn #Tree #iconClickAction val;
+			outliner.tree.IconClickAction = outliner.parseDotNetENum "Outliner.IconClickAction" val;
+		)
+		
 		function setUIValues = 
 		(
-			colorScheme.items			= getINISetting (outliner.dir + "colorSchemes.ini");
-			colorScheme.selection		= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
-			iconSet.Items				= outliner.getNamesDotNetEnum "Outliner.IconSet";
-			iconSet.selection			= findItem iconSet.items (getPrefFn #Visual #iconSet);
-			invertIcons.checked			= getPrefFn #Visual #invertIcons;
-			buttonsLocation.selection	= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
+			colorScheme.items				= getINISetting (outliner.dir + "colorSchemes.ini");
+			colorScheme.selection			= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
+			iconSet.Items					= outliner.getNamesDotNetEnum "Outliner.IconSet";
+			iconSet.selection				= findItem iconSet.items (getPrefFn #Visual #iconSet);
+			invertIcons.checked				= getPrefFn #Visual #invertIcons;
+			buttonsLocation.selection		= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
+			showNodeHideButton.checked		= getPrefFn #Tree #showNodeHideButton;
+			showNodeFreezeButton.checked	= getPrefFn #Tree #showNodeFreezeButton;
+			
+			nodeButtonsLocation.selection = case (getPrefFn #Tree #nodeButtonsLocation) of
+			(
+				"BeforeNode" : 1;
+				"AfterNode" : 2;
+				"AlignRight" : 3;
+			)
+			nodeIconClickAction.selection = case (getPrefFn #Tree #iconClickAction) of
+			(
+				"Hide" : 1;
+				"Freeze" : 2;
+				"SetActive" : 3;
+			)
 		)
 	)
 	

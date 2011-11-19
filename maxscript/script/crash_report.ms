@@ -34,7 +34,7 @@ struct outliner_crash_report
 	function writeOutlinerSettings stream =
 	(
 		format "Outliner Settings\n-----------------\n" to:stream;
-		local errStr = "Unable to retreive\n";
+		local errStr = "-Unable to retreive-\n";
 		if (outliner == undefined) then
 			format errStr to:stream;
 		else
@@ -336,7 +336,13 @@ struct outliner_crash_report
 				webClient = dotNetObject "System.Net.WebClient";
 				local url = "http://script.threesixty.nl/outliner/crash_report.php?from_email=";
 				url += fromEmail;
-				url += "&summary=Exception:\r\n";
+				url += "&summary=Outliner version:\r\n";
+				try (
+					url += (outliner.version as string);
+				) catch (
+					url += "-Unable to retrieve-";
+				)
+				url += "\r\n\r\nException:\r\n";
 				url += report_instance.exception;
 				url += "\r\n\r\nStack summary:\r\n";
 				url += report_instance.stackSummary;

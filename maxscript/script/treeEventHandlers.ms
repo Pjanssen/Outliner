@@ -111,8 +111,8 @@ struct outliner_TreeEventHandlers
 	
 	
 	
-		/**
-	 * NODE HIDDEN
+	/**
+	 * NODE FROZEN
 	 */
 	function NodeFrozen e =
 	(
@@ -141,6 +141,41 @@ struct outliner_TreeEventHandlers
 			)
 			
 			outliner_status.frozenInOutliner = false;
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
+	
+	
+	
+	
+	/**
+	 * NODE BOXMODE CHANGED.
+	 */
+	function NodeBoxModeChanged e =
+	(
+		try
+		(
+			with redraw off
+			(		
+				for handle in e.Handles do
+				(
+					local n = GetAnimByHandle handle;
+					if (n != undefined) do
+					(
+						if (isKindOf n node) then
+							n.boxMode = e.newValue;
+						else if (isKindOf n Base_Layer) then
+						(
+							n.boxMode = e.newValue;
+							outliner_NestedLayers.propagatePropertyToChildLayers n #boxMode e.newValue;
+						)
+					)
+				)
+			)
 		)
 		catch
 		(
@@ -415,7 +450,16 @@ struct outliner_TreeEventHandlers
 							if (e.Linked) do
 							(
 								if (targetNode == undefined) then
+								(
+									local parentToDelete;
+									if (n.parent != undefined AND isGroupHead n.parent AND n.parent.children.count == 1) do
+										parentToDelete = n.parent;
+										
 									n.parent = undefined;
+									
+									if (parentToDelete != undefined) do
+										delete parentToDelete;
+								)
 								else
 								(
 									if (not refs.dependencyLoopTest targetNode n) then
@@ -610,7 +654,7 @@ struct outliner_TreeEventHandlers
 						
 						if (isKindOf n Material) then
 						(
-							if (not n.showInViewport) do showInVpt = false;
+							if ((isProperty n #showInViewport) AND not n.showInViewport) do showInVpt = false;
 						)
 						else
 						(
@@ -795,7 +839,7 @@ struct outliner_TreeEventHandlers
 				--Display Backface Cull
 				else if (clickedItem == contextMenus.DisplayBackfaceCullItem) then
 					outliner.setPropertyOnSelection #backFaceCull (not clickedItem.Checked) includeObjects:true includeLayers:true;
-				--Display Backface Cull
+				--Display Box Mode
 				else if (clickedItem == contextMenus.DisplayBoxModeItem) then
 					outliner.setPropertyOnSelection #boxmode (not clickedItem.Checked) includeObjects:true includeLayers:true;
 				--Display Trajectory

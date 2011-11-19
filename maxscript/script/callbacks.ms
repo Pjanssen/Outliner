@@ -312,7 +312,7 @@ struct outlinerCallbacks (
 			isDeleting = true;
 			
 			local deletedObject = callbacks.notificationParam();
-			if (deletedObject != undefined) do
+			if (isValidNode deletedObject) do
 			(
 				local deletedObjectHandle = GetHandleByAnim deletedObject;
 				
@@ -408,6 +408,9 @@ struct outlinerCallbacks (
 	
 	
 	
+	/**
+	 * MODEL STRUCTURED.
+	 */
 	function modelStructured evt nodes =
 	(
 		try
@@ -415,7 +418,7 @@ struct outlinerCallbacks (
 			for n in nodes do
 			(
 				local obj = GetAnimByHandle n;
-				if (isValidNode obj) do
+				if (isValidNode obj AND (classof obj) != undefined) do
 					outliner.tree.SetObjectClass n (getClassName obj) ((superClassOf obj) as string);
 			)
 		)

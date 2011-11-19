@@ -1,6 +1,6 @@
 (
-	local version = 2.06;
-	local versionStr = "2.0.6";
+	local version = 2.07;
+	local versionStr = "2.0.7";
 	
 	global outliner_restart_required;
 	
@@ -98,6 +98,13 @@
 					success = false;
 				)
 			)
+		)
+		
+		local otherStartupFiles = getFiles ((GetDir #maxroot) + "/stdplugs/stdscripts/outliner*");
+		for f in otherStartupFiles do
+		(
+			if (not (deleteFile f)) do
+				success = false;
 		)
 		
 		-- Remove icon files 

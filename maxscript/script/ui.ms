@@ -22,7 +22,7 @@ struct outlinerStatus
 	function reset =
 	(
 		windowOpen = optionsOpen = filterConfigOpen = sortModeOpen = closingOutliner = false;
-		selectedInOutliner = hiddenInOutliner = renamedInOutliner = linkedInOutliner = layerChangedInOutliner = matChangedInOutliner = false;
+		selectedInOutliner = hiddenInOutliner = frozenInOutliner = renamedInOutliner = linkedInOutliner = layerChangedInOutliner = matChangedInOutliner = false;
 		rightClickedNode = undefined;
 	),
 	

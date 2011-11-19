@@ -5,8 +5,10 @@ using System.Text;
 
 namespace Outliner.Scene
 {
-    public interface IFreezable
+    public interface IDisplayable
     {
+        Boolean IsHidden { get; set; }
         Boolean IsFrozen { get; set; }
+        Boolean BoxMode { get; set; }
     }
 }

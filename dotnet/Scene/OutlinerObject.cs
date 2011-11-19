@@ -6,11 +6,12 @@ using System.Drawing;
 
 namespace Outliner.Scene
 {
-    public class OutlinerObject : OutlinerNode, IHidable, IFreezable
+    public class OutlinerObject : OutlinerNode, IDisplayable
     {
         public OutlinerObject(OutlinerScene scene, Int32 objectNr, Int32 handle, Int32 parentHandle, Int32 layerHandle, Int32 materialHandle,
-                            String name, String objClass, String objSuperClass, Boolean isHidden, 
-                            Boolean isFrozen, Boolean isGroupHead, Boolean isGroupMember)
+                            String name, String objClass, String objSuperClass, 
+                            Boolean isGroupHead, Boolean isGroupMember,
+                            Boolean isHidden, Boolean isFrozen, Boolean boxMode)
         {
             Scene = scene;
             ObjectNr = objectNr;
@@ -24,10 +25,12 @@ namespace Outliner.Scene
             Class = objClass;
             SuperClass = objSuperClass;
 
-            IsHidden = isHidden;
-            IsFrozen = isFrozen;
             IsGroupHead = isGroupHead;
             IsGroupMember = isGroupMember;
+
+            IsHidden = isHidden;
+            IsFrozen = isFrozen;
+            BoxMode = boxMode;
         }
 
         override public OutlinerNode Parent
@@ -98,22 +101,6 @@ namespace Outliner.Scene
 
         public Boolean IsGroupHead { get; set; }
         public Boolean IsGroupMember { get; set; }
-        
-
-
-
-        #region IHideable Members
-
-        public bool IsHidden { get; set; }
-
-        #endregion
-
-
-        #region IFreezable Members
-
-        public bool IsFrozen { get; set; }
-
-        #endregion
 
 
 
@@ -131,5 +118,13 @@ namespace Outliner.Scene
                     SetIsGroupMemberRec((OutlinerObject)c, isGroupMember);
             }
         }
+
+        #region IDisplayable Members
+
+        public Boolean IsHidden { get; set; }
+        public Boolean IsFrozen { get; set; }
+        public Boolean BoxMode { get; set; }
+
+        #endregion
     }
 }

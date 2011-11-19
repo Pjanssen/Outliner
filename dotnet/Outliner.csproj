@@ -156,8 +156,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>OutlinerResources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Scene\IFreezable.cs" />
-    <Compile Include="Scene\IHidable.cs" />
+    <Compile Include="Scene\IDisplayable.cs" />
     <Compile Include="Scene\OutlinerMaterial.cs" />
     <Compile Include="Scene\OutlinerNode.cs" />
     <Compile Include="Scene\OutlinerLayer.cs" />
@@ -302,12 +301,14 @@
     <EmbeddedResource Include="Resources\contextmenu_icons\childnodes.png" />
     <EmbeddedResource Include="Resources\contextmenu_icons\layer.png" />
     <EmbeddedResource Include="Resources\contextmenu_icons\advrename.png" />
-    <EmbeddedResource Include="Resources\freeze_button.png" />
-    <EmbeddedResource Include="Resources\freeze_button_disabled.png" />
-    <EmbeddedResource Include="Resources\hide_button.png" />
-    <EmbeddedResource Include="Resources\hide_button_disabled.png" />
     <Content Include="Resources\maya_icons_20x20\material_unassigned.png" />
     <Content Include="Resources\maya_icons_20x20\material_xref.png" />
+    <EmbeddedResource Include="Resources\node_buttons\boxmode_button.png" />
+    <EmbeddedResource Include="Resources\node_buttons\boxmode_button_disabled.png" />
+    <EmbeddedResource Include="Resources\node_buttons\freeze_button.png" />
+    <EmbeddedResource Include="Resources\node_buttons\freeze_button_disabled.png" />
+    <EmbeddedResource Include="Resources\node_buttons\hide_button.png" />
+    <EmbeddedResource Include="Resources\node_buttons\hide_button_disabled.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

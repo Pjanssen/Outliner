@@ -74,6 +74,20 @@ namespace Outliner {
             }
         }
         
+        internal static System.Drawing.Bitmap boxmode_button {
+            get {
+                object obj = ResourceManager.GetObject("boxmode_button", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap boxmode_button_disabled {
+            get {
+                object obj = ResourceManager.GetObject("boxmode_button_disabled", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap childnodes {
             get {
                 object obj = ResourceManager.GetObject("childnodes", resourceCulture);

@@ -54,6 +54,7 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyMaterial	default:"WhenNecessary"),
 			(outlinerPrefsEntry section:#Tree	key:#showNodeHideButton			default:true),
 			(outlinerPrefsEntry section:#Tree	key:#showNodeFreezeButton		default:true),
+			(outlinerPrefsEntry section:#Tree	key:#showNodeBoxModeButton		default:false),
 			(outlinerPrefsEntry section:#Tree	key:#nodeButtonsLocation		default:"BeforeNode"),
 			(outlinerPrefsEntry section:#Tree	key:#iconClickAction			default:"SetActive"),
 			

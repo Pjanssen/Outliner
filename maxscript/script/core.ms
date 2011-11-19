@@ -184,7 +184,7 @@ struct outlinerCore
 				
 			local parentHandle = if (o.parent != undefined) then (GetHandleByAnim o.parent) else -1;
 			local matHandle = if (o.material != undefined) then (GetHandleByAnim o.material) else -1;
-			tree_Scene_AddObjectFn (GetHandleByAnim o) parentHandle layerHandle matHandle o.name (getClassName o) ((superclassof o) as string) o.isNodeHidden o.isNodeFrozen (isGroupHead o) (isGroupMember o);
+			tree_Scene_AddObjectFn (GetHandleByAnim o) parentHandle layerHandle matHandle o.name (getClassName o) ((superclassof o) as string) (isGroupHead o) (isGroupMember o) o.isNodeHidden o.isNodeFrozen o.boxMode;
 		)
 	),
 	
@@ -198,7 +198,7 @@ struct outlinerCore
 		local parentLayer = outliner_NestedLayers.getLayerParent layer;
 		local parentHandle = if (parentLayer != undefined) then (GetHandleByAnim parentLayer) else -1;
 			
-		tree_Scene_AddLayerFn layerHandle parentHandle layer.name (outliner_NestedLayers.getLayerProperty layer #isHidden) (outliner_NestedLayers.getLayerProperty layer #isFrozen) layer.current;
+		tree_Scene_AddLayerFn layerHandle parentHandle layer.name layer.current (outliner_NestedLayers.getLayerProperty layer #isHidden) (outliner_NestedLayers.getLayerProperty layer #isFrozen) layer.boxMode;
 	),
 	
 	

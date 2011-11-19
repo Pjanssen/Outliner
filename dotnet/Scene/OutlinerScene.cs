@@ -171,6 +171,7 @@ namespace Outliner.Scene
 
         #region GetObjectByHandle, GetLayerByHandle, GetMaterialByHandle
 
+        //Should only be used if you're not sure what type the node will be, using of GetObjectByHandle, GetLayerByHandle etc is preferred.
         public OutlinerNode GetNodeByHandle(Int32 handle)
         {
             OutlinerNode node = GetObjectByHandle(handle);
@@ -271,12 +272,12 @@ namespace Outliner.Scene
 
         public void AddObject(Int32 handle, Int32 parentHandle, Int32 layerHandle, Int32 materialHandle,
                               String name, String objClass, String objSuperClass,
-                              Boolean isHidden, Boolean isFrozen, 
-                              Boolean isGroupHead, Boolean isGroupMember)
+                              Boolean isGroupHead, Boolean isGroupMember,
+                              Boolean isHidden, Boolean isFrozen, Boolean boxMode)
         {
             if (!hidden_particle_classes.Contains(objClass))
             {
-                OutlinerObject obj = new OutlinerObject(this, ++objectCounter, handle, parentHandle, layerHandle, materialHandle, name, objClass, objSuperClass, isHidden, isFrozen, isGroupHead, isGroupMember);
+                OutlinerObject obj = new OutlinerObject(this, ++objectCounter, handle, parentHandle, layerHandle, materialHandle, name, objClass, objSuperClass, isGroupHead, isGroupMember, isHidden, isFrozen, boxMode);
                 this.AddObject(obj);
             }
         }
@@ -292,9 +293,9 @@ namespace Outliner.Scene
             }
         }
 
-        public void AddLayer(Int32 handle, Int32 parentHandle, String name, Boolean isHidden, Boolean isFrozen, Boolean isActive)
+        public void AddLayer(Int32 handle, Int32 parentHandle, String name, Boolean isActive, Boolean isHidden, Boolean isFrozen, Boolean boxMode)
         {
-            OutlinerLayer layer = new OutlinerLayer(this, handle, parentHandle, name, isHidden, isFrozen, isActive);
+            OutlinerLayer layer = new OutlinerLayer(this, handle, parentHandle, name, isActive, isHidden, isFrozen, boxMode);
             AddLayer(layer);
         }
 

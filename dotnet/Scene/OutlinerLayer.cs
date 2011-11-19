@@ -6,17 +6,19 @@ using Outliner.DragDropHandlers;
 
 namespace Outliner.Scene
 {
-    public class OutlinerLayer : OutlinerNode, IHidable, IFreezable
+    public class OutlinerLayer : OutlinerNode, IDisplayable
     {
-        public OutlinerLayer(OutlinerScene scene, Int32 handle, Int32 parentHandle, String name, Boolean isHidden, Boolean isFrozen, Boolean isActive)
+        public OutlinerLayer(OutlinerScene scene, Int32 handle, Int32 parentHandle, String name, Boolean isActive, Boolean isHidden, Boolean isFrozen, Boolean boxMode)
         {
             Scene = scene;
             Handle = handle;
             ParentHandle = parentHandle;
             Name = name;
+            IsActive = isActive;
+
             IsHidden = isHidden;
             IsFrozen = isFrozen;
-            IsActive = isActive;
+            BoxMode = boxMode;
         }
 
 
@@ -100,18 +102,15 @@ namespace Outliner.Scene
         }
 
 
-        
 
-        #region IHidable Members
+        #region IDisplayable Members
 
-        public bool IsHidden { get; set; }
-        
-        #endregion
-
-        #region IFreezable Members
-
-        public bool IsFrozen { get; set; }
+        public Boolean IsHidden { get; set; }
+        public Boolean IsFrozen { get; set; }
+        public Boolean BoxMode { get; set; }
 
         #endregion
+
+
     }
 }

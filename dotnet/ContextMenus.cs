@@ -81,7 +81,7 @@ namespace Outliner
 
         #region Show ContextMenu
 
-        public static void ShowContextMenu(Point pos, Boolean showObjectItems, Boolean showLayerItems, Boolean showMaterialItems, Boolean showIHidableItems, Boolean showIFreezableItems, Boolean showDisplayItems, Boolean showRenderItems)
+        public static void ShowContextMenu(Point pos, Boolean showObjectItems, Boolean showLayerItems, Boolean showMaterialItems, Boolean showIDisplayableItems, Boolean showDisplayItems, Boolean showRenderItems)
         {
             if (MainMenu == null)
                 createMainMenu();
@@ -111,13 +111,11 @@ namespace Outliner
             EditMaterialItem.Visible        = showMaterialItems;
             DisplayShowInVptItem.Visible    = showMaterialItems;
 
-            // IHidable items.
-            HideItem.Visible                = showIHidableItems;
-            UnhideItem.Visible              = showIHidableItems;
-
-            // IFreezable items.
-            FreezeItem.Visible              = showIFreezableItems;
-            UnfreezeItem.Visible            = showIFreezableItems;
+            // IDisplayable items.
+            HideItem.Visible                = showIDisplayableItems;
+            UnhideItem.Visible              = showIDisplayableItems;
+            FreezeItem.Visible              = showIDisplayableItems;
+            UnfreezeItem.Visible            = showIDisplayableItems;
 
             // Display items.
             DisplayPropertiesItem.Visible   = showDisplayItems;
@@ -141,7 +139,7 @@ namespace Outliner
 
             // Separators.
             separator1.Visible = showObjectItems || showLayerItems || showMaterialItems;
-            separator2.Visible = showObjectItems || showIHidableItems || showIFreezableItems;
+            separator2.Visible = showObjectItems || showIDisplayableItems;
             separator3.Visible = showObjectItems || showDisplayItems || showRenderItems;
             separator4.Visible = showObjectItems || showLayerItems;
 

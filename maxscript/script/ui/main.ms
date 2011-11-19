@@ -279,6 +279,7 @@ rollout outliner_main "Outliner"
 	local TreeEventHandlers_SelectionChanged;
 	local TreeEventHandlers_NodeHidden;
 	local TreeEventHandlers_NodeFrozen;
+	local TreeEventHandlers_NodeBoxModeChanged;
 	local TreeEventHandlers_NodeRenamed;
 	local TreeEventHandlers_ObjectMaterialChanged;
 	local TreeEventHandlers_SpaceWarpBound;
@@ -297,6 +298,7 @@ rollout outliner_main "Outliner"
 		TreeEventHandlers_SelectionChanged			= outliner_TreeEventHandlers.SelectionChanged;
 		TreeEventHandlers_NodeHidden	 			= outliner_TreeEventHandlers.NodeHidden;
 		TreeEventHandlers_NodeFrozen				= outliner_TreeEventHandlers.NodeFrozen;
+		TreeEventHandlers_NodeBoxModeChanged		= outliner_TreeEventHandlers.NodeBoxModeChanged;
 		TreeEventHandlers_NodeRenamed				= outliner_TreeEventHandlers.NodeRenamed;
 		TreeEventHandlers_ObjectMaterialChanged		= outliner_TreeEventHandlers.ObjectMaterialChanged;
 		TreeEventHandlers_SpaceWarpBound			= outliner_TreeEventHandlers.SpaceWarpBound;
@@ -316,6 +318,7 @@ rollout outliner_main "Outliner"
 		TreeEventHandlers_SelectionChanged			= undefined;
 		TreeEventHandlers_NodeHidden				= undefined;
 		TreeEventHandlers_NodeFrozen				= undefined;
+		TreeEventHandlers_NodeBoxModeChanged		= undefined;
 		TreeEventHandlers_NodeRenamed				= undefined;
 		TreeEventHandlers_ObjectMaterialChanged		= undefined;
 		TreeEventHandlers_SpaceWarpBound			= undefined;
@@ -355,6 +358,7 @@ rollout outliner_main "Outliner"
 		
 		tree.ShowNodeHideButton			= getPrefFn #Tree #showNodeHideButton;
 		tree.ShowNodeFreezeButton		= getPrefFn #Tree #showNodeFreezeButton;
+		tree.ShowNodeBoxModeButton		= getPrefFn #Tree #showNodeBoxModeButton;
 		tree.HighlighLastSelectedObject	= getPrefFn #Tree #highlightLastSel;
 		tree.AutoExpandHierarchy		= getPrefFn #Tree #autoExpandHierarchy;
 		tree.AutoExpandLayer			= getPrefFn #Tree #autoExpandLayer;
@@ -482,6 +486,9 @@ rollout outliner_main "Outliner"
 
 	on tree NodeFrozen e do
 		TreeEventHandlers_NodeFrozen e;
+		
+	on tree NodeBoxModeChanged e do
+		TreeEventHandlers_NodeBoxModeChanged e;
 		
 	on tree NodeRenamed e do
 		TreeEventHandlers_NodeRenamed e;

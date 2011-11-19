@@ -155,9 +155,9 @@ namespace Outliner
 
         private Color GetNodeForeColor(OutlinerNode node)
         {
-            if (node is IHidable && ((IHidable)node).IsHidden)
+            if (node is IDisplayable && ((IDisplayable)node).IsHidden)
                 return HiddenForeColor;
-            else if (node is IFreezable && ((IFreezable)node).IsFrozen)
+            else if (node is IDisplayable && ((IDisplayable)node).IsFrozen)
                 return FrozenForeColor;
             else if (node is OutlinerObject && ((OutlinerObject)node).Class == OutlinerScene.XrefObjectType)
                 return XrefForeColor;
@@ -167,9 +167,9 @@ namespace Outliner
 
         private Color GetNodeBackColor(OutlinerNode node)
         {
-            if (node is IHidable && ((IHidable)node).IsHidden)
+            if (node is IDisplayable && ((IDisplayable)node).IsHidden)
                 return HiddenBackColor;
-            else if (node is IFreezable && ((IFreezable)node).IsFrozen)
+            else if (node is IDisplayable && ((IDisplayable)node).IsFrozen)
                 return FrozenBackColor;
             else if (node is OutlinerObject && ((OutlinerObject)node).Class == OutlinerScene.XrefObjectType)
                 return XrefBackColor;

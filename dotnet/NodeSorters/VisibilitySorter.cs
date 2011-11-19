@@ -20,10 +20,10 @@ namespace Outliner.NodeSorters
                 Object xTag = ((TreeNode)x).Tag;
                 Object yTag = ((TreeNode)y).Tag;
 
-                if ((xTag is IHidable) && (yTag is IHidable))
+                if ((xTag is IDisplayable) && (yTag is IDisplayable))
                 {
-                    Boolean xHidden = ((IHidable)xTag).IsHidden;
-                    Boolean yHidden = ((IHidable)yTag).IsHidden;
+                    Boolean xHidden = ((IDisplayable)xTag).IsHidden;
+                    Boolean yHidden = ((IDisplayable)yTag).IsHidden;
 
                     if (!xHidden && yHidden)
                         return -1;

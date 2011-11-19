@@ -87,11 +87,12 @@
 		
 		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 3 + 4];
 		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 4 + 1];
+		checkbox showNodeBoxModeButton "Show Node Box Mode Button" pos:[marginX, marginY + chkbxDY * 5 - 2];
 		
-		dropdownList nodeButtonsLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX, marginY + chkbxDY * 5];
-		label nodeButtonsLocationLbl "Node Buttons Location" pos:[drpDwnLblX, marginY + chkbxDY * 5 + 4];
-		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 6];
-		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 6 + 4];
+		dropdownList nodeButtonsLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX, marginY + chkbxDY * 6];
+		label nodeButtonsLocationLbl "Node Buttons Location" pos:[drpDwnLblX, marginY + chkbxDY * 6 + 4];
+		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 7];
+		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 7 + 4];
 		
 		
 		on colorScheme selected sel do
@@ -132,6 +133,12 @@
 			outliner.tree.ShowNodeFreezeButton = e;
 		)
 		
+		on showNodeBoxModeButton changed e do
+		(
+			setPrefFn #Tree #showNodeBoxModeButton e;
+			outliner.tree.ShowNodeBoxModeButton = e;
+		)
+		
 		on nodeButtonsLocation selected sel do
 		(
 			local val = case sel of
@@ -166,6 +173,7 @@
 			buttonsLocation.selection		= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
 			showNodeHideButton.checked		= getPrefFn #Tree #showNodeHideButton;
 			showNodeFreezeButton.checked	= getPrefFn #Tree #showNodeFreezeButton;
+			showNodeBoxModeButton.checked	= getPrefFn #Tree #showNodeBoxModeButton;
 			
 			nodeButtonsLocation.selection = case (getPrefFn #Tree #nodeButtonsLocation) of
 			(

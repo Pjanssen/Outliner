@@ -54,14 +54,36 @@ namespace Outliner
         public Boolean ShowNodeHideButton 
         {
             get { return _showNodeHideButton; }
-            set { _showNodeHideButton = value; Invalidate(); }
+            set 
+            { 
+                _showNodeHideButton = value;
+                CheckBoxes = (value && ShowNodeFreezeButton) || (value && ShowNodeBoxModeButton) || (ShowNodeFreezeButton && ShowNodeBoxModeButton);
+                Invalidate(); 
+            }
         }
 
         private Boolean _showNodeFreezeButton;
         public Boolean ShowNodeFreezeButton 
         {
             get { return _showNodeFreezeButton; }
-            set { _showNodeFreezeButton = value; Invalidate(); }
+            set 
+            {
+                _showNodeFreezeButton = value;
+                CheckBoxes = (value && ShowNodeHideButton) || (value && ShowNodeBoxModeButton) || (ShowNodeHideButton && ShowNodeBoxModeButton);
+                Invalidate(); 
+            }
+        }
+
+        private Boolean _showNodeBoxModeButton;
+        public Boolean ShowNodeBoxModeButton
+        {
+            get { return _showNodeBoxModeButton; }
+            set 
+            { 
+                _showNodeBoxModeButton = value;
+                CheckBoxes = (value && ShowNodeHideButton) || (value && ShowNodeFreezeButton) || (ShowNodeHideButton && ShowNodeFreezeButton);
+                Invalidate();
+            }
         }
 
         #endregion
@@ -138,6 +160,7 @@ namespace Outliner
             NodeButtonsLocation = NodeButtonsLocation.BeforeNode;
             ShowNodeHideButton = true;
             ShowNodeFreezeButton = true;
+            ShowNodeBoxModeButton = false;
 
             HighlighLastSelectedObject = false;
 
@@ -488,6 +511,13 @@ namespace Outliner
             _dottedLinePen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
         }
 
+
+        internal void InvalidateTreeNode(TreeNode tn)
+        {
+            Rectangle r = new Rectangle(0, tn.Bounds.Y, ClientSize.Width, ClientSize.Height);
+            Invalidate(r);
+        }
+
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {
             if (_backgroundBrush == null)
@@ -586,21 +616,7 @@ namespace Outliner
                 }
             }
 
-            if (ShowNodeHideButton && tnTag is IHidable)
-            {
-                if (((IHidable)tnTag).IsHidden)
-                    graphics.DrawImage(OutlinerResources.hide_button, GetHideButtonBounds(tn));
-                else
-                    graphics.DrawImage(OutlinerResources.hide_button_disabled, GetHideButtonBounds(tn));
-            }
-
-            if (ShowNodeFreezeButton && tnTag is IFreezable)
-            {
-                if (((IFreezable)tnTag).IsFrozen)
-                    graphics.DrawImage(OutlinerResources.freeze_button, GetFreezeButtonBounds(tn));
-                else
-                    graphics.DrawImage(OutlinerResources.freeze_button_disabled, GetFreezeButtonBounds(tn));
-            }
+            
 
             //Draw icon.
             if (ShowNodeIcon)
@@ -613,12 +629,12 @@ namespace Outliner
                 }
                 else if (!ShowNodeHideButton && IconClickAction == IconClickAction.Hide)
                 {
-                    if (tnTag is IHidable && ((IHidable)tnTag).IsHidden)
+                    if (tnTag is IDisplayable && ((IDisplayable)tnTag).IsHidden)
                         imgKey += "_hidden";
                 }
                 else if (!ShowNodeFreezeButton && IconClickAction == IconClickAction.Freeze)
                 {
-                    if (tnTag is IFreezable && ((IFreezable)tnTag).IsFrozen)
+                    if (tnTag is IDisplayable && ((IDisplayable)tnTag).IsFrozen)
                         imgKey += "_hidden";
                 }
                 if (_icons.TryGetValue(imgKey, out img))
@@ -632,7 +648,7 @@ namespace Outliner
                 Point txtLocation = txtBgBounds.Location;
 
                 Font f = Font;
-                if (tn.Tag is IFreezable && ((IFreezable)tn.Tag).IsFrozen)
+                if (tn.Tag is IDisplayable && ((IDisplayable)tn.Tag).IsFrozen)
                 {
                     f = Style.FrozenFont;
                     txtLocation.X -= 2;
@@ -655,6 +671,45 @@ namespace Outliner
                 {
                     graphics.FillRectangle(bgBrush, txtBgBounds);
                     graphics.DrawString(tn.Text, f, fgBrush, txtLocation);
+                }
+            }
+
+            if (tnTag is IDisplayable)
+            {
+                using (SolidBrush bgBrush = new SolidBrush(Style.BackColor))
+                {
+                    if (ShowNodeHideButton)
+                    {
+                        Rectangle r = GetHideButtonBounds(tn);
+                        graphics.FillRectangle(bgBrush, r);
+
+                        if (((IDisplayable)tnTag).IsHidden)
+                            graphics.DrawImage(OutlinerResources.hide_button, r);
+                        else
+                            graphics.DrawImage(OutlinerResources.hide_button_disabled, r);
+                    }
+
+                    if (ShowNodeFreezeButton)
+                    {
+                        Rectangle r = GetFreezeButtonBounds(tn);
+                        graphics.FillRectangle(bgBrush, r);
+
+                        if (((IDisplayable)tnTag).IsFrozen)
+                            graphics.DrawImage(OutlinerResources.freeze_button, r);
+                        else
+                            graphics.DrawImage(OutlinerResources.freeze_button_disabled, r);
+                    }
+
+                    if (ShowNodeBoxModeButton)
+                    {
+                        Rectangle r = GetBoxModeButtonBounds(tn);
+                        graphics.FillRectangle(bgBrush, r);
+
+                        if (((IDisplayable)tnTag).BoxMode)
+                            graphics.DrawImage(OutlinerResources.boxmode_button, r);
+                        else
+                            graphics.DrawImage(OutlinerResources.boxmode_button_disabled, r);
+                    }
                 }
             }
         }
@@ -684,8 +739,11 @@ namespace Outliner
             b.Y = tnBounds.Y;
             b.Width = _plusMinOffset.X + _plusMinSize + tnBounds.Width - 1;
             if (ShowNodeIcon) b.Width += _iconOffset.X * 2 + _iconSize.Width;
-            if (ShowNodeHideButton && tn.Tag is IHidable) b.Width += _hideButtonSize.Width;
-            if (ShowNodeFreezeButton && tn.Tag is IFreezable) b.Width += _freezeButtonSize.Width;
+            if (tn.Tag is IDisplayable)
+            {
+                if (ShowNodeHideButton) b.Width += _hideButtonSize.Width;
+                if (ShowNodeFreezeButton) b.Width += _freezeButtonSize.Width;
+            }
             b.Height = ItemHeight;
             return b;
         }
@@ -716,10 +774,12 @@ namespace Outliner
 
             Rectangle r = new Rectangle();
             r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize + _iconOffset.X - GetScrollPos(Handle, H_SCROLL);
-            if (NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
+            if (tn.Tag is IDisplayable && NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
             {
-                if (ShowNodeHideButton && tn.Tag is IHidable) r.X += _hideButtonSize.Width + 1;
-                if (ShowNodeFreezeButton && tn.Tag is IFreezable) r.X += _freezeButtonSize.Width + 1;
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width;
+                if (ShowNodeFreezeButton) r.X += _freezeButtonSize.Width;
+                if (ShowNodeBoxModeButton) r.X += _boxModeButtonSize.Width;
+                if (ShowNodeHideButton || ShowNodeFreezeButton || ShowNodeBoxModeButton) r.X += 2;
             }
             r.Y = tn.Bounds.Y + (ItemHeight - _iconSize.Height) / 2;
             r.Width = _iconSize.Width;
@@ -737,10 +797,11 @@ namespace Outliner
 
             Rectangle r = tn.Bounds;
             r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize - GetScrollPos(Handle, H_SCROLL);
-            if (NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
+            if (tn.Tag is IDisplayable && NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
             {
-                if (ShowNodeHideButton && tn.Tag is IHidable) r.X += _hideButtonSize.Width + 1;
-                if (ShowNodeFreezeButton && tn.Tag is IFreezable) r.X += _freezeButtonSize.Width + 1;
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width + 1;
+                if (ShowNodeFreezeButton) r.X += _freezeButtonSize.Width + 1;
+                if (ShowNodeBoxModeButton) r.X += _boxModeButtonSize.Width + 1;
             }
             if (ShowNodeIcon)
                 r.X += _iconSize.Width;
@@ -758,7 +819,7 @@ namespace Outliner
         private Size _hideButtonSize = new Size(10, 16);
         private Rectangle GetHideButtonBounds(TreeNode tn)
         {
-            if (tn == null || !ShowNodeHideButton || !(tn.Tag is IHidable))
+            if (tn == null || !ShowNodeHideButton || !(tn.Tag is IDisplayable))
                 return Rectangle.Empty;
 
             Rectangle r = new Rectangle();
@@ -768,10 +829,9 @@ namespace Outliner
                 r.X = GetTextBackgroundBounds(tn, false).Right - GetScrollPos(Handle, H_SCROLL);
             else if (NodeButtonsLocation == NodeButtonsLocation.AlignRight)
             {
-                if (ShowNodeFreezeButton && tn.Tag is IFreezable)
-                    r.X = ClientRectangle.Right - _freezeButtonSize.Width - _hideButtonSize.Width - 2 - GetScrollPos(Handle, H_SCROLL);
-                else
-                    r.X = ClientRectangle.Right - _hideButtonSize.Width - 2 - GetScrollPos(Handle, H_SCROLL);
+                r.X = ClientRectangle.Right - _hideButtonSize.Width - 2;
+                if (ShowNodeFreezeButton) r.X -= _freezeButtonSize.Width;
+                if (ShowNodeBoxModeButton) r.X -= _boxModeButtonSize.Width;
             }
 
             r.Y = tn.Bounds.Y + (ItemHeight - _hideButtonSize.Height) / 2;
@@ -785,29 +845,60 @@ namespace Outliner
         private Size _freezeButtonSize = new Size(14, 16);
         private Rectangle GetFreezeButtonBounds(TreeNode tn)
         {
-            if (tn == null || !ShowNodeFreezeButton || !(tn.Tag is IFreezable))
+            if (tn == null || !ShowNodeFreezeButton || !(tn.Tag is IDisplayable))
                 return Rectangle.Empty;
 
             Rectangle r = new Rectangle();
             if (NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
             {
-                if (ShowNodeHideButton && tn.Tag is IHidable)
-                    r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize + _iconOffset.X + _hideButtonSize.Width - GetScrollPos(Handle, H_SCROLL);
-                else
-                    r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize + _iconOffset.X - GetScrollPos(Handle, H_SCROLL);
+                r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize + _iconOffset.X - GetScrollPos(Handle, H_SCROLL);
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width;
             }
             else if (NodeButtonsLocation == NodeButtonsLocation.AfterNode)
             {
-                if (ShowNodeHideButton && tn.Tag is IHidable)
-                    r.X = GetTextBackgroundBounds(tn, false).Right + _hideButtonSize.Width + 2 - GetScrollPos(Handle, H_SCROLL);
-                else
-                    r.X = GetTextBackgroundBounds(tn, false).Right - GetScrollPos(Handle, H_SCROLL);
+                r.X = GetTextBackgroundBounds(tn, false).Right - GetScrollPos(Handle, H_SCROLL);
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width + 2;
             }
             else if (NodeButtonsLocation == NodeButtonsLocation.AlignRight)
+            {
                 r.X = ClientRectangle.Right - _freezeButtonSize.Width - 2;
+                if (ShowNodeBoxModeButton) r.X -= _boxModeButtonSize.Width;
+            }
 
             r.Y = tn.Bounds.Y + (ItemHeight - _freezeButtonSize.Height) / 2;
             r.Size = _freezeButtonSize;
+
+            return r;
+        }
+
+
+        private Size _boxModeButtonSize = new Size(11, 16);
+        private Rectangle GetBoxModeButtonBounds(TreeNode tn)
+        {
+            if (tn == null)
+                return Rectangle.Empty;
+
+            Rectangle r = new Rectangle();
+
+            if (NodeButtonsLocation == NodeButtonsLocation.BeforeNode)
+            {
+                r.X = Indent * tn.Level + _plusMinOffset.X + _plusMinSize + _iconOffset.X - GetScrollPos(Handle, H_SCROLL);
+
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width;
+                if (ShowNodeFreezeButton) r.X += _freezeButtonSize.Width;
+            }
+            else if (NodeButtonsLocation == NodeButtonsLocation.AfterNode)
+            {
+                r.X = GetTextBackgroundBounds(tn, false).Right - GetScrollPos(Handle, H_SCROLL);
+
+                if (ShowNodeHideButton) r.X += _hideButtonSize.Width + 2;
+                if (ShowNodeFreezeButton) r.X += _freezeButtonSize.Width;
+            }
+            else if (NodeButtonsLocation == NodeButtonsLocation.AlignRight)
+                r.X = ClientRectangle.Right - _boxModeButtonSize.Width - 2;
+
+            r.Y = tn.Bounds.Y + (ItemHeight - _boxModeButtonSize.Height) / 2;
+            r.Size = _boxModeButtonSize;
 
             return r;
         }
@@ -836,6 +927,14 @@ namespace Outliner
                 return false;
 
             return GetFreezeButtonBounds(tn).Contains(e.Location);
+        }
+
+        private Boolean IsClickOnBoxModeButton(TreeNode tn, MouseEventArgs e)
+        {
+            if (tn == null || !ShowNodeBoxModeButton)
+                return false;
+
+            return GetBoxModeButtonBounds(tn).Contains(e.Location);
         }
 
         private Boolean IsClickOnText(TreeNode tn, MouseEventArgs e)
@@ -907,7 +1006,22 @@ namespace Outliner
             TreeNode tn = this.GetNodeAt(e.X, e.Y);
 
 
-            if (IsClickOnText(tn, e))
+            if (IsClickOnHideButton(tn, e))
+            {
+                _nodeProcessedOnMouseDown = true;
+                OnHideButtonClick(tn, e);
+            }
+            else if (IsClickOnFreezeButton(tn, e))
+            {
+                _nodeProcessedOnMouseDown = true;
+                OnFreezeButtonClick(tn, e);
+            }
+            else if (IsClickOnBoxModeButton(tn, e))
+            {
+                _nodeProcessedOnMouseDown = true;
+                OnBoxModeButtonClick(tn, e);
+            }
+            else if (IsClickOnText(tn, e))
             {
                 if (!IsNodeSelected(tn))
                 {
@@ -924,16 +1038,6 @@ namespace Outliner
             {
                 _nodeProcessedOnMouseDown = true;
                 OnNodeIconClick(tn, e);
-            }
-            else if (IsClickOnHideButton(tn, e))
-            {
-                _nodeProcessedOnMouseDown = true;
-                OnHideButtonClick(tn, e);
-            }
-            else if (IsClickOnFreezeButton(tn, e))
-            {
-                _nodeProcessedOnMouseDown = true;
-                OnFreezeButtonClick(tn, e);
             }
             else if (IsClickOnPlusMinus(tn, e))
             {
@@ -1507,116 +1611,157 @@ namespace Outliner
 
         private void OnHideButtonClick(TreeNode tn, MouseEventArgs e)
         {
-            if (!(tn.Tag is OutlinerNode))
+            if (!(tn.Tag is OutlinerNode) || !(tn.Tag is IDisplayable) || (e.Button & MouseButtons.Left) != MouseButtons.Left)
                 return;
 
             OutlinerNode node = (OutlinerNode)tn.Tag;
+            Boolean hidden = !((IDisplayable)node).IsHidden;
+            List<Int32> handles = new List<Int32>();
 
-            if ((e.Button & MouseButtons.Left) == MouseButtons.Left && node is IHidable)
+
+            if ((Control.ModifierKeys & Keys.Control) != Keys.Control && IsNodeSelected(node))
             {
-                Boolean hidden = !((IHidable)node).IsHidden;
-
-                List<Int32> handles = new List<Int32>();
-
-
-                if ((Control.ModifierKeys & Keys.Control) != Keys.Control && IsNodeSelected(node))
+                // Store selection in array, because HideNode could remove treenodes if filter is set to not show hidden nodes.
+                OutlinerNode[] selNodes = SelectedOutlinerNodes;
+                foreach (OutlinerNode n in selNodes)
                 {
-                    // Store selection in array, because HideNode could remove treenodes if filter is set to not show hidden nodes.
-                    OutlinerNode[] selNodes = SelectedOutlinerNodes;
-                    foreach (OutlinerNode n in selNodes)
+                    if (n is IDisplayable)
                     {
-                        if (n is IHidable)
+                        if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
                         {
-                            if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
-                            {
-                                HideNodeRecursive(n, hidden);
-                                handles.Add(n.Handle);
-                                handles.AddRange(getChildNodeHandlesRecursive(n));
-                            }
-                            else
-                            {
-                                HideNode(n, hidden);
-                                handles.Add(n.Handle);
-                            }
+                            HideNodeRecursive(n, hidden);
+                            handles.Add(n.Handle);
+                            handles.AddRange(getChildNodeHandlesRecursive(n));
+                        }
+                        else
+                        {
+                            HideNode(n, hidden);
+                            handles.Add(n.Handle);
                         }
                     }
                 }
+            }
+            else
+            {
+                if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
+                {
+                    HideNodeRecursive(node, hidden);
+                    handles.Add(node.Handle);
+                    handles.AddRange(getChildNodeHandlesRecursive(node));
+                }
                 else
                 {
-                    if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
-                    {
-                        HideNodeRecursive(node, hidden);
-                        handles.Add(node.Handle);
-                        handles.AddRange(getChildNodeHandlesRecursive(node));
-                    }
-                    else
-                    {
-                        HideNode(node, hidden);
-                        handles.Add(node.Handle);
-                    }
+                    HideNode(node, hidden);
+                    handles.Add(node.Handle);
                 }
-
-                if (NodeHidden != null)
-                    NodeHidden(this, new NodePropertyChangedEventArgs(handles.ToArray(), "isHidden", hidden));
             }
+
+            if (NodeHidden != null)
+                NodeHidden(this, new NodePropertyChangedEventArgs(handles.ToArray(), "isHidden", hidden));
         }
 
 
 
         private void OnFreezeButtonClick(TreeNode tn, MouseEventArgs e)
         {
-            if (!(tn.Tag is OutlinerNode))
+            if (!(tn.Tag is OutlinerNode) || !(tn.Tag is IDisplayable) || (e.Button & MouseButtons.Left) != MouseButtons.Left)
                 return;
 
             OutlinerNode node = (OutlinerNode)tn.Tag;
+            Boolean frozen = !((IDisplayable)node).IsFrozen;
+            List<Int32> handles = new List<Int32>();
 
-            if ((e.Button & MouseButtons.Left) == MouseButtons.Left && node is IFreezable)
+
+            if ((Control.ModifierKeys & Keys.Control) != Keys.Control && IsNodeSelected(node))
             {
-                Boolean frozen = !((IFreezable)node).IsFrozen;
-
-                List<Int32> handles = new List<Int32>();
-
-
-                if ((Control.ModifierKeys & Keys.Control) != Keys.Control && IsNodeSelected(node))
+                // Store selection in array, because FreezeNode could remove treenodes if filter is set to not show frozen nodes.
+                OutlinerNode[] selNodes = SelectedOutlinerNodes;
+                foreach (OutlinerNode n in selNodes)
                 {
-                    // Store selection in array, because FreezeNode could remove treenodes if filter is set to not show frozen nodes.
-                    OutlinerNode[] selNodes = SelectedOutlinerNodes;
-                    foreach (OutlinerNode n in selNodes)
+                    if (n is IDisplayable)
                     {
-                        if (n is IFreezable)
+                        if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
                         {
-                            if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
-                            {
-                                FreezeNodeRecursive(n, frozen);
-                                handles.Add(n.Handle);
-                                handles.AddRange(getChildNodeHandlesRecursive(n));
-                            }
-                            else
-                            {
-                                FreezeNode(n, frozen);
-                                handles.Add(n.Handle);
-                            }
+                            FreezeNodeRecursive(n, frozen);
+                            handles.Add(n.Handle);
+                            handles.AddRange(getChildNodeHandlesRecursive(n));
+                        }
+                        else
+                        {
+                            FreezeNode(n, frozen);
+                            handles.Add(n.Handle);
                         }
                     }
                 }
+            }
+            else
+            {
+                if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
+                {
+                    FreezeNodeRecursive(node, frozen);
+                    handles.Add(node.Handle);
+                    handles.AddRange(getChildNodeHandlesRecursive(node));
+                }
                 else
                 {
-                    if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
+                    FreezeNode(node, frozen);
+                    handles.Add(node.Handle);
+                }
+            }
+
+            if (NodeFrozen != null)
+                NodeFrozen(this, new NodePropertyChangedEventArgs(handles.ToArray(), "isFrozen", frozen));
+        }
+
+
+
+        private void OnBoxModeButtonClick(TreeNode tn, MouseEventArgs e)
+        {
+            if (!(tn.Tag is OutlinerNode) || !(tn.Tag is IDisplayable) || (e.Button & MouseButtons.Left) != MouseButtons.Left)
+                return;
+
+            OutlinerNode node = (OutlinerNode)tn.Tag;
+            Boolean boxMode = !((IDisplayable)node).BoxMode;
+            List<Int32> handles = new List<Int32>();
+
+
+            if ((Control.ModifierKeys & Keys.Control) != Keys.Control && IsNodeSelected(node))
+            {
+                // Store selection in array, because FreezeNode could remove treenodes if filter is set to not show frozen nodes.
+                OutlinerNode[] selNodes = SelectedOutlinerNodes;
+                foreach (OutlinerNode n in selNodes)
+                {
+                    if (n is IDisplayable)
                     {
-                        FreezeNodeRecursive(node, frozen);
-                        handles.Add(node.Handle);
-                        handles.AddRange(getChildNodeHandlesRecursive(node));
-                    }
-                    else
-                    {
-                        FreezeNode(node, frozen);
-                        handles.Add(node.Handle);
+                        handles.Add(n.Handle);
+
+                        if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
+                        {
+                            SetBoxModeRecursive(n, boxMode);    
+                            handles.AddRange(getChildNodeHandlesRecursive(n));
+                        }
+                        else
+                            ((IDisplayable)n).BoxMode = boxMode;
                     }
                 }
-
-                if (NodeFrozen != null)
-                    NodeFrozen(this, new NodePropertyChangedEventArgs(handles.ToArray(), "isFrozen", frozen));
             }
+            else
+            {
+                handles.Add(node.Handle);
+
+                if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
+                {
+                    SetBoxModeRecursive(node, boxMode);
+                    handles.AddRange(getChildNodeHandlesRecursive(node));
+                }
+                else
+                    ((IDisplayable)node).BoxMode = boxMode;
+            }
+
+            if (NodeBoxModeChanged != null)
+                NodeBoxModeChanged(this, new NodePropertyChangedEventArgs(handles.ToArray(), "boxMode", boxMode));
+
+            InvalidateTreeNode(tn);
         }
 
 
@@ -1660,8 +1805,7 @@ namespace Outliner
             Boolean showObjectItems = false;
             Boolean showLayerItems = false;
             Boolean showMaterialItems = false;
-            Boolean showIHidableItems = false;
-            Boolean showIFreezableItems = false;
+            Boolean showIDisplayableItems = false;
             Boolean selHasChildnodes = false;
             Boolean selContainsActiveLayer = false;
             Boolean selCanDelete = false;
@@ -1705,27 +1849,24 @@ namespace Outliner
                         selCanEditMat = true;
                 }
 
-                if (n is IHidable)
+                if (n is IDisplayable)
                 {
-                    if (((IHidable)n).IsHidden)
+                    if (((IDisplayable)n).IsHidden)
                         selAllUnhidden = false;
                     else
                         selAllHidden = false;
 
-                    showIHidableItems = true;
-                }
-                if (n is IFreezable)
-                {
-                    showIFreezableItems = true;
-                    if (((IFreezable)n).IsFrozen)
+                    if (((IDisplayable)n).IsFrozen)
                         selAllUnfrozen = false;
                     else
                         selAllFrozen = false;
+
+                    showIDisplayableItems = true;
                 }
             }
 
             ContextMenus.ShowContextMenu(pos, showObjectItems, showLayerItems, showMaterialItems,
-                                         showIHidableItems, showIFreezableItems, 
+                                         showIDisplayableItems,
                                          showObjectItems || showLayerItems || showMaterialItems, 
                                          showObjectItems || showLayerItems);
 
@@ -2492,9 +2633,9 @@ namespace Outliner
 
         internal void HideNode(OutlinerNode n, Boolean hidden)
         {
-            if (n is IHidable && ((IHidable)n).IsHidden != hidden)
+            if (n is IDisplayable && ((IDisplayable)n).IsHidden != hidden)
             {
-                ((IHidable)n).IsHidden = hidden;
+                ((IDisplayable)n).IsHidden = hidden;
 
                 Boolean showNode = this.Filter.ShowNode(n);
                 TreeNode tn;
@@ -2502,8 +2643,8 @@ namespace Outliner
 
                 if (tn != null && showNode)
                 {
-                    Style.SetNodeImageKey(tn);
                     Style.SetNodeColorAuto(tn);
+                    InvalidateTreeNode(tn);
                 }
                 else if (tn != null && !showNode)
                     RemoveNodeFromTree(n, true);
@@ -2532,9 +2673,9 @@ namespace Outliner
 
         internal void FreezeNode(OutlinerNode n, Boolean frozen)
         {
-            if (n is IFreezable && ((IFreezable)n).IsFrozen != frozen)
+            if (n is IDisplayable && ((IDisplayable)n).IsFrozen != frozen)
             {
-                ((IFreezable)n).IsFrozen = frozen;
+                ((IDisplayable)n).IsFrozen = frozen;
 
                 Boolean showNode = this.Filter.ShowNode(n);
                 TreeNode tn;
@@ -2557,13 +2698,26 @@ namespace Outliner
         internal void FreezeNodeRecursive(OutlinerNode n, Boolean frozen)
         {
             FreezeNode(n, frozen);
+
             foreach (OutlinerNode cn in n.ChildNodes)
-            {
                 FreezeNodeRecursive(cn, frozen);
-            }
         }
 
-        
+
+        internal void SetBoxModeRecursive(OutlinerNode n, Boolean boxMode)
+        {
+            if (n is IDisplayable)
+            {
+                ((IDisplayable)n).BoxMode = boxMode;
+                TreeNode tn;
+                if (_treeNodes.TryGetValue(n, out tn))
+                    InvalidateTreeNode(tn);
+            }
+
+            foreach (OutlinerNode cn in n.ChildNodes)
+                SetBoxModeRecursive(cn, boxMode);
+        }
+
 
         internal void LinkObject(OutlinerObject obj, Int32 newParentHandle, Boolean group, Boolean isGroupMember)
         {
@@ -2683,6 +2837,7 @@ namespace Outliner
         public event NodeRenamedEventHandler NodeRenamed;
         public event NodePropertyChangedEventHandler NodeHidden;
         public event NodePropertyChangedEventHandler NodeFrozen;
+        public event NodePropertyChangedEventHandler NodeBoxModeChanged;
         public event NodeLinkedEventHandler SpaceWarpBound;
         public event NodeLinkedEventHandler LayerLinked;
         public event NodePropertyChangedEventHandler LayerActiveChanged;
@@ -3129,6 +3284,7 @@ namespace Outliner
                     RemoveNodeFromTree(obj, true);
 
                 Scene.RemoveObject(obj);
+                obj = null;
             }
         }
 
@@ -3238,12 +3394,12 @@ namespace Outliner
         public void SetObjectClass(Int32 handle, String className, String superClassName)
         {
             OutlinerObject obj = Scene.GetObjectByHandle(handle);
-            if (obj == null)
+            if (obj == null || obj.MarkedForDelete)
                 return;
             
             obj.Class = className;
             obj.SuperClass = superClassName;
-
+            
             TreeNode tn;
             if (_treeNodes.TryGetValue(obj, out tn))
             {
@@ -3321,6 +3477,8 @@ namespace Outliner
 
                 RemoveNodeFromTree(layer, true);
                 Scene.RemoveLayer(layer);
+
+                layer = null;
             }
         }
 

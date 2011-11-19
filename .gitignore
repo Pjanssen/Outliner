@@ -1,0 +1,19 @@
+# OS files #
+############
+._*
+*.DS_Store
+Thumbs.db
+
+# Visual studio user files #
+############################
+*.suo
+*.user
+*.vsmdi
+*.testsettings
+
+# Compiled files #
+##################
+bin
+obj
+testresults
+*.log

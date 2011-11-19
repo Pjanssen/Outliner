@@ -22,7 +22,6 @@ if (outliner_restart_required == true) then
 else
 (
    --Import scripts.
-   fileIn "keyboardActionsFile.ms";
    fileIn "nestedLayers.ms";
    fileIn "preferences.ms";
    fileIn "callbacks.ms";

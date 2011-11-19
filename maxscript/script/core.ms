@@ -8,7 +8,7 @@ product_info,
 ui,
 
 tree,
-kbd_actions,
+kbdFile,
 
 
 
@@ -183,6 +183,21 @@ function pushSceneToTree =
 ),
 
 
+--Completely refreshes the .NET scene definition and re-fills the treeview.
+function refresh =
+(
+   if (outliner_status != undefined AND outliner_status.windowOpen) do
+   (
+      pushSceneToTree();
+      tree.FillTree();
+   
+      if (outliner_callbacks != undefined) do
+         outliner_callbacks.selectionChanged();
+   )
+   OK;
+),
+
+
 
 function switchListMode listMode =
 (
@@ -216,6 +231,11 @@ function switchListMode listMode =
 ),
 
 
+function getSortMode =
+(
+   prefs.getValue #Tree #sortMode;
+),
+
 function switchSortMode sortMode =
 (
    try
@@ -248,7 +268,49 @@ function switchSortMode sortMode =
 
 
 
+function getFilterEnabled =
+(
+   prefs.getValue #Tree #objFilterEnabled;
+),
 
+function setFilterEnabled enabled =
+(
+   prefs.setValue #Tree #objFilterEnabled enabled;
+   
+   outliner_main.setHideByCategory();
+   
+   outliner_main.filter_enabled.checked = enabled;
+   tree.Filter.Enabled = enabled;
+   tree.FillTree();
+),
+
+function getObjectFilter i =
+(
+   (prefs.getValue #Tree #objFilter)[i];
+),
+
+function setObjectFilter i enabled =
+(
+   (outliner.prefs.getValue #Tree #objFilter)[i] = enabled;
+   
+   if (getFilterEnabled()) do
+   (
+      local filter_enum = #(&tree.Filter.showGeometry, &tree.Filter.showShapes, 
+                            &tree.Filter.showLights,   &tree.Filter.showCameras,
+                            &tree.Filter.showHelpers,  &tree.Filter.showSpaceWarps, 
+                            &tree.Filter.showBones,    &tree.Filter.showParticles,
+                            &tree.Filter.showXRefs,    &tree.Filter.showHidden, 
+                            &tree.Filter.showFrozen);
+
+      *filter_enum[i] = enabled;
+      outliner.tree.FillTree();
+      
+      if (outliner.prefs.getValue #Tree #objFilterAffectVpt) do
+         outliner_main.setHideByCategory();
+   )
+   
+   outliner.prefs.savePreferences();
+),
 
 
 
@@ -841,17 +903,11 @@ function handleKeyUp e =
 (
    try
    (
-      local mod_key_code = kbd_actions.getModKeyCode altPressed:e.Alt \
-                                                     ctrlPressed:e.Control \
-                                                     shiftPressed:e.Shift;
-      kbd_actions.runActionFromKeyCode mod_key_code \
-                                       e.KeyValue \
-                                       table_id1:kbd_actions.main_table_id \
-                                       table_id2:kbd_actions.macro_table_id;
-      
-      if (outliner_status != undefined AND outliner_status.windowOpen == true \
-                                       AND not outliner_status.closingOutliner) do
+      if (kbdFile != undefined) do
+      (
+         kbdFile.MaxExecuteAction e.KeyData;
          setFocus tree;
+      )
    ) catch ()
 ),
 
@@ -861,7 +917,7 @@ function handleKeyUp e =
  */
 
 --The .NET FileSystemWatcher object.
-kbd_fileWatch,
+kbdFileWatch,
 
 --Handle the Changed event.
 function fileWatch_Changed sender e =
@@ -873,7 +929,7 @@ function fileWatch_Changed sender e =
       sender.EnableRaisingEvents = false;
       
       if (sender.MXSObject != undefined AND sender.MXSObject.value != undefined) do
-         sender.MXSObject.value.read();
+         sender.MXSObject.value.Read();
       
       sender.EnableRaisingEvents = true;
    ) catch ()
@@ -894,25 +950,38 @@ function stripTrailingSlashes str =
 --IS NO LONGER USED!
 function addKbdFileWatch =
 (
-   if (doesFileExist kbd_actions.file) do
+   if (kbdFile != undefined) do
    (
-      kbd_fileWatch = dotnetObject "Outliner.MXSFileWatcher";
-      kbd_fileWatch.MXSObject = dotNetMXSValue kbd_actions;
-      kbd_fileWatch.WatchFileChange(kbd_actions.file);
-
-      dotNet.addEventHandler kbd_fileWatch "Changed" fileWatch_Changed;
+      if (doesFileExist kbdFile.File) do
+      (
+         kbdFileWatch = dotnetObject "Outliner.MXSFileWatcher";
+         kbdFileWatch.MXSObject = dotNetMXSValue kbdFile;
+         kbdFileWatch.WatchFileChange(kbdFile.file);
+   
+         dotNet.addEventHandler kbdFileWatch "Changed" fileWatch_Changed;
+      )
    )
 ),
 
 function removeKbdFileWatch =
 (
-   if (kbd_fileWatch != undefined) do
+   if (kbdFileWatch != undefined) do
    (
-      dotNet.removeEventHandlers kbd_fileWatch "Changed";
-      kbd_fileWatch.MXSObject = undefined;
-      kbd_fileWatch = undefined;
+      dotNet.removeEventHandlers kbdFileWatch "Changed";
+      kbdFileWatch.MXSObject = undefined;
+      kbdFileWatch = undefined;
       (dotnetclass "System.GC").Collect();
    )
+),
+
+function loadKbdFile =
+(
+   local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+   
+   kbdFile = dotnetObject "ScriptCenter.Max.KbdFile" \
+                          (kbdFileClass.MaxGetActiveKbdFile());
+                          
+   addKbdFileWatch();
 ),
 
 
@@ -947,6 +1016,7 @@ function init =
       try
       (
          loadAssembly "Outliner.dll";
+         loadAssembly "ScriptCenter.Max.dll";
       )
       catch
       (

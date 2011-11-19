@@ -66,8 +66,7 @@ function openOutliner =
          outliner_status.reset();
 
       --Create keyboard actions object.
-      outliner.kbd_actions = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
-      outliner.addKbdFileWatch();
+      outliner.loadKbdFile();
       
       --Load window preferences.
       local prefs_getValueFn = outliner.prefs.getValue;
@@ -103,13 +102,6 @@ function openOutliner =
       if (dockFlag != #cui_floatable) do cui.DockDialogBar outliner_main dockFlag;
 
 
-      --Fill the tree.
-      outliner.pushSceneToTree();
-      outliner.tree.FillTree();
-      
-      if (outliner_status.expandedNodeHandles != undefined) do
-         outliner.tree.ExpandedNodeHandles = outliner_status.expandedNodeHandles;
-
       --Create callbacks object (global), register callbacks and 
       --emulate selection changed event.
       outliner_callbacks = outlinerCallbacks();
@@ -123,10 +115,15 @@ function openOutliner =
       else if (listMode == "Material" OR sortMode == "Material") then
          outliner_callbacks.createMaterialChangeHandlers();
 
-      outliner_callbacks.selectionChanged();
-
       outliner_status.windowOpen = true;
       updateToolbarButtons();
+      
+      --Fill the tree.
+      outliner.refresh();
+      
+      if (outliner_status.expandedNodeHandles != undefined) do
+         outliner.tree.ExpandedNodeHandles = outliner_status.expandedNodeHandles;
+
       
       setFocus outliner_main.searchField;
    )

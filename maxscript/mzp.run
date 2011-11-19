@@ -8,5 +8,3 @@ treeCopy macroscripts to "$temp/outliner";
 
 run "outliner_install.ms"
 drop "outliner_install.ms"
-
-clear temp

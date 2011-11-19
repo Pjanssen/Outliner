@@ -23,6 +23,8 @@ namespace Outliner
         public Boolean ShowHidden { get; set; }
         public Boolean ShowFrozen { get; set; }
 
+        private TreeView _tree;
+
         private String _nameFilter;
         private RegexOptions _nameFilterOptions;
 
@@ -70,8 +72,9 @@ namespace Outliner
             }
         }
 
-        public OutlinerFilter()
+        public OutlinerFilter(Outliner.TreeView tree)
         {
+            _tree = tree;
             Enabled = false;
             AffectLayers = false;
             NameFilter = String.Empty;
@@ -90,14 +93,16 @@ namespace Outliner
             Boolean nodeVisible = true;
             if (node is OutlinerObject)
                 nodeVisible = ObjectIsVisible((OutlinerObject)node);
-            if (node is OutlinerLayer)
+            else if (node is OutlinerLayer)
                 nodeVisible = LayerIsVisible((OutlinerLayer)node);
             else if (node is OutlinerMaterial)
                 nodeVisible = MaterialIsVisible((OutlinerMaterial)node);
 
 
             Boolean childNodesVisible;
-            if (!Enabled && NameFilter == String.Empty)
+            if (_tree.ListMode != OutlinerListMode.Hierarchy)
+                childNodesVisible = false;
+            else if (!Enabled && NameFilter == String.Empty)
                 childNodesVisible = true;
             else
                 childNodesVisible = ShowChildNodes(node);
@@ -128,8 +133,13 @@ namespace Outliner
             // If the filter is disabled, all objects are shown.
             if (!Enabled && NameFilter == String.Empty) return true;
 
-            if (NameFilter != String.Empty && !Regex.IsMatch(obj.Name, NameFilter, _nameFilterOptions))
-                return false;
+            if (NameFilter != String.Empty)
+            {
+                if (!Regex.IsMatch(obj.Name, NameFilter, _nameFilterOptions))
+                    return false;
+                else if (!Enabled)
+                    return true;
+            }
 
             if (!ShowHidden || !ShowFrozen)
             {

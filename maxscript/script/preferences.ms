@@ -16,13 +16,13 @@ struct outlinerPreferences (
 			--General section
 			(outlinerPrefsEntry section:#General key:#version					default:0.0),
 			(outlinerPrefsEntry section:#General key:#versionString				default:""),
-			(outlinerPrefsEntry section:#General key:#product_id					default:0L),
-			(outlinerPrefsEntry section:#General key:#matModeFirstRun			default:true),
+			(outlinerPrefsEntry section:#General key:#product_id_a				default:0),
+			(outlinerPrefsEntry section:#General key:#product_id_b				default:0),
 			(outlinerPrefsEntry section:#General key:#addNestedLayerMessage		default:true),
 			(outlinerPrefsEntry section:#General key:#openAtStartup				default:false),
 			(outlinerPrefsEntry section:#General key:#workflowToolsInstalled	default:false),
 			(outlinerPrefsEntry section:#General key:#checkForUpdates			default:true),
-			(outlinerPrefsEntry section:#General key:#checkUpdatesInterval		default:7),
+			(outlinerPrefsEntry section:#General key:#checkUpdatesInterval		default:1),
 			(outlinerPrefsEntry section:#General key:#lastUpdateCheck			default:0L),
 			(outlinerPrefsEntry section:#General key:#crashReportEmail			default:""),
 			
@@ -54,10 +54,15 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyLayer		default:"Never"),
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyMaterial	default:"WhenNecessary"),
 			(outlinerPrefsEntry section:#Tree	key:#showNodeHideButton			default:true),
+			(outlinerPrefsEntry section:#Tree	key:#nodeHideButtonLocation		default:"BeforeNode"),
 			(outlinerPrefsEntry section:#Tree	key:#showNodeFreezeButton		default:true),
+			(outlinerPrefsEntry section:#Tree	key:#nodeFreezeButtonLocation	default:"BeforeNode"),
 			(outlinerPrefsEntry section:#Tree	key:#showNodeBoxModeButton		default:false),
-			(outlinerPrefsEntry section:#Tree	key:#nodeButtonsLocation		default:"BeforeNode"),
+			(outlinerPrefsEntry section:#Tree	key:#nodeBoxModeButtonLocation	default:"BeforeNode"),
+			(outlinerPrefsEntry section:#Tree	key:#showNodeAddButton			default:true),
+			(outlinerPrefsEntry section:#Tree	key:#nodeAddButtonLocation		default:"AfterNode"),
 			(outlinerPrefsEntry section:#Tree	key:#iconClickAction			default:"SetActive"),
+			(outlinerPrefsEntry section:#Tree	key:#invertNodeHideButton		default:false),
 			
 			--Visual section
 			(outlinerPrefsEntry	section:#Visual	key:#iconset					default:"Max"),

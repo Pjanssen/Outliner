@@ -184,21 +184,21 @@ namespace Outliner.Scene
 
         public OutlinerObject GetObjectByHandle(Int32 handle)
         {
-            OutlinerObject obj;
+            OutlinerObject obj = null;
             objects.TryGetValue(handle, out obj);
             return obj;
         }
 
         public OutlinerLayer GetLayerByHandle(Int32 handle)
         {
-            OutlinerLayer layer;
+            OutlinerLayer layer = null;
             layers.TryGetValue(handle, out layer);
             return layer;
         }
 
         public OutlinerMaterial GetMaterialByHandle(Int32 handle)
         {
-            OutlinerMaterial mat;
+            OutlinerMaterial mat = null;
             materials.TryGetValue(handle, out mat);
             return mat;
         }

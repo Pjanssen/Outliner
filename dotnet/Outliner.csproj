@@ -303,6 +303,8 @@
     <EmbeddedResource Include="Resources\contextmenu_icons\advrename.png" />
     <Content Include="Resources\maya_icons_20x20\material_unassigned.png" />
     <Content Include="Resources\maya_icons_20x20\material_xref.png" />
+    <EmbeddedResource Include="Resources\node_buttons\add_button_disabled.png" />
+    <EmbeddedResource Include="Resources\node_buttons\add_button.png" />
     <EmbeddedResource Include="Resources\node_buttons\boxmode_button.png" />
     <EmbeddedResource Include="Resources\node_buttons\boxmode_button_disabled.png" />
     <EmbeddedResource Include="Resources\node_buttons\freeze_button.png" />

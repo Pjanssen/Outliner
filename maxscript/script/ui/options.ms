@@ -85,14 +85,22 @@
 		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 4];
 		checkbox invertIcons "Invert" pos:[marginX + 170, marginY + chkbxDY * 2 + 4];
 		
-		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 3 + 4];
-		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 4 + 1];
-		checkbox showNodeBoxModeButton "Show Node Box Mode Button" pos:[marginX, marginY + chkbxDY * 5 - 2];
+		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 3 + 5];
+		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 9];
 		
-		dropdownList nodeButtonsLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX, marginY + chkbxDY * 6];
-		label nodeButtonsLocationLbl "Node Buttons Location" pos:[drpDwnLblX, marginY + chkbxDY * 6 + 4];
-		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 7];
-		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 7 + 4];
+		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 4 + 9];
+		dropdownlist nodeHideButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 4 + 6];
+		
+		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 5 + 9];
+		dropdownlist nodeFreezeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 5 + 6];
+		
+		checkbox showNodeBoxModeButton "Show Node Box Mode Button" pos:[marginX, marginY + chkbxDY * 6 + 9];
+		dropdownlist nodeBoxModeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 6 + 6];
+		
+		checkbox showNodeAddButton "Show Node Add Button" pos:[marginX, marginY + chkbxDY * 7 + 9];
+		dropdownlist nodeAddButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 7 + 6];
+		
+		checkbox invertNodeHideButton "Invert Node Hide Button behavior" pos:[marginX, marginY + chkbxDY * 8 + 9];
 		
 		
 		on colorScheme selected sel do
@@ -139,16 +147,38 @@
 			outliner.tree.ShowNodeBoxModeButton = e;
 		)
 		
-		on nodeButtonsLocation selected sel do
+		on showNodeAddButton changed e do
 		(
-			local val = case sel of
-			(
-				1 : "BeforeNode";
-				2 : "AfterNode";
-				3 : "AlignRight";
-			)
-			setPrefFn #Tree #nodeButtonsLocation val;
-			outliner.tree.NodeButtonsLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
+			setPrefFn #Tree #showNodeAddButton e;
+			outliner.tree.ShowNodeAddButton = e;
+		)
+		
+		on nodeHideButtonLocation selected sel do
+		(
+			local val = case sel of ( 1 : "BeforeNode"; 2 : "AfterNode"; 3 : "AlignRight"; )
+			setPrefFn #Tree #nodeHideButtonLocation val;
+			outliner.tree.NodeHideButtonLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
+		)
+		
+		on nodeFreezeButtonLocation selected sel do
+		(
+			local val = case sel of ( 1 : "BeforeNode"; 2 : "AfterNode"; 3 : "AlignRight"; )
+			setPrefFn #Tree #nodeFreezeButtonLocation val;
+			outliner.tree.NodeFreezeButtonLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
+		)
+		
+		on nodeBoxModeButtonLocation selected sel do
+		(
+			local val = case sel of ( 1 : "BeforeNode"; 2 : "AfterNode"; 3 : "AlignRight"; )
+			setPrefFn #Tree #nodeBoxModeButtonLocation val;
+			outliner.tree.NodeBoxModeButtonLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
+		)
+		
+		on nodeAddButtonLocation selected sel do
+		(
+			local val = case sel of ( 1 : "BeforeNode"; 2 : "AfterNode"; 3 : "AlignRight"; )
+			setPrefFn #Tree #nodeAddButtonLocation val;
+			outliner.tree.NodeAddButtonLocation = outliner.parseDotNetENum "Outliner.NodeButtonsLocation" val;
 		)
 		
 		on nodeIconClickAction selected sel do
@@ -163,6 +193,12 @@
 			outliner.tree.IconClickAction = outliner.parseDotNetENum "Outliner.IconClickAction" val;
 		)
 		
+		on invertNodeHideButton changed e do
+		(
+			setPrefFn #Tree #InvertNodeHideButton e;
+			outliner.tree.InvertNodeHideButton = e;
+		)
+		
 		function setUIValues = 
 		(
 			colorScheme.items				= getINISetting (outliner.dir + "colorSchemes.ini");
@@ -174,13 +210,21 @@
 			showNodeHideButton.checked		= getPrefFn #Tree #showNodeHideButton;
 			showNodeFreezeButton.checked	= getPrefFn #Tree #showNodeFreezeButton;
 			showNodeBoxModeButton.checked	= getPrefFn #Tree #showNodeBoxModeButton;
+			showNodeAddButton.checked = getPrefFn #Tree #showNodeAddButton;
+			invertNodeHideButton.checked = getPrefFn #Tree #invertNodeHideButton;
 			
-			nodeButtonsLocation.selection = case (getPrefFn #Tree #nodeButtonsLocation) of
-			(
-				"BeforeNode" : 1;
-				"AfterNode" : 2;
-				"AlignRight" : 3;
-			)
+			nodeHideButtonLocation.selection = case (getPrefFn #Tree #nodeHideButtonLocation) of
+			( "BeforeNode" : 1; "AfterNode" : 2; "AlignRight" : 3; )
+			
+			nodeFreezeButtonLocation.selection = case (getPrefFn #Tree #nodeFreezeButtonLocation) of
+			( "BeforeNode" : 1; "AfterNode" : 2; "AlignRight" : 3; )
+			
+			nodeBoxModeButtonLocation.selection = case (getPrefFn #Tree #nodeBoxModeButtonLocation) of
+			( "BeforeNode" : 1; "AfterNode" : 2; "AlignRight" : 3; )
+			
+			nodeAddButtonLocation.selection = case (getPrefFn #Tree #nodeAddButtonLocation) of
+			( "BeforeNode" : 1; "AfterNode" : 2; "AlignRight" : 3; )
+			
 			nodeIconClickAction.selection = case (getPrefFn #Tree #iconClickAction) of
 			(
 				"Hide" : 1;

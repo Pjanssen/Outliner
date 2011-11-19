@@ -226,36 +226,54 @@ struct outliner_NestedLayers
 	
 	function setLayerParent layer parent =
 	(
+		local success = true;
 		try
 		(
 			if (parent != undefined) then
 			(
 				local ca = outliner_NestedLayers.getAddLayerData layer;
-				if (ca != undefined) do
+				if (ca != undefined) then
 				(
 					if (not (isKindOf parent Base_Layer)) do
 						parent = parent.layerAsRefTarg;
-						
-					ca.outliner_parentLayer = parent;
-					outliner_NestedLayers.updateLayerProperties layer;
+					
+					if (layer != parent AND not (refs.dependencyLoopTest parent layer)) then
+					(
+						ca.outliner_parentLayer = parent;
+						outliner_NestedLayers.updateLayerProperties layer;
+					)
+					else
+						success = false;
 				)
+				else
+					success = false;
 			)
 			else
 			(
 				local ca = outliner_NestedLayers.getLayerData layer;
-				if (ca != undefined) do
+				if (ca != undefined) then
 				(
 					ca.outliner_parentLayer = undefined;
 					outliner_NestedLayers.updateLayerProperties layer;
 					outliner_NestedLayers.deleteLayerData layer;
 				)
+				else
+					success = false;
 			)
 		)
 		catch
 		(
+			--Gather some info to trace root cause of dependency crash.
+			local layerRefs = refs.dependents layer;
+			local parentRefs = refs.dependents parent;
+			local depLoopTest = refs.dependencyLoopTest layer parent;
+			local depLoopTestRev = refs.dependencyLoopTest parent layer;
+			--Generate crash report.
 			local crashReport = outliner_crash_report();
 			crashReport.handle_exception crashReport;
 		)
+		
+		success;
 	),
 	
 	

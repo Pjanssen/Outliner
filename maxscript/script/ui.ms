@@ -110,6 +110,8 @@ struct outlinerUI
 	
 			outliner_status.windowOpen = true;
 			updateToolbarButtons();
+			
+			setFocus outliner_main.search;
 		)
 		catch
 		(

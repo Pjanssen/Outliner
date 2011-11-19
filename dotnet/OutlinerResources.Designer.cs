@@ -67,6 +67,20 @@ namespace Outliner {
             }
         }
         
+        internal static System.Drawing.Bitmap add_button {
+            get {
+                object obj = ResourceManager.GetObject("add_button", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap add_button_disabled {
+            get {
+                object obj = ResourceManager.GetObject("add_button_disabled", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap advrename {
             get {
                 object obj = ResourceManager.GetObject("advrename", resourceCulture);

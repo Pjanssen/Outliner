@@ -1,6 +1,6 @@
 (
-	local version = 2.08;
-	local versionStr = "2.0.8";
+	local version = 2.09;
+	local versionStr = "2.0.9";
 	
 	global outliner_restart_required;
 	
@@ -52,14 +52,8 @@
 	
 	function clearTempDir =
 	(
-		try 
-		( 
-			(dotNetClass "System.IO.Directory").Delete tempDir true; 
-		) 
-		catch
-		(
-			printException "clearTempDir" (getCurrentException()); 
-		)
+		local scriptStr = "local d = (GetDir #temp) + \"/outliner\"; if ((dotNetClass \"System.IO.Directory\").Exists d) do try ( (dotNetClass \"System.IO.Directory\").Delete d true; ) catch ()";
+		callbacks.addScript #postSystemShutdown scriptStr id:#outliner_install;
 	)
 	
 	
@@ -200,28 +194,37 @@
 	
 	function updatePreferencesFile =
 	(
-		local product_id;
-		
 		if (doesFileExist prefsFile AND hasINISetting prefsFile "General" "version") do
 		(
 			local oldVersion = (getINISetting prefsFile "General" "version") as float; 
 			if (oldVersion == undefined OR oldVersion < 2.0) then
 				deleteFile prefsFile;
-			else if (oldVersion >= 2.08 AND hasINISetting prefsFile "General" "product_id") then
-				product_id = (getINISetting prefsFile "General" "product_id") as integer64;
+			else
+			(
+				if (oldVersion < 2.09) do
+				(
+					delIniSetting prefsFile "General" "matModeFirstRun";
+					delIniSetting prefsFile "General" "product_id";
+					if (hasINISetting prefsFile "General" "checkUpdatesInterval" AND (getINISetting prefsFile "General" "checkUpdatesInterval") == "7") do
+						setINISetting prefsFile "General" "checkUpdatesInterval" "1";
+					
+				)
+			)
 		)
 		
-		if (product_id == undefined) do
+		
+		if (getINISetting prefsFile "General" "product_id_a" == "" OR getINISetting prefsFile "General" "product_id_b" == "") do
 		(
 			local class_id = genClassId returnValue:true;
-			class_id[1] = integer64 (bit.set class_id[1] 32 false);
-			class_id[2] = integer64 (bit.set class_id[2] 32 false);
-			product_id = bit.or (bit.shift class_id[1] 32) class_id[2];
+			class_id[1] = bit.set class_id[1] 32 false;
+			class_id[2] = bit.set class_id[2] 32 false;
+			setINISetting prefsFile "General" "product_id_a" (class_id[1] as string);
+			setINISetting prefsFile "General" "product_id_b" (class_id[2] as string);
 		)
 			
 		setINISetting prefsFile "General" "version" (version as string);
 		setINISetting prefsFile "General" "versionString" versionStr;
-		setINISetting prefsFile "General" "product_id" (product_id as string);
+		setINISetting prefsFile "General" "lastUpdateCheck" "0";
 		
 		true;
 	)
@@ -303,9 +306,7 @@
 	
 	function restartRequired =
 	(
-		true;
-		--There were some issues with the macroscripts trying to load from (deleted) temp dir -> always require restart.
-		--(dotNetClass "Outliner.TreeView") != undefined;
+		(dotNetClass "Outliner.TreeView") != undefined;
 	)
 	
 	
@@ -371,6 +372,8 @@
 	)
 	
 	
+
+	
 	
 	/**
 	 * INSTALL STATUS DIALOG
@@ -390,10 +393,10 @@
 	
 	function installation_success inst showHowToUse:false =
 	(
-		addStatusText ("\n\n" + inst + " succeeded.")
+		addStatusText ("\n\nInstallation succeeded.")
 		outliner_install.close_btn.enabled = true;
 		
-		local inst_txt = inst + " complete.";
+		local inst_txt = "Installation complete.";
 		if (showHowToUse) do
 			inst_txt += "\nYou can assign the Outliner to a shortcut or toolbar button using:\nCustomize > Customize User Interface > Open/Close Outliner";
 		if (outliner_restart_required == true) do
@@ -402,7 +405,18 @@
 		local mb = dotNetClass "System.Windows.Forms.MessageBox";
 		local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
 		local mbIcon = dotNetClass "System.Windows.Forms.MessageBoxIcon";
-		mb.Show inst_txt (inst + " complete") mbBtn.OK mbIcon.Information;
+		mb.Show inst_txt "Installation complete" mbBtn.OK mbIcon.Information;
+	)
+	
+	function uninstallation_success =
+	(
+		addStatusText ("\n\nUninstallation succeeded.")
+		outliner_install.close_btn.enabled = true;
+		
+		local mb = dotNetClass "System.Windows.Forms.MessageBox";
+		local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
+		local mbIcon = dotNetClass "System.Windows.Forms.MessageBoxIcon";
+		mb.Show "Uninstallation complete.\nPlease restart 3dsmax" "Uninstallation complete" mbBtn.OK mbIcon.Information;
 	)
 	
 	function installation_failed inst msg =
@@ -466,7 +480,7 @@
 			return false;
 		)
 		
-		installation_success str_uninst;
+		uninstallation_success();
 		true;
 	)
 	

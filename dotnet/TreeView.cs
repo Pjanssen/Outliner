@@ -3125,7 +3125,9 @@ namespace Outliner
       public event EventHandler ContextMenuOpened;
       public event ContextMenuItemClickedEventHandler ContextMenuItemClicked;
 
+#if(DEBUG)
       public event DebugEventHandler DebugEvent;
+#endif
 
       internal void RaiseObjectLinkedEvent(NodeLinkedEventArgs e)
       {

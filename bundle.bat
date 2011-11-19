@@ -1,27 +1,48 @@
 @ECHO OFF
-SET zipdir=C:\Program Files\7-Zip
+
+::Set the path to the location of 7z.exe
+SET zip=C:\Program Files\7-Zip\7z.exe
 
 SET dir=%~dp0
+SET Configuration=Release
 SET sourceDir=%dir%maxscript\
 SET targetDir=%dir%mzp\
-SET bundle=%dir%build.mzp
+SET output=%dir%outliner.mzp
 
-ECHO Bundling %sourceDir%
+ECHO Removing old target files and directory...
 
 ::Remove target dir if it exists
 IF EXIST %targetDir% (
-  rmdir /Q /S %targetDir%
+  rmdir /Q /S %targetDir% || goto :error
   echo Removed %targetDir%
 )
 
-::Remove bundle file if it exists
-IF EXIST %bundle% ( del /Q /S %bundle% )
+::Remove output file if it exists
+IF EXIST %output% ( del /Q /S %output% || goto :error )
 
 ::Perform SVN export of source dir
-svn export %sourceDir% %targetDir%
+ECHO.
+ECHO Exporting maxscript from svn...
+svn export %sourceDir% %targetDir% || goto :error
 
-::Create bundle from target dir
-"%zipdir%\7z.exe" a -tzip %bundle% %targetDir%*
+::Copy Outliner.dll from dotnet to maxscript
+ECHO.
+ECHO Copying Outliner.dll to bundle...
+copy %dir%dotnet\bin\%Configuration%\Outliner.dll %targetDir%script\Outliner.dll || goto :error
+
+::Create output from target dir
+ECHO.
+ECHO Packing mzp...
+"%zip%" a -tzip %output% %targetDir%* || goto :error
 
 ::Remove target dir
-rmdir /Q /S %targetDir%
+rmdir /Q /S %targetDir% || goto :error
+
+ECHO Done.
+goto :eof
+
+:error
+ECHO.
+ECHO Bundling failed.
+PAUSE
+EXIT /B %ERRORLEVEL%

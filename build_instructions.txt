@@ -1,0 +1,19 @@
+CREATING AN INSTALLER FROM THE SOURCE FILES
+===========================================
+
+1. Check out the source code from the SVN repository:
+   http://code.google.com/p/outliner/source/checkout
+   http://subversion.apache.org/packages.html
+   
+2. Make sure you have the .NET Framework 3.5 or above.
+   http://www.microsoft.com/net
+
+3. Download and install 7-zip
+   http://www.7-zip.org/
+   
+4. Adjust bundle.bat line 4 to reflect your location of 7-zip (7z.exe)
+
+5. Run buildandbundle.bat
+   This will compile the .NET code and create a .mzp installer.
+
+6. Drag & drop the created file outliner.mzp into 3dsmax.

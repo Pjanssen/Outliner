@@ -1,9 +1,9 @@
 struct outlinerCore
 (
-	version				= 2.01,
-	versionStr			= "2.0.1",
+	version				= 2.03,
+	versionStr			= "2.0.3",
 	maxV				= (maxVersion())[1] / 1000,
-	dir					= ((GetDir #Scripts) + "/outliner/"),
+	dir					= ((GetDir #userScripts) + "/outliner/"),
 	icondir				= dir + "ui/icons/",
 	prefs,
 	ui,

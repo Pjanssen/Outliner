@@ -407,6 +407,10 @@ struct outliner_crash_report
 		
 		on sendBtn pressed do
 		(
+			try (
+				outliner.prefs.setValue #General #crashReportEmail emailTxt.text;
+			) catch ()
+			
 			report_instance.sendReport report_instance emailTxt.text detailsTxt.text;
 			close();
 		)
@@ -446,5 +450,9 @@ struct outliner_crash_report
 		crashReport_rollout.report_instance = report_instance;
 		crashReport_rollout.contentLink1.address = outlinerDataFile;
 		crashReport_rollout.contentLink2.address = stackFile;
+		
+		try (
+			crashReport_rollout.emailTxt.text = outliner.prefs.getValue #General #crashReportEmail;
+		) catch ()
 	)
 )

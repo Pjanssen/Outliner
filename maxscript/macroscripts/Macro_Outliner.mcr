@@ -10,7 +10,7 @@ macroScript toggleOutliner
 	function outliner_get_instance =
 	(
 		if outliner == undefined do
-			fileIn ((getDir #Scripts) + "/outliner/init.ms");
+			fileIn ((getDir #userScripts) + "/outliner/init.ms");
 	
 		outliner;
 	)

@@ -22,6 +22,7 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#General key:#checkForUpdates			default:true),
 			(outlinerPrefsEntry section:#General key:#checkUpdatesInterval		default:7),
 			(outlinerPrefsEntry section:#General key:#lastUpdateCheck			default:0L),
+			(outlinerPrefsEntry section:#General key:#crashReportEmail			default:""),
 			
 			--Window section
 			(outlinerPrefsEntry section:#Window	key:#posx						default:500),

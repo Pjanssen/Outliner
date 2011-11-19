@@ -606,19 +606,20 @@ namespace Outliner
                 createLinePen();
 
             Int32 curY = e.ClipRectangle.Y;
-            while(curY <= e.ClipRectangle.Bottom)
+            while (curY <= e.ClipRectangle.Bottom)
             {
                 TreeNode tn = GetNodeAt(0, curY);
-                if (tn != null)
+
+                if (tn == null)
+                    break;
+
+                Rectangle tnBounds = tn.Bounds;
+                if (tnBounds.Width != 0 && tnBounds.Height != 0)
                 {
-                    Rectangle tnBounds = tn.Bounds;
-                    if (tnBounds.Width != 0 && tnBounds.Height != 0)
-                    {
-                        if (tn.ImageKey == "")
-                            Style.SetNodeImageKey(tn);
-                        else
-                            DrawCustomNode(tn, e.Graphics);
-                    }
+                    if (tn.ImageKey == "")
+                        Style.SetNodeImageKey(tn);
+                    else
+                        DrawCustomNode(tn, tnBounds, e.Graphics);
                 }
 
                 curY += ItemHeight;
@@ -626,13 +627,11 @@ namespace Outliner
         }
 
 
-        
 
         
 
-        protected void DrawCustomNode(TreeNode tn, Graphics graphics)
+        protected void DrawCustomNode(TreeNode tn, Rectangle tnBounds, Graphics graphics)
         {
-            Rectangle tnBounds = tn.Bounds;
             Object tnTag = tn.Tag;
             Int32 scrlPosX = GetScrollPos(Handle, H_SCROLL);
             //Draw vertical line segments for parent nodes with next nodes.
@@ -2385,7 +2384,7 @@ namespace Outliner
                 }
 
                 AutoIndent();
-                this.ItemHeight = (_iconSize.Height > 0) ? _iconSize.Height + 1 : 16;
+                this.ItemHeight = (_iconSize.Height > 0) ? _iconSize.Height + 2 : 16;
                 
                 // Create dummy imagelist to 'correct' labeledit textbox position.
                 ImageList = new ImageList();
@@ -2557,6 +2556,16 @@ namespace Outliner
 
         #region FillTree, CreateTreeNodeForOutlinerNode, AddLayersToTree, AddObjectsToTreeNodeCollection
 
+        public void ClearTree()
+        {
+            // Clear nodes.
+            this.Nodes.Clear();
+            // Clear outlinernode-treenode dictionary
+            _treeNodes.Clear();
+            // Clear selection.
+            _selectedNodes.Clear();
+        }
+
         public void FillTree()
         {
             this.BeginUpdate();
@@ -2564,12 +2573,7 @@ namespace Outliner
             // Store selection.
             OutlinerNode[] selection = SelectedOutlinerNodes;
 
-            // Clear nodes.
-            this.Nodes.Clear();
-            // Clear outlinernode-treenode dictionary
-            _treeNodes.Clear();
-            // Clear selection.
-            _selectedNodes.Clear();
+            this.ClearTree();
 
             // Set sorter, so nodes are added in sorted order.
             if (_treeViewNodeSorter != null)

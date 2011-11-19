@@ -1,26 +1,106 @@
-struct outliner_crash_report
+struct outlinerCrashReport
 (
 	exception,
-	stackFull,
+	stackStream,
 	stackSummary,
+	stackFirstLevel,
+	
+	prefs_file = (GetDir #userScripts) + "/outliner_prefs.ini",
+	product_info_file = (GetDir #userScripts) + "/outliner_product_info.ini",
+	
+	
+	
+	function createStackSummary stackStream firstLevelOnly:false =
+	(
+		if (stackStream == undefined) do
+			return "";
+		
+		local stackSummary = "";
+		
+		try
+		(
+			seek stackStream 0;
+			
+			local numLevelsParsed = 0;
+			
+			while (not (eof stackStream) AND (not firstLevelOnly OR numLevelsParsed < 2)) do
+			(
+				numLevelsParsed += 1;
+				
+				--Stop reading if all stack levels have been parsed.
+				if ((skipToString stackStream "**	[stack level:") == undefined) do
+					exit;
+				
+				--Skip the stack level 0.
+				if (numLevelsParsed == 1) do
+					continue;
+				
+				if (skipToString stackStream "**	" != undefined) do
+				(
+					if (stackSummary != "") do
+						stackSummary += "\n";
+					
+					stackSummary += (readDelimitedString stackStream ";\n");
+		
+					if (eof stackStream) do
+						exit;
+		
+					
+					
+					local fileStr = readDelimitedString stackStream ";";
+					local fileNamePos = findString fileStr "\\outliner\\";
+					if (fileNamePos != undefined) do
+					(
+						stackSummary += " in ";
+						stackSummary += substring fileStr fileNamePos -1;
+					)
+					
+					local lineStr = readDelimitedString stackStream "\n";
+					local linePos = findString lineStr " line:";
+					if (linePos != undefined) do
+						stackSummary += substring lineStr linePos -1;
+				)
+			)
+		)
+		catch
+		(
+			stackSummary += "\n--Error summarizing stack--";
+		)
+		
+		--Return summary string.
+		stackSummary;
+	),
+	
+	
 	
 	/**
 	 * WRITE EXCEPTION DATA TO FILE
 	 */
 	function writeExceptionDataToFile file =
 	(
-		local stream = createFile file;
-		
-		if (stream == undefined) then
-			return false;
-		
-		format "Exception\n---------\n" to:stream;
-		format "%\n\n" exception to:stream;
-		
-		format "Stack\n------\n" to:stream;
-		format "%" stackFull to:stream;
-		
-		close stream;
+		local stream;
+		try
+		(
+			stream = createFile file;
+			
+			if (stream == undefined) then
+				return false;
+			
+			format "Exception\n---------\n" to:stream;
+			format "%\n\n" exception to:stream;
+			
+			format "Stack Summary\n------------\n" to:stream;
+			format "%\n\n" stackSummary to:stream;
+			
+			format "Full Stack\n-----------\n" to:stream;
+			format "%" (stackStream as string) to:stream;
+			
+			close stream;
+		)
+		catch 
+		(
+			try ( close stream; ) catch ();
+		)
 		
 		true;
 	),
@@ -76,55 +156,7 @@ struct outliner_crash_report
 	),
 	
 	
-	/**
-	 * WRITE OUTLINER SETTINGS TO STREAM
-	 */
-	function writeOutlinerSettings stream =
-	(
-		
-		format "Outliner Settings\n-----------------\n" to:stream;
-		local errStr = "-Unable to retreive-\n";
-		if (outliner == undefined) then
-			format errStr to:stream;
-		else
-		(
-			format "ListMode: " to:stream;
-			try (
-				local lMode = outliner.tree.listmode.value__;
-				format "%\n" (if (lMode == 0) then "Hierarchy" else if (lMode == 1) then "Layer" else "Material") to:stream;
-			) catch (
-				format errStr to:stream;
-			)
-			
-			format "SortMode: " to:stream;
-			try (
-				format "%\n" (outliner.prefs.getValue #Tree #sortMode) to:stream;
-			) catch (
-				format errStr to:stream;
-			)
-			
-			format "HideGroupMembersInLayerMode: " to:stream;
-			try (
-				format "%\n" outliner.tree.HideGroupMembersLayerMode to:stream;
-			) catch (
-				format errStr to:stream;
-			)
-			
-			format "Filter Enabled: " to:stream;
-			try (
-				format "%\n" outliner.tree.Filter.Enabled to:stream;
-			) catch (
-				format errStr to:stream;
-			)
-			
-			format "Filter: " to:stream;
-			try (
-				format "%\n" (outliner.prefs.getValue #Tree #objFilter) to:stream;
-			) catch (
-				format errStr to:stream;
-			)
-		)
-	),
+	
 	
 	
 	/**
@@ -248,6 +280,16 @@ struct outliner_crash_report
 	/**
 	 * WRITE OUTLINER DATA TO FILE
 	 */
+	function getOutlinerVersion =
+	(
+		local outlinerVersion = "unknown";
+		if (hasINISetting product_info_file "General" "version") then
+			outlinerVersion = getINISetting product_info_file "General" "version";
+			
+		--Return outliner version.
+		outlinerVersion;
+	),
+	
 	function pTime t =
 	(
 		if (t < 10) then
@@ -284,28 +326,12 @@ struct outliner_crash_report
 		local maxv = maxVersion();
 		format "3dsmax version: % %\n" (if (maxv[1] < 10) then maxv[1] else 2008 + (maxv[1] / 1000 - 10)) (if (is64bitapplication()) then "64bit" else "32bit") to:stream;
 		
-		--Write Outliner version.
-		local prefsFile = (GetDir #userScripts) + "/outliner_prefs.ini";
-		local outlinerVersion = "unknown";
-		if (hasINISetting prefsFile "General" "version") then
-			outlinerVersion = getINISetting prefsFile "General" "version";
-		else if (outliner != undefined) then
-			outlinerVersion = outliner.version;
-		format "Outliner version: %\n" outlinerVersion to:stream;
-		
-		--Write Outliner product id's.
-		format "Product ID A: %\n" (getINISetting prefsFile "General" "product_id_a") to:stream;
-		format "Product ID B: %\n" (getINISetting prefsFile "General" "product_id_b") to:stream;
-		
 		format "Heap Size: %\n" (heapSize as string) to:stream;
 		format "Heap Free: %\n" (heapFree as string) to:stream;
 		format "Heap Check: %\n\n" (doHeapCheck()) to:stream;
 		
 		--Write Outliner status to stream.
 		writeOutlinerStatus stream;
-		
-		--Write Outliner settings to stream.
-		writeOutlinerSettings stream;
 		
 		
 		format "\n\nScene Hierarchy\n---------------\n" to:stream;
@@ -358,8 +384,18 @@ struct outliner_crash_report
 	writeStackSuccess,
 	outlinerDataFile,
 	writeOutlinerDataSuccess,
+	detailsFile,
 	packFile,
 	webClient,
+	
+	
+	function deleteTempFiles =
+	(
+		try ( deleteFile stackFile; ) catch ()
+		try ( deleteFile outlinerDataFile; ) catch ()
+		try ( deleteFile detailsFile; ) catch ()
+		try ( deleteFile packFile; ) catch ()
+	),
 	
 	function uploadCompleted s e =
 	(
@@ -380,17 +416,17 @@ struct outliner_crash_report
 		dotNet.removeEventHandlers e.UserState.value.webClient "UploadFileCompleted";
 		e.UserState.value.webClient = undefined;
 		
-		deleteFile e.UserState.value.packFile;
+		e.UserState.value.deleteTempFiles();
 	),
 	
 	function sendReport report_instance fromEmail details =
 	(
-		local filesToPack = #();
+		local filesToPack = #(prefs_file, product_info_file);
 		if (writeStackSuccess) do append filesToPack stackFile;
 		if (writeOutlinerDataSuccess) do append filesToPack outlinerDataFile;
 		if (fromEmail != "" OR details != "") do
 		(
-			local detailsFile = (GetDir #temp) + "/outliner_crash_details.txt";
+			detailsFile = (GetDir #temp) + "/outliner_crash_details.txt";
 			local stream = createFile detailsFile;
 			if (stream != undefined) do
 			(
@@ -404,9 +440,7 @@ struct outliner_crash_report
 		packFile = (GetDir #temp) + "/outliner_crash_report.zip";
 		local packResult = maz packFile filesToPack;
 		
-		for f in filesToPack do deleteFile f;
-		
-		if (packResult > 0) do
+		if (packResult > 0) then
 		(
 			try 
 			(	
@@ -415,14 +449,14 @@ struct outliner_crash_report
 				url += fromEmail;
 				url += "&summary=Outliner version:\r\n";
 				try (
-					url += (outliner.version as string);
+					url += getOutlinerVersion();
 				) catch (
 					url += "-Unable to retrieve-";
 				)
 				url += "\r\n\r\nException:\r\n";
 				url += report_instance.exception;
-				url += "\r\n\r\nStack summary:\r\n";
-				url += report_instance.stackSummary;
+				url += "\r\n\r\nStack:\r\n";
+				url += report_instance.stackFirstLevel;
 				url += "\r\n\r\nEmail address:\r\n";
 				if (fromEmail != "") then
 					url += fromEmail;
@@ -442,18 +476,23 @@ struct outliner_crash_report
 	        ) catch 
 	        (
 	        	messageBox "Failed to send error report." "Error";
+	        	deleteTempFiles();
 	        )
 		)
+		else
+			deleteTempFiles();
 	),
 	
+	
 	dialog_w = 360,
-	dialog_h = 520,
+	dialog_h = 535,
 	
 	crashReport_rollout = rollout crashReport_rollout "Outliner Error Report"
 	(
 		local report_instance;
+		local send_report = false;
 		local dialog_w = 360;
-		local dialog_h = 520;
+		local dialog_h = 535;
 		local marginX = 5;
 		local marginY = 5;
 		local ctrlX = 15;
@@ -467,21 +506,22 @@ struct outliner_crash_report
 			label repInfoLbl1 "A report of this error has been generated. Please click 'Send Report'" pos:[ctrlX, marginY + ctrlDY * 2.5];
 			label repInfoLbl2 "to send the report to the developer and help improve the quality of" pos:[ctrlX, marginY + ctrlDY * 2.5 + txtDY];
 			label repInfoLbl3 "this tool. The collected data will be treated confidentially and used" pos:[ctrlX, marginY + ctrlDY * 2.5 + txtDY * 2];
-			label repInfoLbl4 "only to analyse the cause of the error." pos:[ctrlX, marginY + ctrlDY * 2.5 + txtDY * 3];
+			label repInfoLbl4 "only to analyse the cause of the crash." pos:[ctrlX, marginY + ctrlDY * 2.5 + txtDY * 3];
 			
 		local reportGrpY = marginY + infoGrpH + marginY;
-		local reportGrpH = 80;
+		local reportGrpH = 100;
 		groupBox reportGrp "Report Contents" width:grpW height:reportGrpH pos:[marginX, reportGrpY];
-			hyperlink contentLink1 "- Information about the Outliner settings and the current scene." pos:[ctrlX, reportGrpY + ctrlDY + 2];
-			hyperlink contentLink2 "- Information about the exception and a stack trace." pos:[ctrlX, reportGrpY + ctrlDY * 2 + 2];
-			label contentLbl3 "- Optional: your email address and supplied details." pos:[ctrlX, reportGrpY + ctrlDY * 3 + 2];
+			hyperlink contentLink1 "- Information about the exception and a stack trace." pos:[ctrlX, reportGrpY + ctrlDY + 2];
+			hyperlink contentLink2 "- The Outliner settings file." pos:[ctrlX, reportGrpY + ctrlDY * 2 + 2];
+			hyperlink contentLink3 "- Information about the current scene." pos:[ctrlX, reportGrpY + ctrlDY * 3 + 2];
+			label contentLbl3 "- Optional: your email address and supplied details." pos:[ctrlX, reportGrpY + ctrlDY * 4 + 2];
 		
 		local addInfoGrpY = reportGrpY + reportGrpH + marginY;
 		local addInfoGrpH = 260;
 		groupBox addInfoGrp "Additional Information" width:grpW height:addInfoGrpH pos:[marginX, addInfoGrpY];
 			label repInfoLbl5 "In addition to the error data, you can provide a description of what" pos:[ctrlX, marginY + addInfoGrpY + ctrlDY];
-			label repInfoLbl6 "you were doing when the error occured. Please also supply your" pos:[ctrlX, marginY + addInfoGrpY + ctrlDY + txtDY];
-			label repInfoLbl7 "email address so I can contact you should I require more information." pos:[ctrlX, marginY + addInfoGrpY + ctrlDY + txtDY * 2];
+			label repInfoLbl6 "you were doing when the error occured. If you supply your email" pos:[ctrlX, marginY + addInfoGrpY + ctrlDY + txtDY];
+			label repInfoLbl7 "address, you'll be informed when the issue is resolved." pos:[ctrlX, marginY + addInfoGrpY + ctrlDY + txtDY * 2];
 			
 			label emailLbl "Your Email Address" pos:[ctrlX, addInfoGrpY + txtDY * 2.5 + ctrlDY * 2];
 			edittext emailTxt "" pos:[ctrlX - 5, addInfoGrpY + txtDY * 2.5 + ctrlDY * 3];
@@ -501,11 +541,10 @@ struct outliner_crash_report
 		
 		on sendBtn pressed do
 		(
-			try (
-				outliner.prefs.setValue #General #crashReportEmail emailTxt.text;
-			) catch ()
+			setINISetting report_instance.product_info_file "General" "crashReportEmail" emailTxt.text;
 			
 			report_instance.sendReport report_instance emailTxt.text detailsTxt.text;
+			send_report = true;
 			close();
 		)
 		
@@ -514,6 +553,9 @@ struct outliner_crash_report
 			
 		on crashReport_rollout close do
 		(
+			if (not send_report) do
+				report_instance.deleteTempFiles();	
+				
 			global outliner_handling_exception = false;
 		)
 	),
@@ -521,25 +563,21 @@ struct outliner_crash_report
 
 	
 	
-	function handle_exception report_instance additionalInfo:"" =
+	function handle_exception report_instance =
 	(
 		global outliner_handling_exception
 
-		if (outliner_handling_exception != true) do
+		if (outliner_handling_exception != true) do   --not using "not" statement because the variable could be undefined.
 		(
 			outliner_handling_exception = true;
 			
 			exception = getCurrentException();
 			
-			local tmpStack = stringStream "";
-			stack to:tmpStack;
-			seek tmpStack 0;
-			skipToString tmpStack "**	[stack level: 1]";
-			local pos = (filePos tmpStack) - 19;
-			skipToNextLine tmpStack;
-			stackSummary = readLine tmpStack;
-			seek tmpStack pos;
-			stackFull = readDelimitedString tmpStack "";
+			stackStream = stringStream "";
+			stack to:stackStream;
+			stackFirstLevel = createStackSummary stackStream firstLevelOnly:true;
+			stackSummary = createStackSummary stackStream;
+			
 			
 			stackFile = (GetDir #temp) + "/outliner_crash_stack.txt";
 			writeStackSuccess = writeExceptionDataToFile stackFile;
@@ -555,10 +593,14 @@ struct outliner_crash_report
 			(
 				createDialog crashReport_rollout dialog_w dialog_h;
 				crashReport_rollout.report_instance			= report_instance;
-				crashReport_rollout.contentLink1.address	= outlinerDataFile;
-				crashReport_rollout.contentLink2.address	= stackFile;
-				crashReport_rollout.emailTxt.text			= outliner.prefs.getValue #General #crashReportEmail;
+				crashReport_rollout.contentLink1.address	= stackFile;
+				crashReport_rollout.contentLink2.address	= prefs_file;
+				crashReport_rollout.contentLink3.address	= outlinerDataFile;
+				crashReport_rollout.emailTxt.text			= getINISetting product_info_file "General" "crashReportEmail";
 			) catch ()
 		)
 	)
 )
+
+outliner_crash_report = outlinerCrashReport();
+outliner_crash_report.handle_exception outliner_crash_report;

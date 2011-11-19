@@ -111,12 +111,11 @@ struct outlinerUI
 			outliner_status.windowOpen = true;
 			updateToolbarButtons();
 			
-			setFocus outliner_main.search;
+			setFocus outliner_main.searchField;
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -184,8 +183,7 @@ struct outlinerUI
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -211,8 +209,7 @@ struct outlinerUI
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -237,8 +234,7 @@ struct outlinerUI
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -252,8 +248,7 @@ struct outlinerUI
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	)
 )

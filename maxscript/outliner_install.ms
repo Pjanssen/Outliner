@@ -1,6 +1,6 @@
 (
-	local version = 2.09;
-	local versionStr = "2.0.9";
+	local version = 2.096;
+	local versionStr = "2.0.96";
 	
 	global outliner_restart_required;
 	
@@ -9,7 +9,8 @@
 	local userStartupScriptDir = (GetDir #userStartupScripts) + "/outliner";
 	local userIconsDir = (GetDir #userIcons);
 	
-	local prefsFile = (GetDir #userScripts) + "/outliner_prefs.ini";
+	local prefs_file = (GetDir #userScripts) + "/outliner_prefs.ini";
+	local product_info_file = (GetDir #userScripts) + "/outliner_product_info.ini";
 	
 	
 	local str_done = "done";
@@ -22,6 +23,8 @@
 	local str_begUnInst			= "Beginning uninstallation.\n";
 	local str_remScrFiles		= "\nRemoving script files...";
 	local str_remPrefFiles		= "\nRemoving preferences file...";
+	local str_queryRemprefs_fileTitle = "Remove preferences file?";
+	local str_queryRemprefs_file = "Do you want to remove the Outliner preferences file?";
 	local str_remWFToolsFiles	= "\nRemoving Workflow Tools files...";
 	local str_remScrFilesFailed = "Removing script files failed.\n\nIt is possible that 3dsmax is locking some files,\nor administrator rights may be required.\nSee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
 	local str_remPrefFileFailed	= "Removing preferences file failed.  ";
@@ -186,45 +189,66 @@
 	
 	function removePreferencesFile =
 	(
-		if (doesFileExist prefsFile) then
-			deleteFile prefsFile;
+		if (doesFileExist prefs_file) then
+			deleteFile prefs_file;
 		else
 			true;
 	)
 	
 	function updatePreferencesFile =
 	(
-		if (doesFileExist prefsFile AND hasINISetting prefsFile "General" "version") do
+		--Pre 2.0.94
+		if (hasINISetting prefs_file "General" "version") then
 		(
-			local oldVersion = (getINISetting prefsFile "General" "version") as float; 
+			local oldVersion = (getINISetting prefs_file "General" "version") as float; 
 			if (oldVersion == undefined OR oldVersion < 2.0) then
-				deleteFile prefsFile;
-			else
+				deleteFile prefs_file;
+			else 
 			(
+				--Move product_info inisettings to separate file.
+				if (oldVersion < 2.094) do
+				(
+					if (hasINISetting prefs_file "General" "product_id_a") do setINISetting product_info_file "General" "product_id_a" (getINISetting prefs_file "General" "product_id_a");
+					if (hasINISetting prefs_file "General" "product_id_b") do setINISetting product_info_file "General" "product_id_b" (getINISetting prefs_file "General" "product_id_b");
+					if (hasINISetting prefs_file "General" "workflowToolsInstalled") do setINISetting product_info_file "General" "workflowToolsInstalled" (getINISetting prefs_file "General" "workflowToolsInstalled");
+					if (hasINISetting prefs_file "General" "crashReportEmail") do setINISetting product_info_file "General" "crashReportEmail" (getINISetting prefs_file "General" "crashReportEmail");
+					delINISetting prefs_file "General" "version";
+					delINISetting prefs_file "General" "versionString";
+					delINISetting prefs_file "General" "product_id_a";
+					delINISetting prefs_file "General" "product_id_b";
+					delINISetting prefs_file "General" "workflowToolsInstalled";
+					delINISetting prefs_file "General" "crashReportEmail";
+				)
+				--Remove deprecated inisettings.
 				if (oldVersion < 2.09) do
 				(
-					delIniSetting prefsFile "General" "matModeFirstRun";
-					delIniSetting prefsFile "General" "product_id";
-					if (hasINISetting prefsFile "General" "checkUpdatesInterval" AND (getINISetting prefsFile "General" "checkUpdatesInterval") == "7") do
-						setINISetting prefsFile "General" "checkUpdatesInterval" "1";
-					
+					delINISetting prefs_file "General" "matModeFirstRun";
+					delINISetting prefs_file "General" "product_id";
+					if (hasINISetting prefs_file "General" "checkUpdatesInterval" AND (getINISetting prefs_file "General" "checkUpdatesInterval") == "7") do
+						setINISetting prefs_file "General" "checkUpdatesInterval" "1";
 				)
 			)
 		)
+		--Post 2.0.94
+		else if (hasINISetting product_info_file "General" "version") then
+		(
+		)
 		
-		
-		if (getINISetting prefsFile "General" "product_id_a" == "" OR getINISetting prefsFile "General" "product_id_b" == "") do
+		--Generate product id's if necessary.
+		if ((getINISetting product_info_file "General" "product_id_a") == "" OR (getINISetting product_info_file "General" "product_id_b") == "") do
 		(
 			local class_id = genClassId returnValue:true;
 			class_id[1] = bit.set class_id[1] 32 false;
 			class_id[2] = bit.set class_id[2] 32 false;
-			setINISetting prefsFile "General" "product_id_a" (class_id[1] as string);
-			setINISetting prefsFile "General" "product_id_b" (class_id[2] as string);
+			setINISetting product_info_file "General" "product_id_a" (class_id[1] as string);
+			setINISetting product_info_file "General" "product_id_b" (class_id[2] as string);
 		)
-			
-		setINISetting prefsFile "General" "version" (version as string);
-		setINISetting prefsFile "General" "versionString" versionStr;
-		setINISetting prefsFile "General" "lastUpdateCheck" "0";
+		
+		--Write version and update settings.
+		setINISetting product_info_file "General" "version" (version as string);
+		setINISetting product_info_file "General" "versionString" versionStr;
+		setINISetting prefs_file "General" "ignore_update_version" "0.0";
+		setINISetting prefs_file "General" "lastUpdateCheck" "0";
 		
 		true;
 	)
@@ -449,9 +473,9 @@
 		
 		
 		addStatusText str_remWFToolsFiles;
-		if (doesFileExist prefsFile) do
+		if (doesFileExist prefs_file) do
 		(
-			if ((getINISetting prefsFile "General" "workflowtoolsinstalled") == "true") then
+			if ((getINISetting prefs_file "General" "workflowtoolsinstalled") == "true") then
 				if (queryBox str_remWFTools title:"Remove Workflow Tools") then
 				(
 					if (removeWorkflowTools()) then
@@ -471,14 +495,19 @@
 		
 		
 		addStatusText str_remPrefFiles;
-		if (removePreferencesFile()) then
-			addStatusText str_done;
-		else
+		if (querybox str_queryRemprefs_file title:str_queryRemprefs_fileTitle) then
 		(
-			addStatusText str_failed;
-			installation_failed str_uninst str_remPrefFileFailed;
-			return false;
+			if (removePreferencesFile()) then
+				addStatusText str_done;
+			else
+			(
+				addStatusText str_failed;
+				installation_failed str_uninst str_remPrefFileFailed;
+				return false;
+			)
 		)
+		else
+			addStatusText str_skipped;
 		
 		uninstallation_success();
 		true;

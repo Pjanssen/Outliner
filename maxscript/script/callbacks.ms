@@ -231,8 +231,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 		
@@ -259,8 +258,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -289,8 +287,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -327,8 +324,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -356,8 +352,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -382,8 +377,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -404,8 +398,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -419,7 +412,7 @@ struct outlinerCallbacks (
 		try
 		(
 			-- Avoid calling outliner.tree.SetObjectClass when Outliner has been closed (caused a crash before).
-			if (outliner_status != undefined AND outliner_status.windowOpen AND outliner != undefined) do
+			if (tree_setObjectClassFn != undefined AND outliner_status != undefined AND outliner_status.windowOpen AND outliner != undefined) do
 			(
 				for n in nodes do
 				(
@@ -431,8 +424,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -468,8 +460,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -485,8 +476,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -505,8 +495,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -523,8 +512,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -551,8 +539,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -577,8 +564,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -607,8 +593,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -668,8 +653,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -701,8 +685,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)*/
 	),
 	
@@ -727,8 +710,7 @@ struct outlinerCallbacks (
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -808,8 +790,9 @@ struct outlinerCallbacks (
 	 */
 	function filePreOpen =
 	(
+		outliner.tree.ClearTree();
 		--Clear the outlinerscene. I suspect that garbagecollections might occur when there's a dotnetmxsvalue that has no scene representation anymore.
-		outliner.tree.scene.clear();
+		outliner.tree.Scene.Clear();
 		removeCallbacks();
 		callbacks.addScript #filePostOpen "outliner_callbacks.filePostOpen()" id:#outliner;
 	),

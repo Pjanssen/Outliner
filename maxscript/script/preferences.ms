@@ -16,6 +16,7 @@ struct outlinerPreferences (
 			--General section
 			(outlinerPrefsEntry section:#General key:#version					default:0.0),
 			(outlinerPrefsEntry section:#General key:#versionString				default:""),
+			(outlinerPrefsEntry section:#General key:#product_id					default:0L),
 			(outlinerPrefsEntry section:#General key:#matModeFirstRun			default:true),
 			(outlinerPrefsEntry section:#General key:#addNestedLayerMessage		default:true),
 			(outlinerPrefsEntry section:#General key:#openAtStartup				default:false),

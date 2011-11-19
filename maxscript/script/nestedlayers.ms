@@ -45,7 +45,7 @@ struct outliner_NestedLayers
 	(
 		local callbackStr = ("
 			local outliner_prefs_file = (GetDir #userScripts) + \"/outliner_prefs.ini\";
-			if (not (doesFileExist outliner_prefs_file)) do (
+			if (not (doesFileExist outliner_prefs_file) AND not (GetQuietMode())) do (
 				local containsNestedLayers = false;
 				for def in custAttributes.getSceneDefs() while (not containsNestedLayers) do
 					if (def.name == #outlinerNestedLayerData) do containsNestedLayers = true;

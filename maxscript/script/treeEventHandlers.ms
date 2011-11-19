@@ -638,7 +638,7 @@ struct outliner_TreeEventHandlers
 				for handle in selHandles do
 				(
 					local n = GetAnimByHandle handle;
-					if (n != undefined) do
+					if (isValidNode n) do
 					(
 						if (isKindOf n Node) then
 						(

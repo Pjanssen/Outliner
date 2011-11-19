@@ -1,6 +1,6 @@
 (
-	local version = 2.07;
-	local versionStr = "2.0.7";
+	local version = 2.08;
+	local versionStr = "2.0.8";
 	
 	global outliner_restart_required;
 	
@@ -200,15 +200,28 @@
 	
 	function updatePreferencesFile =
 	(
-		if (doesFileExist prefsFile) do
+		local product_id;
+		
+		if (doesFileExist prefsFile AND hasINISetting prefsFile "General" "version") do
 		(
 			local oldVersion = (getINISetting prefsFile "General" "version") as float; 
 			if (oldVersion == undefined OR oldVersion < 2.0) then
 				deleteFile prefsFile;
+			else if (oldVersion >= 2.08 AND hasINISetting prefsFile "General" "product_id") then
+				product_id = (getINISetting prefsFile "General" "product_id") as integer64;
 		)
 		
+		if (product_id == undefined) do
+		(
+			local class_id = genClassId returnValue:true;
+			class_id[1] = integer64 (bit.set class_id[1] 32 false);
+			class_id[2] = integer64 (bit.set class_id[2] 32 false);
+			product_id = bit.or (bit.shift class_id[1] 32) class_id[2];
+		)
+			
 		setINISetting prefsFile "General" "version" (version as string);
 		setINISetting prefsFile "General" "versionString" versionStr;
+		setINISetting prefsFile "General" "product_id" (product_id as string);
 		
 		true;
 	)

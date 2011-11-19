@@ -45,7 +45,7 @@ struct outliner_TreeEventHandlers
 						for m in e.SelectedMaterialHandles while (not matFound) do
 						(
 							local mat = GetAnimByHandle m;
-							if (mat != undefined AND not (isKindOf m textureMap)) do
+							if (mat != undefined AND ((superclassof m) == material)) do
 							(
 								local matIndex = findItem meditmaterials mat;
 								if (matIndex != 0) do
@@ -88,7 +88,7 @@ struct outliner_TreeEventHandlers
 					for handle in e.Handles do
 					(
 						local n = GetAnimByHandle handle;
-						if (n != undefined) do
+						if (n != undefined AND not isDeleted n) do
 						(
 							if (isValidNode n) then
 								n.isNodeHidden = e.newValue;
@@ -127,7 +127,7 @@ struct outliner_TreeEventHandlers
 					for handle in e.Handles do
 					(
 						local n = GetAnimByHandle handle;
-						if (n != undefined) do
+						if (n != undefined AND not isDeleted n) do
 						(
 							if (isValidNode n) then
 								n.isNodeFrozen = e.newValue;
@@ -161,7 +161,7 @@ struct outliner_TreeEventHandlers
 				for handle in e.Handles do
 				(
 					local n = GetAnimByHandle handle;
-					if (n != undefined) do
+					if (n != undefined AND not isDeleted n) do
 					(
 						if (isValidNode n) then
 							n.boxMode = e.newValue;
@@ -195,7 +195,7 @@ struct outliner_TreeEventHandlers
 			
 			local n = (GetAnimByHandle e.Handle);
 			
-			if (n != undefined) do
+			if (n != undefined AND not isDeleted n) do
 			(
 				-- Rename node.
 				if (isValidNode n OR isKindOf n Material) then
@@ -331,8 +331,8 @@ struct outliner_TreeEventHandlers
 		(
 			outliner_status.layerChangedInOutliner = true;
 			
-			local layer = (GetAnimByHandle e.TargetHandle);
-			if (layer != undefined) do
+			local targetLayer = (GetAnimByHandle e.TargetHandle);
+			if (targetLayer != undefined) do
 			(
 				undo "Change Layers" on 
 				(
@@ -341,7 +341,18 @@ struct outliner_TreeEventHandlers
 						for h in e.Handles do
 						(
 							local n = GetAnimByHandle h;
-							if (isValidNode n) do layer.addNode n;
+							if (isValidNode n) do 
+							(
+								targetLayer.addNode n;
+								
+								--Also move dependencies in case of a PFSource
+								if ((classof n) == PF_Source) do
+								(
+									local depNodes = refs.dependentNodes n;
+									for d in depNodes do
+										targetLayer.addNode d;
+								)
+							)
 						)
 					)
 				)
@@ -658,7 +669,7 @@ struct outliner_TreeEventHandlers
 				for handle in selHandles do
 				(
 					local n = GetAnimByHandle handle;
-					if (n != undefined) do
+					if (n != undefined AND not isDeleted n) do
 					(
 						if (isValidNode n) then
 						(

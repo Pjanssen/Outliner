@@ -445,8 +445,24 @@ rollout outliner_main "Outliner"
 	--Rollout moved.
 	on outliner_main moved arg do 
 	(
-		setPrefFn #Window #posx arg[1];
-		setPrefFn #Window #posy arg[2];
+		local posx = arg[1];
+		local posy = arg[2];
+		
+		--Adjust for cui.unregisterDialog bug.
+		local osVersion = (dotNetClass "System.Environment").osVersion;
+		--Windows XP (y - 2)
+		if (osVersion.version.major < 6) then
+			posy -= 2;
+		--Windows 7 (x - 4, y - 6)
+		else
+		(
+			posx -= 4;
+			posy -= 6;
+		)
+		
+		--Store preferences.
+		setPrefFn #Window #posx posx;
+		setPrefFn #Window #posy posy;
 	)
 	
 	
@@ -460,14 +476,6 @@ rollout outliner_main "Outliner"
 			if ((getPrefFn #Window #dockFlag) != dockState) do
 			(
 				setPrefFn #Window #dockFlag (cui.getDockState outliner_main);
-				if (dockState == #cui_floatable) do
-				(
-					cui.UnRegisterDialogBar outliner_main;
-				
-					outliner_main.width -= 8;
-				
-					cui.RegisterDialogBar outliner_main minSize:[outliner.ui.mainMinWidth, outliner.ui.mainMinHeight] maxSize:[-1,-1] style:#(#cui_dock_vert, #cui_floatable);
-				)
 			)
 			
 		)

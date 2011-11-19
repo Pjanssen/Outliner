@@ -33,7 +33,7 @@ struct outlinerCallbacks (
 			),
 	nodeEventCallbackItem,
 	isCreatingNode = false,
-	isDeleting = false,
+	deletingNode = undefined,
 	isMerging = false,
 	isMergingXrefs = false,
 	layerNames,
@@ -293,9 +293,13 @@ struct outlinerCallbacks (
 	
 	function nodeLinked = 
 	(
-		if (not outliner_status.linkedInOutliner AND not isDeleting AND not isMerging) do
+		if (not outliner_status.linkedInOutliner) do
 		(
-			nodeLinkedIntern (callbacks.notificationParam());
+			local linkedNode = callbacks.notificationParam();
+			if (not isMerging AND not (deletingNode == linkedNode)) do
+			(
+				nodeLinkedIntern linkedNode;
+			)
 		)
 	),
 	
@@ -309,17 +313,16 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			isDeleting = true;
+			deletingNode = callbacks.notificationParam();
 			
-			local deletedObject = callbacks.notificationParam();
-			if (isValidNode deletedObject) do
+			if (isValidNode deletingNode) do
 			(
-				local deletedObjectHandle = GetHandleByAnim deletedObject;
+				local deletedNodeHandle = GetHandleByAnim deletingNode;
 				
-				if (isGrouphead deletedObject) do 
-					outliner.openGroupHeads[deletedObjectHandle] = false;
+				if (isGrouphead deletingNode) do 
+					outliner.openGroupHeads[deletedNodeHandle] = false;
 		
-				tree_deleteObjectFn deletedObjectHandle;
+				tree_deleteObjectFn deletedNodeHandle;
 			)
 		)
 		catch
@@ -330,7 +333,7 @@ struct outlinerCallbacks (
 	
 	function nodePostDelete =
 	(
-		isDeleting = false;
+		deletingNode = undefined;
 	),
 	
 	
@@ -503,7 +506,7 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			if (not isCreatingNode AND not isDeleting AND not isMerging AND not outliner_status.layerChangedInOutliner) do
+			if (not isCreatingNode AND (deletingNode == undefined) AND not isMerging AND not outliner_status.layerChangedInOutliner) do
 			(
 				local params = callbacks.notificationParam();
 				if (params[1] != undefined AND params[3] != undefined) do

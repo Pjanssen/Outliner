@@ -1,10 +1,10 @@
 struct outlinerCore
 (
-	version,
 	maxV				= (maxVersion())[1] / 1000,
 	dir					= ((GetDir #userScripts) + "/outliner/"),
 	icondir				= dir + "ui/icons/",
 	prefs,
+	product_info,
 	ui,
 
 	tree,
@@ -44,113 +44,6 @@ struct outlinerCore
 		(dotNetClass "System.Enum").GetNames (dotNet.getType enumType);
 	),
 
-
-
-
-	function askDownloadUpdate latestVersion =
-	(
-		if (queryBox ("A new Outliner version (" + latestVersion as String + ") is available!\nWould you like to download and install it now?") title:"Update available") do
-		(
-			local client = dotNetObject "System.Net.WebClient";
-			local getInstallerUri = dotnetObject "System.Uri" "http://script.threesixty.nl/outliner/get_latest.php?fn=getInstallerUrl";
-			local installerUrl = client.DownloadString getInstallerUri;
-			local dragDropDir = dragAndDrop.getDownloadDirectory();
-			local downloadSuccess = dragAndDrop.downloadPackage #(installerUrl) dragDropDir true;
-			if (downloadSuccess) then
-			(
-				local dropFile = dragDropDir + "/" + (filenameFromPath installerUrl);
-				dragAndDrop.dropPackage (windows.getMAXHWND()) [0, 0] dropFile;
-				deleteFile dropFile;
-			)
-			else
-				messageBox "Failed to download installer." title:"Error";
-		)
-	),
-	
-	--note: To work around instance access bug for .NET handlers, this function refers to the outliner object directly.
-	function onUpdateDownloadCompleted s e =
-	(
-		if (not e.Cancelled AND e.Error == undefined) do
-		(
-			latestVersion = e.Result as float;
-			if (latestVersion != undefined AND outliner != undefined AND outliner.version < latestVersion) do
-			(
-				outliner.askDownloadUpdate latestVersion;
-			)
-		)
-	),
-	
-	function onUpdateDownloadCompletedFull s e =
-	(
-		if (not e.Cancelled) do
-		(
-			if (e.Error != undefined) then
-				messageBox ("Error retreiving update information:\n" + e.Error.Message) title:"Error";
-			else
-			(
-				latestVersion = e.Result as float;
-				if (latestVersion != undefined) do
-				(
-					if (outliner.version < latestVersion) then
-						outliner.askDownloadUpdate latestVersion;
-					else
-					(
-						local mb = dotNetClass "System.Windows.Forms.MessageBox";
-						local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
-						local mbIcon = dotNetClass "System.Windows.Forms.MessageBoxIcon";
-						mb.Show ("You are running the latest Outliner version (" + (outliner.version as string) + ")") "No update available" mbBtn.OK mbIcon.Information;
-					)
-				)
-			)
-		)
-		
-		if (outliner_options_general != undefined) do
-		(
-			outliner_options_general.checkNowBtn.text = "Check now";
-			outliner_options_general.checkNowBtn.checked = false;
-		)
-	),
-	
-	webClient,
-	
-	function getUpdateVersionAsync showLatestInstalledMessage =
-	(
-		webClient = dotNetObject "System.Net.WebClient";
-		local product_id_a = (prefs.getValue #General #product_id_a) as string;
-		local product_id_b = (prefs.getValue #General #product_id_b) as string;
-		local url = "http://script.threesixty.nl/outliner/update.php"
-		local args = "?product_id_a=" + product_id_a + "&product_id_b=" + product_id_b + "&outliner_version=" + (version as string) + "&max_version=" + (maxV as string) + "&is_64bit=";
-		if (is64bitApplication()) then
-			args += "1";
-		else
-			args += "0";
-			
-		local getLatestUri = dotnetObject "System.Uri" (url + args);
-		
-		if (showLatestInstalledMessage) then
-			dotnet.addEventHandler webClient "DownloadStringCompleted" onUpdateDownloadCompletedFull;
-		else
-			dotnet.addEventHandler webClient "DownloadStringCompleted" onUpdateDownloadCompleted;
-			
-		webClient.DownloadStringAsync getLatestUri;
-	),
-	
-	--Checks if a new version is available.
-	function checkUpdate =
-	(
-		local checkUpdates = prefs.getValue #General #checkForUpdates;
-		if (checkUpdates) do
-		(
-			local checkInterval = prefs.getValue #General #checkUpdatesInterval;
-			local lastCheckTicks = prefs.getValue #General #lastUpdateCheck;
-			local nowTicks = (dotNetClass "System.DateTime").Today.Ticks;
-			local lastCheckSpan = dotNetObject "System.TimeSpan" (nowTicks - lastCheckTicks);
-			if (lastCheckSpan.TotalDays >= checkInterval) do
-				getUpdateVersionAsync false;
-
-			prefs.setValue #General #lastUpdateCheck nowTicks;
-		)
-	),
 
 
 
@@ -263,8 +156,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -272,10 +164,49 @@ struct outlinerCore
 
 	function switchListMode listMode =
 	(
-		local listModeEnum = parseDotNetEnum "Outliner.OutlinerListMode" listMode;
-		if (tree.ListMode != listModeEnum) do
+		try
 		(
-			if (listMode == "Layer" OR (prefs.getValue #Tree #sortMode) == "Layer") then
+			local listModeEnum = parseDotNetEnum "Outliner.OutlinerListMode" listMode;
+			if (tree.ListMode != listModeEnum) do
+			(
+				if (listMode == "Layer" OR (prefs.getValue #Tree #sortMode) == "Layer") then
+				(
+					outliner_main.refreshLayerNamesTimer.active = true;
+					outliner_callbacks.createLayerChangeHandlers();
+				)
+				else
+				(
+					outliner_main.refreshLayerNamesTimer.active = false;
+					outliner_callbacks.removeLayerChangeHandlers();
+				)
+					
+				if (listMode == "Material" OR (prefs.getValue #Tree #sortMode) == "Material") then
+				(
+					pushMaterialsToTree();
+					outliner_callbacks.createMaterialChangeHandlers();
+				)
+				else
+					outliner_callbacks.removeMaterialChangeHandlers();
+	
+				prefs.setValue #Tree #listMode listMode;
+				tree.ListMode = listModeEnum;
+				tree.FillTree();
+			)
+		)
+		catch
+		(
+			fileIn "crash_report.ms";
+		)
+	),
+
+
+	function switchSortMode sortMode =
+	(
+		try
+		(
+			outliner.prefs.setValue #Tree #sortmode sortMode;
+			
+			if ((prefs.getValue #Tree #listMode) == "Layer" OR sortMode == "Layer") then
 			(
 				outliner_main.refreshLayerNamesTimer.active = true;
 				outliner_callbacks.createLayerChangeHandlers();
@@ -286,48 +217,23 @@ struct outlinerCore
 				outliner_callbacks.removeLayerChangeHandlers();
 			)
 				
-			if (listMode == "Material" OR (prefs.getValue #Tree #sortMode) == "Material") then
+			if ((prefs.getValue #Tree #listMode) == "Material" OR sortMode == "Material") then
 			(
 				pushMaterialsToTree();
 				outliner_callbacks.createMaterialChangeHandlers();
 			)
 			else
 				outliner_callbacks.removeMaterialChangeHandlers();
-
-			prefs.setValue #Tree #listMode listMode;
-			tree.ListMode = listModeEnum;
-			tree.FillTree();
-		)
-	),
-
-
-	function switchSortMode sortMode =
-	(
-		outliner.prefs.setValue #Tree #sortmode sortMode;
-		
-		if ((prefs.getValue #Tree #listMode) == "Layer" OR sortMode == "Layer") then
-		(
-			outliner_main.refreshLayerNamesTimer.active = true;
-			outliner_callbacks.createLayerChangeHandlers();
-		)
-		else
-		(
-			outliner_main.refreshLayerNamesTimer.active = false;
-			outliner_callbacks.removeLayerChangeHandlers();
-		)
+					
+			local sorterClass = "Outliner.NodeSorters." + sortMode + "Sorter";
+			outliner.tree.TreeViewNodeSorter = dotNetObject sorterClass;
 			
-		if ((prefs.getValue #Tree #listMode) == "Material" OR sortMode == "Material") then
-		(
-			pushMaterialsToTree();
-			outliner_callbacks.createMaterialChangeHandlers();
+			outliner_main.setSortModeBtnImages();
 		)
-		else
-			outliner_callbacks.removeMaterialChangeHandlers();
-				
-		local sorterClass = "Outliner.NodeSorters." + sortMode + "Sorter";
-		outliner.tree.TreeViewNodeSorter = dotNetObject sorterClass;
-		
-		outliner_main.setSortModeBtnImages();
+		catch
+		(
+			fileIn "crash_report.ms";
+		)
 	),
 
 
@@ -393,8 +299,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -448,8 +353,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -468,8 +372,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -483,8 +386,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -511,8 +413,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -538,8 +439,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -558,18 +458,20 @@ struct outlinerCore
 					for handle in handles do
 					(
 						local n = GetAnimByHandle handle;
+						
 						if (isValidNode n) then
 							delete n;
-						else if (isKindOf n Base_Layer AND n.name != "0") then
+						else if ((not (isDeleted n)) AND isKindOf n Base_Layer AND n.name != "0") then
 							deleteLayer n;
+						else
+							tree.DeleteObject handle;
 					)
 				)
 			)
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -600,8 +502,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -633,8 +534,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -664,8 +564,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -723,8 +622,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 
@@ -750,8 +648,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -773,8 +670,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -796,8 +692,7 @@ struct outlinerCore
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -874,6 +769,11 @@ struct outlinerCore
 		try ( outliner_filter_config.setButtonImages(); ) catch()
 		
 		tree.ResetAllNodesStyle();
+		
+		local windowColor = (colorman.getcolor #window) * 255;
+		local textColor = (colorman.getcolor #windowtext) * 255;
+		outliner_main.searchField.BackColor = (dotNetClass "System.Drawing.Color").FromARGB 255 windowColor[1] windowColor[2] windowColor[3];
+		outliner_main.searchField.ForeColor = (dotNetClass "System.Drawing.Color").FromARGB 255 textColor[1] textColor[2] textColor[3];
 	),
 
 
@@ -993,19 +893,22 @@ struct outlinerCore
 				return false;
 			)
 			
-			prefs = outlinerPreferences iniFile:((GetDir #userScripts) + "/outliner_prefs.ini");
+			prefs = outlinerPreferences();
+			prefs.iniFile = (GetDir #userScripts) + "/outliner_prefs.ini";
+			prefs.entries = outlinerPreferences.createPreferenceEntries();
 			prefs.loadPreferences();
-				
-			version = prefs.getValue #General #version;
+			
+			product_info = outlinerPreferences();
+			product_info.iniFile = (GetDir #userScripts) + "/outliner_product_info.ini";
+			product_info.entries = outlinerPreferences.createProductEntries();
+			product_info.loadPreferences();
 				
 			ui = outlinerUI();
-				
-			checkUpdate();
+			outliner_update.checkUpdateAuto();
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 			
 			success = false;
 		)
@@ -1053,12 +956,13 @@ struct outlinerCore
 		outlinerPreferences = undefined;
 		outliner_status = undefined;
 		outlinerStatus = undefined;
-		
-		if (webClient != undefined) do
+
+		if (outliner_update != undefined) do
 		(
-			dotnet.removeEventHandlers webClient "DownloadStringCompleted";
-			webClient = undefined;
+			outliner_update.dispose();
+			outliner_update = undefined;
 		)
+		
 		outliner = undefined;
 		outlinerCore = undefined;
 	)

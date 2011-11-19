@@ -100,7 +100,7 @@ namespace Outliner
 
 
             Boolean childNodesVisible;
-            if (_tree.ListMode != OutlinerListMode.Hierarchy)
+            if (_tree.ListMode != OutlinerListMode.Hierarchy && node is OutlinerObject)
                 childNodesVisible = false;
             else if (!Enabled && NameFilter == String.Empty)
                 childNodesVisible = true;

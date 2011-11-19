@@ -1,10 +1,7 @@
 name "Outliner"
 version 2.0
 
-treeCopy script to "$temp/outliner"
-treeCopy startupScript to "$temp/outliner"
-treeCopy icons to "$temp/outliner"
-treeCopy macroscripts to "$temp/outliner";
+extract to "$temp/outliner"
 
 run "outliner_install.ms"
 drop "outliner_install.ms"

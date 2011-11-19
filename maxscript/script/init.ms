@@ -13,6 +13,7 @@ global outlinerCore;
 global outliner_callbacks;
 global outliner_status;
 global outliner_main;
+global outliner_update;
 	
 	
 if (outliner_restart_required == true) then
@@ -20,7 +21,6 @@ if (outliner_restart_required == true) then
 else
 (
 	--Import scripts.
-	fileIn "crash_report.ms";
 	fileIn "keyboardActionsFile.ms";
 	fileIn "nestedLayers.ms";
 	fileIn "preferences.ms";
@@ -32,6 +32,7 @@ else
 	fileIn "ui/sortmode.ms";
 	fileIn "ui/main.ms";
 	fileIn "ui.ms";
+	fileIn "update.ms";
 	fileIn "core.ms";
 	
 	outliner = outlinerCore();

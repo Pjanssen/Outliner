@@ -18,12 +18,14 @@
 		spinner checkUpdatesInterval "" range:[1, 30, 7] type:#integer fieldWidth:30 pos:[marginX + 140, marginY + 1];
 		label checkUpdateDaysLbl "days" pos:[marginX + 187, marginY + 1];
 		checkbutton checkNowBtn "Check now" width:70 pos:[marginX + 220, marginY - 2];
+		checkbox skipTrialVersions "Skip trial versions (recommended)" pos:[marginX, marginY + chkbxDY];
 		
-		checkbox openAtStartup "Open at 3dsMax startup" pos:[marginX, marginY + chkbxDY];
-		dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 2];
-		label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 3];
-		dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 3];
-		label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 3];
+		checkbox openAtStartup "Open at 3dsMax startup" pos:[marginX, marginY + chkbxDY * 2];
+		checkbox clearSearchFieldAfterSelect "Clear search field when selecting found nodes" pos:[marginX, marginY + chkbxDY * 3];
+		dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 4];
+		label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 4 + 3];
+		dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 5];
+		label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 5 + 3];
 
 		on checkForUpdates changed checked do
 			setPrefFn #General #checkForUpdates checked;
@@ -32,23 +34,39 @@
 			setPrefFn #General #checkUpdatesInterval val;
 		
 		
+		function resetCheckBtn =
+		(
+			checkNowBtn.text = "Check now";
+			checkNowBtn.checked = false;
+		)
+		
 		on checkNowBtn changed checked do
 		(
 			if (checked) then
 			(
 				checkNowBtn.text = "Cancel";
-				outliner.getUpdateVersionAsync true;
+				outliner_update.checkCompleteFn = outliner_options_general.resetCheckBtn;
+				outliner_update.checkUpdateManual();
 			)
 			else
 			(
 				checkNowBtn.text = "Check now";
-				outliner.webClient.CancelAsync();
+				outliner_update.cancelCheckUpdate();
 			)
+		)
+		
+		on skipTrialVersions changed checked do
+		(
+			setPrefFn #General #accept_trial (not checked);
+			if (not checked) do
+				messageBox "It is possible that by disabling this option, you will be presented with\nuntested pre-release versions of the Outliner.\nUse this at your own risk!" title:"Warning";
 		)
 			
 		on openAtStartup changed checked do
 			setPrefFn #General #openAtStartup checked;
 		
+		on clearSearchFieldAfterSelect changed checked do
+			setPrefFn #General #clearSearchFieldAfterSelect checked;
 		
 		on dragMouseButton selected sel do
 		(
@@ -66,7 +84,9 @@
 		(
 			checkForUpdates.checked = getPrefFn #General #checkForUpdates;
 			checkUpdatesInterval.value = getPrefFn #General #checkUpdatesInterval;
+			skipTrialVersions.checked = not (getPrefFn #General #accept_trial);
 			openAtStartup.checked = getPrefFn #General #openAtStartup;
+			clearSearchFieldAfterSelect.checked = getPrefFn #General #clearSearchFieldAfterSelect;
 			dragMouseButton.selection = findItem dragMouseButton.items (getPrefFn #Tree #dragMouseButton);
 			doubleClickAction.selection = findItem doubleClickAction.items (getPrefFn #Tree #doubleClickAction);
 		)
@@ -76,31 +96,33 @@
 	
 	rollout outliner_options_visual "User Interface"
 	(
-		dropdownList buttonsLocation "" items:#("Top", "Bottom") width:drpDwnW pos:[marginX, marginY];
-		label buttonsLocationLbl "Main UI Buttons Location" pos:[drpDwnLblX, marginY + 4];
+		dropdownList searchBarLocation "" items:#("Hide", "Top", "Bottom") width:drpDwnW pos:[marginX, marginY];
+		label searchBarLocationLbl "Search Bar Location" pos:[drpDwnLblX, marginY + 4];
+		dropdownList buttonsLocation "" items:#("Top", "Bottom") width:drpDwnW pos:[marginX, marginY + chkbxDY];
+		label buttonsLocationLbl "Main UI Buttons Location" pos:[drpDwnLblX, marginY + chkbxDY + 4];
+		dropdownList colorScheme "" width:drpDwnW pos:[marginX, marginY + chkbxDY * 2];
+		label colorSchemeLbl "Color Scheme" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 4];
+		dropdownList iconset "" width:drpDwnW pos:[marginX, marginY + chkbxDY * 3];
+		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 4];
+		checkbox invertIcons "Invert" pos:[marginX + 170, marginY + chkbxDY * 3 + 4];
 		
-		dropdownList colorScheme "" width:drpDwnW pos:[marginX, marginY + chkbxDY];
-		label colorSchemeLbl "Color Scheme" pos:[drpDwnLblX, marginY + chkbxDY + 4];
-		dropdownList iconset "" width:drpDwnW pos:[marginX, marginY + chkbxDY * 2];
-		label iconsetLbl "Icon Set" pos:[drpDwnLblX, marginY + chkbxDY * 2 + 4];
-		checkbox invertIcons "Invert" pos:[marginX + 170, marginY + chkbxDY * 2 + 4];
 		
-		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 3 + 5];
-		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 3 + 9];
+		dropdownList nodeIconClickAction "" items:#("Hide", "Freeze", "Set Layer Active") width:drpDwnW pos:[marginX, marginY + chkbxDY * 4 + 5];
+		label nodeIconClickActionLbl "Node Icon Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 4 + 9];
 		
-		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 4 + 9];
-		dropdownlist nodeHideButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 4 + 6];
+		checkbox showNodeHideButton "Show Node Hide Button" pos:[marginX, marginY + chkbxDY * 5 + 9];
+		dropdownlist nodeHideButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 5 + 6];
 		
-		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 5 + 9];
-		dropdownlist nodeFreezeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 5 + 6];
+		checkbox showNodeFreezeButton "Show Node Freeze Button" pos:[marginX, marginY + chkbxDY * 6 + 9];
+		dropdownlist nodeFreezeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 6 + 6];
 		
-		checkbox showNodeBoxModeButton "Show Node Box Mode Button" pos:[marginX, marginY + chkbxDY * 6 + 9];
-		dropdownlist nodeBoxModeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 6 + 6];
+		checkbox showNodeBoxModeButton "Show Node Box Mode Button" pos:[marginX, marginY + chkbxDY * 7 + 9];
+		dropdownlist nodeBoxModeButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 7 + 6];
 		
-		checkbox showNodeAddButton "Show Node Add Button" pos:[marginX, marginY + chkbxDY * 7 + 9];
-		dropdownlist nodeAddButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 7 + 6];
+		checkbox showNodeAddButton "Show Node Add Button" pos:[marginX, marginY + chkbxDY * 8 + 9];
+		dropdownlist nodeAddButtonLocation "" items:#("Before Node", "After Node", "Align Right") width:drpDwnW pos:[marginX + 170, marginY + chkbxDY * 8 + 6];
 		
-		checkbox invertNodeHideButton "Invert Node Hide Button behavior" pos:[marginX, marginY + chkbxDY * 8 + 9];
+		checkbox invertNodeHideButton "Invert Node Hide Button behavior" pos:[marginX, marginY + chkbxDY * 9 + 9];
 		
 		
 		on colorScheme selected sel do
@@ -126,6 +148,13 @@
 		on buttonsLocation selected sel do
 		(
 			setPrefFn #Visual #buttonsAtTop (sel == 1);
+			outliner_main.positionElements();
+		)
+		
+		on searchBarLocation selected e do
+		(
+			setPrefFn #Visual #showSearchBar (e != 1);
+			setPrefFn #Visual #searchBarAtTop (e == 2);
 			outliner_main.positionElements();
 		)
 		
@@ -207,6 +236,7 @@
 			iconSet.selection				= findItem iconSet.items (getPrefFn #Visual #iconSet);
 			invertIcons.checked				= getPrefFn #Visual #invertIcons;
 			buttonsLocation.selection		= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
+			searchBarLocation.selection		= if (not (getPrefFn #Visual #showSearchBar)) then 1 else if (getPrefFn #Visual #searchBarAtTop) then 2 else 3;
 			showNodeHideButton.checked		= getPrefFn #Tree #showNodeHideButton;
 			showNodeFreezeButton.checked	= getPrefFn #Tree #showNodeFreezeButton;
 			showNodeBoxModeButton.checked	= getPrefFn #Tree #showNodeBoxModeButton;
@@ -380,7 +410,7 @@
 	(
 		imgTag logoImg width:262 height:66 align:#center offset:[0, -10]
 		label versionLbl "";
-		label nameLbl "Copyright \xa9 2010, Pier Janssen"
+		label nameLbl "Copyright \xa9 2011, Pier Janssen"
 		hyperlink mailLbl "pier@threesixty.nl" address:"mailto:pier@threesixty.nl" align:#center;
 		hyperlink siteLbl "www.threesixty.nl" address:"http://www.threesixty.nl/" align:#center offset:[0, -2];
 		
@@ -405,7 +435,7 @@
 		
 		function setUIValues = 
 		(
-			versionLbl.text = "Version " + outliner.prefs.getValue #General #versionString;
+			versionLbl.text = "Version " + outliner.product_info.getValue #General #versionString;
 		)
 	)
 	
@@ -444,14 +474,14 @@
 			(
 				AddSubRollout rollouts outliner_options_general;
 				AddSubRollout rollouts outliner_options_visual rolledUp:true;
-				AddSubRollout rollouts outliner_options_hierarchy;
-				AddSubRollout rollouts outliner_options_layer;
-				AddSubRollout rollouts outliner_options_material;
+				AddSubRollout rollouts outliner_options_hierarchy rolledUp:true;
+				AddSubRollout rollouts outliner_options_layer rolledUp:true;
+				AddSubRollout rollouts outliner_options_material rolledUp:true;
 				
-				if (outliner.prefs.getValue #General #workflowToolsInstalled) do
+				if (outliner.product_info.getValue #General #workflowToolsInstalled) do
 					AddSubRollout rollouts outliner_options_workflowtools rolledUp:true;
 				
-				AddSubRollout rollouts outliner_options_about rolledUp:true;
+				AddSubRollout rollouts outliner_options_about;
 				
 				getPrefFn = outliner.prefs.getValue;
 				setPrefFn = outliner.prefs.setValue;

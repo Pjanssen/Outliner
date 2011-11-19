@@ -7,46 +7,67 @@ rollout outliner_main "Outliner"
 	local margin = 4;
 	local sortmode_images;
 	
-	editText search "" pos:[margin - 4, margin];
-	checkbutton searchCaseSensitive "" width:search.height height:search.height pos:[margin, margin] tooltip:"Search case-sensitive" border:false;
+	dotNetControl searchField "System.Windows.Forms.TextBox" pos:[margin, margin] height:19;
+	button searchClear "" width:19 height:19 pos:[margin, margin] tooltip:"Clear search field" border:false;
+	checkbutton searchCaseSensitive "" width:19 height:19 pos:[margin, margin] tooltip:"Search case-sensitive" border:false;
 	
-	dotNetControl tree "Outliner.TreeView" pos:[margin, margin + search.height + 2];
+	dotNetControl tree "Outliner.TreeView" pos:[margin, margin];
 	
 	--Button y position is set in positionElements()
-	checkbutton listmode_h tooltip:"Hierarchy Mode" width:btn_w height:btn_h pos:[margin, 0] border:false;
-	checkbutton listmode_l tooltip:"Layer Mode" width:btn_w height:btn_h pos:[margin + btn_w, 0] border:false;
-	checkbutton listmode_m tooltip:"Material Mode" width:btn_w height:btn_h pos:[margin + btn_w*2, 0] border:false;
+	checkbutton listmode_h tooltip:"Hierarchy Mode" width:btn_w height:btn_h pos:[margin, margin] border:false;
+	checkbutton listmode_l tooltip:"Layer Mode" width:btn_w height:btn_h pos:[margin + btn_w, margin] border:false;
+	checkbutton listmode_m tooltip:"Material Mode" width:btn_w height:btn_h pos:[margin + btn_w*2, margin] border:false;
 	
-	button sortmode_btn width:btn_w height:btn_h pos:[margin + btn_w * 3 + 4, 0] border:false;
-	checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filter" width:btn_w height:btn_h pos:[margin + btn_w * 4 + 8, 0] border:false;
-	button options tooltip:"Options" width:btn_w height:btn_h pos:[0, 0] border:false;
+	button sortmode_btn width:btn_w height:btn_h pos:[margin + btn_w * 3 + 4, margin] border:false;
+	checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filter" width:btn_w height:btn_h pos:[margin + btn_w * 4 + 8, margin] border:false;
+	button options tooltip:"Options" width:btn_w height:btn_h pos:[0, margin] border:false;
 	
 	
 	--Position Elements.
 	function positionElements = 
 	(
 		local mainW = outliner_main.width;
-		
-		search.width				= mainW - search.height - 2 - margin * 2;
-		searchCaseSensitive.pos.x	= mainW - search.height - margin;
-		tree.width					= mainW - margin * 2;
-		tree.height					= outliner_main.height - search.height - btn_h - margin * 2 - 6;
-		options.pos.x				= mainW - margin - btn_w;
-		
+		local showSearchBar = getPrefFn #Visual #showSearchBar;
+		local searchBarAtTop = getPrefFn #Visual #searchBarAtTop;
 		local buttonsAtTop = getPrefFn #Visual #buttonsAtTop;
+		
+		searchField.pos.y = margin;
+		searchClear.pos.y = margin;
+		searchCaseSensitive.pos.y = margin;
+		tree.pos.y = margin;
+		listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = margin;
+		
+		searchField.visible = searchClear.visible = searchCaseSensitive.visible = showSearchBar;
+		
 		if (buttonsAtTop) then
 		(
-			listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = margin;
-			search.pos.y = searchCaseSensitive.pos.y = margin + btn_h + margin;
-			tree.pos.y = search.pos.y + search.height + 2;
+			searchField.pos.y += btn_h + margin;
+			searchClear.pos.y += btn_h + margin;
+			searchCaseSensitive.pos.y += btn_h + margin;
+			tree.pos.y += btn_h + margin;
 		)
 		else
-		(
-			search.pos.y = searchCaseSensitive.pos.y = margin;
-			tree.pos.y = search.pos.y + search.height + 2;
 			listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = (outliner_main.height - btn_h - margin);
-		)
 		
+		
+		if (showSearchBar) then
+		(
+			searchField.width			= mainW - (searchField.height * 2) - (margin * 2) - 1;
+			searchClear.pos.x			= mainW - (searchField.height * 2) - margin;
+			searchCaseSensitive.pos.x	= mainW - searchField.height - margin;
+			tree.height					= outliner_main.height - searchField.height - btn_h - margin * 2 - 6;
+			
+			if (searchBarAtTop) then
+				tree.pos.y += searchField.height + 2;
+			else
+				searchField.pos.y = searchClear.pos.y = searchCaseSensitive.pos.y = tree.pos.y + tree.height + 2;
+		)
+		else
+			tree.height = outliner_main.height - btn_h - margin - 6;
+		
+
+		tree.width					= mainW - margin * 2;
+		options.pos.x				= mainW - margin - btn_w;
 	)
 	
 	
@@ -62,11 +83,13 @@ rollout outliner_main "Outliner"
 	/**
 	 * BUTTON EVENTS & FUNCTIONS
 	 */
-	local buttons = #(listmode_h, listmode_l, listmode_m, filter_enabled, options, searchCaseSensitive);
+	local buttons = #(listmode_h, listmode_l, listmode_m, filter_enabled, options, searchCaseSensitive, searchClear);
 	function setButtonImages =
 	(
 		local mainImgFile = outliner.icondir + "main_icons.bmp";
 		local sortImgFile = outliner.icondir + "sortmode_icons.bmp";
+		local numMainImages = 7;
+		local numSortImages = 6;
 		
 		-- ColorTheme feature was introduced in 3dsmax2010 (v12).
 		if (outliner.maxV < 12) then
@@ -77,13 +100,13 @@ rollout outliner_main "Outliner"
 				sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
 			)
 				
-			for i = 1 to buttons.count do buttons[i].images = #(mainImgFile, outliner.icondir + "main_icons_a.bmp", 6, i, i, i, i);
-			sortmode_images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", 6, 1, 1, 1, 1);
+			for i = 1 to buttons.count do buttons[i].images = #(mainImgFile, outliner.icondir + "main_icons_a.bmp", numMainImages, i, i, i, i);
+			sortmode_images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", numSortImages, 1, 1, 1, 1);
 		)
 		else
 		(
-			for i = 1 to buttons.count do buttons[i].images = #(mainImgFile, undefined, 6, i, i, i, i, true, true);
-			sortmode_images = #(sortImgFile, undefined, 6, 1, 1, 1, 1, true, true);
+			for i = 1 to buttons.count do buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, true);
+			sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, true);
 		)
 		sortmode_btn.images = sortmode_images;
 	)
@@ -203,9 +226,6 @@ rollout outliner_main "Outliner"
 	
 	on filter_enabled rightclick do 
 	(
-		if (not filter_enabled.checked) do
-			setFilterEnabled true;
-			
 		outliner.UI.openFilterConfigWindow();
 	)
 	
@@ -220,31 +240,46 @@ rollout outliner_main "Outliner"
 	/**
 	 * TEXT SEARCH EVENTS
 	 */
-	on search changed text do 
+	function clearSearchField =
+	(
+		searchField.Text = "";
+		tree.Filter.NameFilter = "";
+		tree.FillTree();
+	)
+	
+	on searchField TextChanged e do 
 	(
 		try
 		(
-			tree.Filter.NameFilter = text;
+			tree.Filter.NameFilter = searchField.Text;
 			tree.FillTree();
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
 	)
 	
-	on search entered text do
+	on searchField KeyUp e do
 	(
 		try
 		(
-			tree.SelectFilteredNodes();
+			if (e.KeyData == (dotNetClass "System.Windows.Forms.Keys").Enter) do
+			(
+				tree.SelectFilteredNodes();
+				if (getPrefFn #General #clearSearchFieldAfterSelect) do
+					clearSearchField();
+			)
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
+	)
+	
+	on searchClear pressed do
+	(
+		clearSearchField();
 	)
 	
 	on searchCaseSensitive changed checked do
@@ -257,8 +292,7 @@ rollout outliner_main "Outliner"
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
 	)
 	
@@ -344,6 +378,8 @@ rollout outliner_main "Outliner"
 		setButtonImages();
 		setButtonStates();
 		setSortModeBtnImages();
+		
+		searchField.Font = (dotNetObject "System.Drawing.Font" "Sans Serif" 7.5);
 
 		outliner.setTreeColorScheme (getPrefFn #Visual #colorscheme);
 		tree.IconSet				= outliner.parseDotNetEnum "Outliner.IconSet" (getPrefFn #Visual #iconSet);
@@ -353,12 +389,12 @@ rollout outliner_main "Outliner"
 		tree.ShowNodeHideButton			= getPrefFn #Tree #showNodeHideButton;
 		tree.NodeHideButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeHideButtonLocation);
 		tree.ShowNodeFreezeButton		= getPrefFn #Tree #showNodeFreezeButton;
-		tree.NodeFreezeButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeFreezeButtonLocation);
+		tree.NodeFreezeButtonLocation	= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeFreezeButtonLocation);
 		tree.ShowNodeBoxModeButton		= getPrefFn #Tree #showNodeBoxModeButton;
-		tree.NodeBoxModeButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeBoxModeButtonLocation);
-		tree.ShowNodeAddButton		= getPrefFn #Tree #showNodeAddButton;
+		tree.NodeBoxModeButtonLocation	= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeBoxModeButtonLocation);
+		tree.ShowNodeAddButton			= getPrefFn #Tree #showNodeAddButton;
 		tree.NodeAddButtonLocation		= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeAddButtonLocation);
-		tree.InvertNodeHideButton = getPrefFn #Tree #invertNodeHideButton;
+		tree.InvertNodeHideButton		= getPrefFn #Tree #invertNodeHideButton;
 		
 		tree.HighlighLastSelectedObject	= getPrefFn #Tree #highlightLastSel;
 		tree.AutoExpandHierarchy		= getPrefFn #Tree #autoExpandHierarchy;

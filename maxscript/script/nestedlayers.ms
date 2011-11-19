@@ -119,8 +119,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -167,8 +166,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -192,8 +190,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -214,8 +211,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -269,8 +265,7 @@ struct outliner_NestedLayers
 			local depLoopTest = refs.dependencyLoopTest layer parent;
 			local depLoopTestRev = refs.dependencyLoopTest parent layer;
 			--Generate crash report.
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 		
 		success;
@@ -304,8 +299,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -333,8 +327,7 @@ struct outliner_NestedLayers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	)
 

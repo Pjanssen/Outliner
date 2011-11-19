@@ -45,7 +45,7 @@ struct outliner_TreeEventHandlers
 						for m in e.SelectedMaterialHandles while (not matFound) do
 						(
 							local mat = GetAnimByHandle m;
-							if (mat != undefined) do
+							if (mat != undefined AND not (isKindOf m textureMap)) do
 							(
 								local matIndex = findItem meditmaterials mat;
 								if (matIndex != 0) do
@@ -63,8 +63,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -91,7 +90,7 @@ struct outliner_TreeEventHandlers
 						local n = GetAnimByHandle handle;
 						if (n != undefined) do
 						(
-							if (isKindOf n node) then
+							if (isValidNode n) then
 								n.isNodeHidden = e.newValue;
 							else if (isKindOf n Base_Layer) then
 								outliner_NestedLayers.setLayerProperty n #isHidden e.newValue;
@@ -104,8 +103,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -131,7 +129,7 @@ struct outliner_TreeEventHandlers
 						local n = GetAnimByHandle handle;
 						if (n != undefined) do
 						(
-							if (isKindOf n node) then
+							if (isValidNode n) then
 								n.isNodeFrozen = e.newValue;
 							else if (isKindOf n Base_Layer) then
 								outliner_NestedLayers.setLayerProperty n #isFrozen e.newValue;
@@ -144,8 +142,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -166,7 +163,7 @@ struct outliner_TreeEventHandlers
 					local n = GetAnimByHandle handle;
 					if (n != undefined) do
 					(
-						if (isKindOf n node) then
+						if (isValidNode n) then
 							n.boxMode = e.newValue;
 						else if (isKindOf n Base_Layer) then
 						(
@@ -179,8 +176,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -202,7 +198,7 @@ struct outliner_TreeEventHandlers
 			if (n != undefined) do
 			(
 				-- Rename node.
-				if (isKindOf n Node OR isKindOf n Material) then
+				if (isValidNode n OR isKindOf n Material) then
 				(
 					n.name = e.Name;
 				)
@@ -218,8 +214,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -260,8 +255,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -295,8 +289,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -323,8 +316,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -359,8 +351,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -418,8 +409,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -489,8 +479,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -552,8 +541,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -577,8 +565,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -625,8 +612,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -646,7 +632,7 @@ struct outliner_TreeEventHandlers
 			if (contextMenus.EditMaterialItem.Visible) do
 				outliner_TreeEventHandlers.setContextMenuMaterialSlotNames();
 				
-			if (not outliner.prefs.getValue #General #workflowToolsInstalled) do
+			if (not outliner.product_info.getValue #General #workflowToolsInstalled) do
 				contextMenus.AdvancedRenameItem.Visible = false;
 				
 			if (contextMenus.DisplayPropertiesItem.Visible OR contextMenus.RenderPropertiesItem.Visible) do
@@ -672,9 +658,9 @@ struct outliner_TreeEventHandlers
 				for handle in selHandles do
 				(
 					local n = GetAnimByHandle handle;
-					if (isValidNode n) do
+					if (n != undefined) do
 					(
-						if (isKindOf n Node) then
+						if (isValidNode n) then
 						(
 							if (not n.displayByLayer) do displayByLayer = false;
 							if (not n.renderByLayer) do renderByLayer = false;
@@ -738,8 +724,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	),
 	
@@ -915,8 +900,7 @@ struct outliner_TreeEventHandlers
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "crash_report.ms";
 		)
 	)
 

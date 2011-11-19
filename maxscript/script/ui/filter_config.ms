@@ -86,8 +86,7 @@ rollout outliner_filter_config "Filters"
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
 	)
 	
@@ -117,8 +116,7 @@ rollout outliner_filter_config "Filters"
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
 	)
 	on affect_vpt changed checked do
@@ -130,8 +128,7 @@ rollout outliner_filter_config "Filters"
 		)
 		catch
 		(
-			local crashReport = outliner_crash_report();
-			crashReport.handle_exception crashReport;
+			fileIn "../crash_report.ms";
 		)
 	)
 	

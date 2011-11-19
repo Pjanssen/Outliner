@@ -179,7 +179,7 @@ function setButtonImages =
       alphaImageFile += "filter_icons_maya_a.bmp";
    )
    
-   if ((outliner.prefs.getValue #Visual #colorscheme) == "Dark" AND outliner.maxV < 12) do
+   if (outliner.ui.usingMaxDarkScheme()) do
       imageFile += "_dark";
 
    imageFile += ".bmp";
@@ -190,6 +190,8 @@ function setButtonImages =
       -- ColorTheme feature was introduced after 3dsmax2010 (v12).
       if (outliner.maxV < 12) then
          buttons[i].images = #(imageFile, alphaImageFile, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex);
+      else if (outliner.maxV < 14) then
+         buttons[i].images = #(imageFile, undefined, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex, true, false);
       else
          buttons[i].images = #(imageFile, undefined, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex, true, true);
    )

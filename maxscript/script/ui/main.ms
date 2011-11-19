@@ -31,9 +31,6 @@ function positionElements =
    local searchBarAtTop = getPrefFn #Visual #searchBarAtTop;
    local buttonsAtTop = getPrefFn #Visual #buttonsAtTop;
    
-   searchField.pos.y = margin;
-   searchClear.pos.y = margin;
-   searchCaseSensitive.pos.y = margin;
    tree.pos.y = margin;
    
    listmode_h.pos.y = margin;
@@ -64,6 +61,9 @@ function positionElements =
    
    if (showSearchBar) then
    (
+      searchField.pos.y = margin;
+      searchClear.pos.y = margin;
+      searchCaseSensitive.pos.y = margin;
       searchField.width         = mainW - (searchField.height * 2) - (margin * 2) - 1;
       searchClear.pos.x         = mainW - (searchField.height * 2) - margin;
       searchCaseSensitive.pos.x = mainW - searchField.height - margin;
@@ -75,7 +75,14 @@ function positionElements =
          searchField.pos.y = searchClear.pos.y = searchCaseSensitive.pos.y = tree.pos.y + tree.height + 2;
    )
    else
+   (
       tree.height = outliner_main.height - btn_h - margin - 6;
+      --Even though visible is set to false, the controls still catch mouse 
+      --clicks if they're in the same bounds as the tree..
+      searchField.pos.y = -25;
+      searchClear.pos.y = -25;
+      searchCaseSensitive.pos.y = -25;
+   )
    
 
    tree.width              = mainW - margin * 2;
@@ -96,24 +103,34 @@ function setButtonImages =
    local numMainImages = 7;
    local numSortImages = 6;
    
+   if (outliner.ui.usingMaxDarkScheme()) do
+   (
+      mainImgFile = outliner.icondir + "main_icons_dark.bmp";
+      sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
+   )
+   
    -- ColorTheme feature was introduced in 3dsmax2010 (v12).
    if (outliner.maxV < 12) then
-   (
-      if (outliner.ui.usingMaxDarkScheme()) do
-      (
-         mainImgFile = outliner.icondir + "main_icons_dark.bmp";
-         sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
-      )
-         
+   (   
       for i = 1 to buttons.count do 
          buttons[i].images = #(mainImgFile, outliner.icondir + "main_icons_a.bmp", numMainImages, i, i, i, i);
       sortmode_images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", numSortImages, 1, 1, 1, 1);
    )
+   -- 2010, 2011
+   else if (outliner.maxV < 14) then
+   (
+      for i = 1 to buttons.count do 
+         buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, false);
+      sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, false);
+   )
+   -- 2012+
    else
    (
-      for i = 1 to buttons.count do buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, true);
+      for i = 1 to 
+         buttons.count do buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, true);
       sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, true);
    )
+   
    sortmode_btn.images = sortmode_images;
 )
 

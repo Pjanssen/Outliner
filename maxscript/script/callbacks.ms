@@ -2,37 +2,35 @@ global outliner_callbacks;
 
 struct outlinerCallbacks (
 callbacksEnum = #(
-      (Pair key:#selectionSetChanged value:"outliner_callbacks.selectionChanged()"),
-      (Pair key:#sceneNodeAdded      value:"outliner_callbacks.sceneNodeAdded()"),
-      (Pair key:#nodeCreated         value:"outliner_callbacks.nodeCreated()"),
-      (Pair key:#nodeNameSet         value:"outliner_callbacks.nodeNameSet()"),
-      (Pair key:#nodePreDelete       value:"outliner_callbacks.nodePreDelete()"),
-      (Pair key:#nodePostDelete      value:"outliner_callbacks.nodePostDelete()"),
-      (Pair key:#nodeLinked          value:"outliner_callbacks.nodeLinked()"),
-      (Pair key:#nodeHide            value:"outliner_callbacks.nodeHidden()"),
-      (Pair key:#nodeUnhide          value:"outliner_callbacks.nodeHidden()"),
-      (Pair key:#nodeFreeze          value:"outliner_callbacks.nodeFrozen()"),
-      (Pair key:#nodeUnfreeze        value:"outliner_callbacks.nodeFrozen()"),
-      (Pair key:#nodePostMaterial    value:"outliner_callbacks.nodePostMaterial()"),
-      (Pair key:#nodeLayerChanged    value:"outliner_callbacks.nodeLayerChanged()"),
-      (Pair key:#layerCreated        value:"outliner_callbacks.layerCreated()"),
-      (Pair key:#layerDeleted        value:"outliner_callbacks.layerDeleted()"),
-      (Pair key:#sceneUndo           value:"outliner_callbacks.sceneUndo()"),
-      (Pair key:#sceneRedo           value:"outliner_callbacks.sceneRedo()"),
-      (Pair key:#objectXrefPreMerge  value:"outliner_callbacks.objectXrefPreMerge()"),
-      (Pair key:#objectXrefPostMerge value:"outliner_callbacks.objectXrefPostMerge()"),
-      (Pair key:#filePreMerge        value:"outliner_callbacks.filePreMerge()"),
-      (Pair key:#filePostMerge       value:"outliner_callbacks.filePostMerge()"),
-      (Pair key:#preImport           value:"outliner_callbacks.preImport()"),
-      (Pair key:#postImport          value:"outliner_callbacks.postImport()"),
-      (Pair key:#filePreOpen         value:"outliner_callbacks.filePreOpen()"),
-      (Pair key:#systemPostNew       value:"outliner_callbacks.systemPostNew()"),
-      (Pair key:#systemPostReset     value:"outliner_callbacks.systemPostNew()"),
-      (Pair key:#colorChanged        value:"outliner_callbacks.colorChanged()"),
-      (Pair key:#preSystemShutdown   value:"try ( outliner_callbacks.preSystemShutdown() ) catch ()")
-   ),
+   (Pair key:#selectionSetChanged value:"outliner_callbacks.selectionChanged()"),
+   (Pair key:#sceneNodeAdded      value:"outliner_callbacks.sceneNodeAdded()"),
+   (Pair key:#nodeNameSet         value:"outliner_callbacks.nodeNameSet()"),
+   (Pair key:#nodePreDelete       value:"outliner_callbacks.nodePreDelete()"),
+   (Pair key:#nodePostDelete      value:"outliner_callbacks.nodePostDelete()"),
+   (Pair key:#nodeLinked          value:"outliner_callbacks.nodeLinked()"),
+   (Pair key:#nodeHide            value:"outliner_callbacks.nodeHidden()"),
+   (Pair key:#nodeUnhide          value:"outliner_callbacks.nodeHidden()"),
+   (Pair key:#nodeFreeze          value:"outliner_callbacks.nodeFrozen()"),
+   (Pair key:#nodeUnfreeze        value:"outliner_callbacks.nodeFrozen()"),
+   (Pair key:#nodePostMaterial    value:"outliner_callbacks.nodePostMaterial()"),
+   (Pair key:#nodeLayerChanged    value:"outliner_callbacks.nodeLayerChanged()"),
+   (Pair key:#layerCreated        value:"outliner_callbacks.layerCreated()"),
+   (Pair key:#layerDeleted        value:"outliner_callbacks.layerDeleted()"),
+   (Pair key:#sceneUndo           value:"outliner_callbacks.sceneUndo()"),
+   (Pair key:#sceneRedo           value:"outliner_callbacks.sceneRedo()"),
+   (Pair key:#objectXrefPreMerge  value:"outliner_callbacks.objectXrefPreMerge()"),
+   (Pair key:#objectXrefPostMerge value:"outliner_callbacks.objectXrefPostMerge()"),
+   (Pair key:#filePreMerge        value:"outliner_callbacks.filePreMerge()"),
+   (Pair key:#filePostMerge       value:"outliner_callbacks.filePostMerge()"),
+   (Pair key:#preImport           value:"outliner_callbacks.preImport()"),
+   (Pair key:#postImport          value:"outliner_callbacks.postImport()"),
+   (Pair key:#filePreOpen         value:"outliner_callbacks.filePreOpen()"),
+   (Pair key:#systemPostNew       value:"outliner_callbacks.systemPostNew()"),
+   (Pair key:#systemPostReset     value:"outliner_callbacks.systemPostNew()"),
+   (Pair key:#colorChanged        value:"outliner_callbacks.colorChanged()"),
+   (Pair key:#preSystemShutdown   value:"try ( outliner_callbacks.preSystemShutdown() ) catch ()")
+),
 nodeEventCallbackItem,
-isCreatingNode = false,
 deletingNode = undefined,
 isMerging = false,
 isMergingXrefs = false,
@@ -227,7 +225,6 @@ function sceneNodeAdded =
    (
       if (not isMerging) do
       (
-         isCreatingNode = true;
          local createdObject = callbacks.notificationParam();
          if (isValidNode createdObject) do
          (
@@ -240,11 +237,6 @@ function sceneNodeAdded =
    (
       fileIn "crash_report.ms";
    )
-),
-
-function nodeCreated =
-(
-   isCreatingNode = false;
 ),
 
 
@@ -495,9 +487,9 @@ function nodeLayerChanged =
 (
    try
    (
-      if (not isCreatingNode AND (deletingNode == undefined) \
-                             AND not isMerging \
-                             AND not outliner_status.layerChangedInOutliner) do
+      if (deletingNode == undefined \
+          AND not isMerging \
+          AND not outliner_status.layerChangedInOutliner) do
       (
          local params = callbacks.notificationParam();
          if (params[1] != undefined AND params[3] != undefined) do

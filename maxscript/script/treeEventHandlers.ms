@@ -747,9 +747,16 @@ function ContextMenuItemClicked e =
          --Create new layer.
          else if (clickedItem == menus.CreateNewLayerItem) then
          (
-            local layer = (LayerManager.NewLayer()).layerAsRefTarg;
-            if (outliner.prefs.getValue #Tree #editNewLayerName) do
-               outliner.tree.EditNodeName (GetHandleByAnim layer);
+            local parentLayer = undefined;
+            if (menus.ClickedNode != undefined) do
+            (
+               local n = getAnimByHandle menus.ClickedNode.Handle;
+               if (isKindOf n Base_Layer) then
+                  parentLayer = n;
+               else if (isValidNode n) then
+                  parentLayer = n.layer;
+            )
+            outliner.createNewLayer parentLayer;
          )
          --Advanced rename.
          else if (clickedItem == menus.AdvancedRenameItem) then

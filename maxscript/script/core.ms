@@ -331,6 +331,24 @@ function handleGroupOpeningClosing selnodes selectedInOutliner =
  * HELPER FUNCTIONS
  */
 
+function createNewLayer parentLayer =
+(
+   local layer = (LayerManager.NewLayer()).layerAsRefTarg;
+   --Set new layer's parent. 
+   --(either clicked layer or layer of clicked node).
+   if (parentLayer != undefined) do
+      outlinerNestedLayers.setParent layer parentLayer;
+      
+   --Set layer active.
+   if (prefs.getValue #Tree #setNewLayerActive) do
+      outliner.setActiveLayer layer;
+   
+   --Edit name of new layer.
+   if (prefs.getValue #Tree #editNewLayerName) do
+      outliner.tree.EditNodeName (GetHandleByAnim layer);
+),
+
+
 function deleteLayer layer = 
 (
    try

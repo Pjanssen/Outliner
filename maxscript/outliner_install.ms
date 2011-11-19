@@ -1,7 +1,7 @@
 (
 
-local version = 2.0976;
-local versionStr = "2.1 beta2";
+local version = 2.0977;
+local versionStr = "2.1 beta3";
 
 global outliner_restart_required;
 

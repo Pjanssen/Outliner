@@ -92,7 +92,9 @@ outlinerNestedLayersCA = attributes outlinerNestedLayersCA \
          )
          
          --Remove the nested layer custom attributes definition from the scene.
-         custAttributes.deleteDef def;
+         try
+         	custAttributes.deleteDef def;
+         catch ()
       )
    )
    
@@ -105,7 +107,7 @@ outlinerNestedLayersCA = attributes outlinerNestedLayersCA \
                         (LayerManager.getLayerFromName c.name) == undefined)) \
                   collect i;
                         
-      if (del.count == arr.count) then
+      if (del.count == arr.count AND del.count > 0) then
          --Delete CA completely.
          this.removeFromScene();
       else
@@ -127,15 +129,23 @@ outlinerNestedLayersCA = attributes outlinerNestedLayersCA \
    
    function createPreSaveCallback =
    (
+      callbacks.removeScripts id:#outliner_NestedLayers;
+      
       local cbStr = ("
        local s = (refs.dependents rootnode)[1];
        for i = 1 to (custAttributes.count s) \
        where ((ca = custAttributes.get s i).name == \"outlinerNestedLayersCA\") do 
          ca.cleanUp();"
       );
-      
-      callbacks.removeScripts id:#outliner_NestedLayers;
       callbacks.addScript #filePreSave cbStr id:#outliner_NestedLayers;
+      
+      cbStr = ("
+       local s = (refs.dependents rootnode)[1];
+       for i = 1 to (custAttributes.count s) \
+       where ((ca = custAttributes.get s i).name == \"outlinerNestedLayersCA\") do 
+         ca.removeFromScene();"
+      );
+      callbacks.addScript #systemPreNew cbStr id:#outliner_NestedLayers;
    )
    
    
@@ -262,6 +272,15 @@ mapped function setParent layer parentLayer =
                outlinerNestedLayers.updateLayerProperties layer;
             )
          )
+      )
+      
+      --Update tree.
+      if (outliner_status != undefined AND outliner_status.windowOpen) do
+      (
+      	local pHandle = if (parentLayer == undefined) then outliner.tree.Scene.RootHandle \
+      																 else (getHandleByAnim parentLayer.layerAsRefTarg);
+      	outliner.tree.SetLayerParent (getHandleByAnim layer.layerAsRefTarg) \
+      										   pHandle;
       )
       
       ok;

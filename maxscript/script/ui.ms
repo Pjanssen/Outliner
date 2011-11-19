@@ -14,7 +14,6 @@ struct outlinerStatus
    layerChangedInOutliner,
    matChangedInOutliner,
    
-   rightClickedNode,
    expandedNodeHandles,
    
    --This function will set all status variables to their initial value.
@@ -25,7 +24,6 @@ struct outlinerStatus
       closingOutliner = selectedInOutliner = hiddenInOutliner = false;
       frozenInOutliner = renamedInOutliner = linkedInOutliner = false;
       layerChangedInOutliner = matChangedInOutliner = false;
-      rightClickedNode = undefined;
    ),
    
    init = reset();

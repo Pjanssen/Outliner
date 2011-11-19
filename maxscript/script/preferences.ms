@@ -133,6 +133,7 @@ function createPreferenceEntries =
    (outlinerPrefsEntry section:#Tree key:#highlightLastSel          default:false),
    (outlinerPrefsEntry section:#Tree key:#hideGroupMembersLayerMode default:false),
    (outlinerPrefsEntry section:#Tree key:#editNewLayerName          default:true),
+   (outlinerPrefsEntry section:#Tree key:#setNewLayerActive         default:true),
    (outlinerPrefsEntry section:#Tree key:#autoExpandHierarchy       default:false),
    (outlinerPrefsEntry section:#Tree key:#autoExpandLayer           default:false),
    (outlinerPrefsEntry section:#Tree key:#autoExpandMaterial        default:false),

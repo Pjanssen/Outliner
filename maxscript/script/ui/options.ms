@@ -315,6 +315,8 @@ rollout outliner_options_layer "Layer Mode"
    label expandSelectionPolicyLbl "Expand selection" pos:[drpDwnLblX, marginY + chkbxDY + 1];
    checkbox hideGroupMembersLayerMode "Hide group contents in layer mode" pos:[marginX,  marginY + chkbxDY * 2] tooltip:"When enabled, only top-level group heads will be shown. When moving it to another layer, all group contents will be moved as well.";
    
+   checkbox editNewLayerName "Edit newly created layer name" pos:[marginX, marginY + chkbxDY * 3] tooltip:"Only applies to layers created through the context-menu in the Outliner.";
+   checkbox setNewLayerActive "Set newly created layer to active" pos:[marginX, marginY + chkbxDY * 4] tooltip:"Only applies to layers created through the context-menu in the Outliner.";
    
    on autoExpandLayer changed checked do
    (
@@ -322,12 +324,6 @@ rollout outliner_options_layer "Layer Mode"
       outliner.tree.AutoExpandLayer = checked;
       expandSelectionPolicy.enabled = not checked;
       expandSelectionPolicyLbl.enabled = not checked;
-   )
-   
-   on hideGroupMembersLayerMode changed checked do
-   (
-      setPrefFn #Tree #hideGroupMembersLayerMode checked;
-      outliner.tree.HideGroupMembersLayerMode = checked;
    )
          
    on expandSelectionPolicy selected sel do
@@ -337,15 +333,34 @@ rollout outliner_options_layer "Layer Mode"
       outliner.tree.ExpandSelectionPolicyLayer = outliner.parseDotNetEnum "Outliner.ExpandPolicy" expPolicy;
    )
    
+   on hideGroupMembersLayerMode changed checked do
+   (
+      setPrefFn #Tree #hideGroupMembersLayerMode checked;
+      outliner.tree.HideGroupMembersLayerMode = checked;
+   )
+
+   on editNewLayerName changed checked do
+   (
+      setPrefFn #Tree #editNewLayerName checked;
+   )
+   
+   on setNewLayerActive changed checked do
+   (
+      setPrefFn #Tree #setNewLayerActive checked;
+   )
+   
    function setUIValues =
    (
       autoExpandLayer.checked = getPrefFn #Tree #autoExpandLayer;
-      hideGroupMembersLayerMode.checked = getPrefFn #Tree #hideGroupMembersLayerMode;
       
       local expPolicy = getPrefFn #Tree #expandSelPolicyLayer;
       expandSelectionPolicy.selection = if (expPolicy == "Never") then 1 else if (expPolicy == "WhenNecessary") then 2 else 3;
       expandSelectionPolicy.enabled = not autoExpandLayer.checked;
       expandSelectionPolicyLbl.enabled = not autoExpandLayer.checked;
+      
+      hideGroupMembersLayerMode.checked = getPrefFn #Tree #hideGroupMembersLayerMode;
+      editNewLayerName.checked = getPrefFn #Tree #editNewLayerName;
+      setNewLayerActive.checked = getPrefFn #Tree #setNewLayerActive;
    )
 )--End rollout.
 

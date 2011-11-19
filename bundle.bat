@@ -1,7 +1,8 @@
 @ECHO OFF
 
-::Set the path to the location of 7z.exe
-SET zip=C:\Program Files\7-Zip\7z.exe
+CALL :GetZip zip
+dir "%zip%" > nul || goto :PathError "Could not find 7z.exe."
+
 
 SET dir=%~dp0
 SET Configuration=Release
@@ -40,6 +41,20 @@ rmdir /Q /S %targetDir% || goto :error
 
 ECHO Done.
 goto :eof
+
+
+:GetZip
+SET KEY_NAME=HKEY_LOCAL_MACHINE\SOFTWARE\7-Zip
+SET KEY_VALUE=Path
+
+FOR /F "tokens=2*" %%A IN ('REG QUERY "%KEY_NAME%" /v %KEY_VALUE% 2^>nul') DO (
+   set %~1=%%B7z.exe
+)
+goto :eof
+
+:PathError
+ECHO %~1
+goto :error
 
 :error
 ECHO.

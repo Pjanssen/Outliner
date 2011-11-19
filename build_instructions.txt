@@ -10,10 +10,8 @@ CREATING AN INSTALLER FROM THE SOURCE FILES
 
 3. Download and install 7-zip
    http://www.7-zip.org/
-   
-4. Adjust bundle.bat line 4 to reflect your location of 7-zip (7z.exe)
 
-5. Run buildandbundle.bat
+4. Run buildandbundle.bat
    This will compile the .NET code and create a .mzp installer.
 
-6. Drag & drop the created file outliner.mzp into 3dsmax.
+5. Drag & drop the created file outliner.mzp into 3dsmax.

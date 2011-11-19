@@ -1,7 +1,7 @@
 struct outlinerCore
 (
-	version				= 2.0,
-	versionStr			= "2.0",
+	version				= 2.01,
+	versionStr			= "2.0.1",
 	maxV				= (maxVersion())[1] / 1000,
 	dir					= ((GetDir #Scripts) + "/outliner/"),
 	icondir				= dir + "ui/icons/",
@@ -720,12 +720,17 @@ struct outlinerCore
 			local newLayer;
 			undo "Create new layer" on
 			(
-				newLayer = (LayerManager.newLayer()).layerAsRefTarg;
+				newLayer = LayerManager.newLayer();
 			)
-			moveSelectionToLayer newLayer;
+			
+			if (newLayer != undefined) do
+			(
+				newLayer = newLayer.layerAsRefTarg;
+				moveSelectionToLayer newLayer;
 	
-			if (outliner.prefs.getValue #Tree #editNewLayerName) do
-				outliner.tree.EditNodeName (GetHandleByAnim newLayer);
+				if (outliner.prefs.getValue #Tree #editNewLayerName) do
+					outliner.tree.EditNodeName (GetHandleByAnim newLayer);
+			)
 		)
 		catch
 		(
@@ -738,10 +743,17 @@ struct outlinerCore
 	(
 		try
 		(
-			local c = Containers.CreateContainer (getCurrentSelection());
-			
-			if (outliner.prefs.getValue #Tree #editNewLayerName) do
-				outliner.tree.EditNodeName (GetHandleByAnim c);
+			local sel = getCurrentSelection();
+			if (sel.count > 0) do
+			(
+				local c = Containers.CreateContainer sel;
+				
+				if (isValidNode c) do
+				(
+					if (outliner.prefs.getValue #Tree #editNewLayerName) do
+						outliner.tree.EditNodeName (GetHandleByAnim c);
+				)
+			)
 		)
 		catch
 		(
@@ -754,10 +766,17 @@ struct outlinerCore
 	(
 		try 
 		(
-			local g = group (getCurrentSelection());
-			
-			if (outliner.prefs.getValue #Tree #editNewLayerName) do
-				outliner.tree.EditNodeName (GetHandleByAnim g);
+			local sel = getCurrentSelection();
+			if (sel.count > 0) do
+			(
+				local g = group sel;
+				
+				if (isValidNode g) do
+				(
+					if (outliner.prefs.getValue #Tree #editNewLayerName) do
+						outliner.tree.EditNodeName (GetHandleByAnim g);
+				)
+			)
 		)
 		catch
 		(
@@ -951,7 +970,6 @@ struct outlinerCore
 			
 			prefs = outlinerPreferences iniFile:((GetDir #userScripts) + "/outliner_prefs.ini");
 			prefs.loadPreferences();
-			prefs.setValue #General #version version;
 			
 			ui = outlinerUI();
 			

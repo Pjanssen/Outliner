@@ -1,5 +1,9 @@
 struct outliner_crash_report
 (
+	exception,
+	stackFull,
+	stackSummary,
+	
 	/**
 	 * WRITE EXCEPTION DATA TO FILE
 	 */
@@ -11,10 +15,10 @@ struct outliner_crash_report
 			return false;
 		
 		format "Exception\n---------\n" to:stream;
-		format "%\n\n" (getCurrentException()) to:stream;
+		format "%\n\n" exception to:stream;
 		
 		format "Stack\n------\n" to:stream;
-		threads to:stream;
+		format "%" stackFull to:stream;
 		
 		close stream;
 		
@@ -326,15 +330,23 @@ struct outliner_crash_report
 		
 		if (packResult > 0) do
 		(
-			webClient = dotNetObject "System.Net.WebClient";
-			local url = "http://script.threesixty.nl/outliner/crash_report.php?from_email=";
-			url += fromEmail;
-            local uploadUri = dotNetObject "System.Uri" url;
-            dotNet.addEventHandler webClient "UploadFileCompleted" uploadCompleted;
+			try 
+			(	
+				webClient = dotNetObject "System.Net.WebClient";
+				local url = "http://script.threesixty.nl/outliner/crash_report.php?from_email=";
+				url += fromEmail;
+				url += "&summary=Exception:\r\n";
+				url += report_instance.exception;
+				url += "\r\n\r\nStack summary:\r\n";
+				url += report_instance.stackSummary;
+							
+	            local uploadUri = dotNetObject "System.Uri" url;
+	            dotNet.addEventHandler webClient "UploadFileCompleted" uploadCompleted;
+	            
             
-            try (
 	            webClient.UploadFileAsync uploadUri "POST" packFile (dotNetMXSValue report_instance);
-	        ) catch (
+	        ) catch 
+	        (
 	        	messageBox "Failed to send error report." "Error";
 	        )
 		)
@@ -408,6 +420,18 @@ struct outliner_crash_report
 	
 	function handle_exception report_instance additionalInfo:"" =
 	(
+		exception = getCurrentException();
+		
+		local tmpStack = stringStream "";
+		stack to:tmpStack;
+		seek tmpStack 0;
+		skipToString tmpStack "**	[stack level: 1]";
+		local pos = (filePos tmpStack) - 19;
+		skipToNextLine tmpStack;
+		stackSummary = readLine tmpStack;
+		seek tmpStack pos;
+		stackFull = readDelimitedString tmpStack "";
+		
 		stackFile = (GetDir #temp) + "/outliner_crash_stack.txt";
 		writeStackSuccess = writeExceptionDataToFile stackFile;
 		

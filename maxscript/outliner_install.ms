@@ -1,5 +1,6 @@
 (
-	local version = 2.0;
+	local version = 2.01;
+	local versionStr = "2.0.1";
 	
 	global outliner_restart_required;
 	
@@ -16,7 +17,7 @@
 	local str_failed = "failed";
 	local str_skipped = "skipped";
 	
-	local str_title				= "Outliner " + (version as string);
+	local str_title				= "Outliner " + versionStr;
 	local str_inst				= "Installation";
 	local str_uninst			= "Uninstallation";
 	local str_begUnInst			= "Beginning uninstallation.\n";
@@ -199,6 +200,26 @@
 		((maxVersion())[1] >= 10000);
 	)
 	
+	
+	function copyDirectory sourceDir targetDir =
+	(
+		local Directory = dotNetClass "System.IO.Directory";
+		local SearchOption = dotNetClass "System.IO.SearchOption";
+		local File = dotNetClass "System.IO.File";
+		local allFiles = Directory.GetFiles sourceDir "*.*" SearchOption.AllDirectories;
+		
+		
+		for sourceFile in allFiles do
+		(
+			local targetFile = targetDir + (substring sourceFile (sourceDir.count + 1) -1);
+			local targetFileDir = getFilenamePath targetFile;
+			if (not (Directory.Exists targetFileDir)) do
+				Directory.CreateDirectory targetFileDir;
+			File.Copy sourceFile targetFile;
+		)
+	)
+	
+	
 	function copyScriptFiles = 
 	(
 		local success = true;
@@ -208,9 +229,14 @@
 		
 		try 
 		(
+			copyDirectory (tempDir + "/script") scriptDir;
+			copyDirectory (tempDir + "/stdscript") stdscriptDir;
+			copyDirectory (tempDir + "/macroscripts") macroscriptsDir;
+			/*
 			dir.Move (tempDir + "/script") scriptDir;
 			dir.Move (tempDir + "/stdscript") stdscriptDir;
 			dir.Move (tempDir + "/macroscripts") macroscriptsDir;
+			*/
 			iconFiles = dir.getFiles (tempDir + "/icons") "*.bmp";
 			for ico in iconFiles do
 				file.Move ico (iconsDir + "/" + (filenameFromPath ico));	

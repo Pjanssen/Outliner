@@ -1,9 +1,9 @@
 (
 	function outliner_get_instance =
 	(
+		global outliner;
 		if outliner == undefined do
 			fileIn ((getDir #Scripts) + "/outliner/init.ms");
-	
 		outliner;
 	)
 	
@@ -18,6 +18,7 @@
 	if (open) do
 	(
 		local outlinerInst = outliner_get_instance();
-		outlinerInst.open();
+		if (outlinerInst != undefined) do
+			outlinerInst.open();
 	)
 )

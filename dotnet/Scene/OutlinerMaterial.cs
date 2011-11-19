@@ -73,9 +73,10 @@ namespace Outliner.Scene
             get
             {
                 if (IsUnassigned) return "-Unassigned-";
+                String n = (this.Name != String.Empty) ? this.Name : "-unnamed-";
                 if (Type == OutlinerScene.XrefMaterialType)
-                    return "{ " + Name + " }";
-                return Name;
+                    return "{ " + n + " }";
+                return n;
             }
         }
 

@@ -49,7 +49,7 @@ namespace Outliner.Scene
             "Age Test", "Birth", "Birth Paint", "Birth Script", "Cache", "Collision", "Collision Spawn", 
             "DeleteParticles", "DisplayParticles", "Event", "Force", "Go To Rotation", "Group Operator", 
             "Keep Apart", "Lock/Bond", "Mapping", "Material Dynamic", "Material Frequency", "Mapping Object", 
-            "Material Static", "Notes", "Particle_Bitmap", "Particle View", "ParticleGroup", "PFArrow", /*"PFEngine",*/
+            "Material Static", "Notes", "Particle_Bitmap", "Particle View", "ParticleGroup", "PFArrow", "PFEngine",
             "PFActionListPool", "Placement Paint", "Position Icon", "Position Object", "PView_Manager", "Rotation", "RenderParticles",
             "ScaleParticles", "Scale Test", "Script Operator", "Script Test", "Send Out", "Shape Facing", "Shape Instance", 
             "ShapeLibrary", "Shape Mark", "shapeStandard", "Spawn", "Speed", "Speed By Surface", "Speed Test", "Spin", 

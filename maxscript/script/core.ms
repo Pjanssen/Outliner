@@ -124,7 +124,7 @@ struct outlinerCore
 	function pushMaterialsToTree =
 	(
 		tree.Scene.ClearMaterials();
-		for mat in scenematerials do
+		for mat in scenematerials where ((superclassof i) == material) do
 			addMaterialToTree mat -1;
 	),
 
@@ -459,12 +459,18 @@ struct outlinerCore
 					(
 						local n = GetAnimByHandle handle;
 						
-						if (isValidNode n) then
-							delete n;
-						else if ((not (isDeleted n)) AND isKindOf n Base_Layer AND n.name != "0") then
-							deleteLayer n;
-						else
+						--Remove the node from the tree if it has no scene representation.
+						--This should never happen, but apparently sometimes it does...
+						if (n == undefined OR isDeleted n) then
 							tree.DeleteObject handle;
+						--Otherwise, delete the node or layer from the scene.
+						else
+						(
+							if (isValidNode n) then
+								delete n;
+							else if (isKindOf n Base_Layer AND n.name != "0") then
+								deleteLayer n;
+						)
 					)
 				)
 			)
@@ -574,6 +580,14 @@ struct outlinerCore
 	(
 		targetLayer.addNode obj;
 		outliner_callbacks.nodeLayerChangedIntern obj targetLayer;
+		
+		--Also move dependencies in case of a PFSource (in particular PFEngine, which affects visibility of actual particles).
+		if ((classof obj) == PF_Source) do
+		(
+			local depNodes = refs.dependentNodes obj;
+			for d in depNodes do
+				targetLayer.addNode d;
+		)
 	),
 	
 	function moveGroupToLayer obj targetLayer =

@@ -62,17 +62,19 @@ struct outlinerUI
 			else
 				outliner_status.reset();
 	
+			--Create keyboard actions object.
 			outliner.kbd_actions = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
 			outliner.addKbdFileWatch();
 			
+			--Load window preferences.
 			local prefs_getValueFn = outliner.prefs.getValue;
-			
 			local posx		= prefs_getValueFn #Window #posx;
 			local posy		= prefs_getValueFn #Window #posy;
 			local width		= prefs_getValueFn #Window #width;
 			local height	= prefs_getValueFn #Window #height;
 			local dockFlag	= prefs_getValueFn #Window #dockFlag;
 			
+			--Make sure the main window position is within the screen bounds.
 			if (posx > sysInfo.DesktopSize[1]) do 
 			(
 				posx = (outliner.prefs.getEntry #Window #posx).default;
@@ -84,10 +86,12 @@ struct outlinerUI
 				outliner.prefs.setValue #Window #posy posy;
 			)
 			
-			CreateDialog outliner_main width height pos:[posx, posy - 2] style:#(#style_toolwindow, #style_sysmenu, #style_resizing);	
-			cui.RegisterDialogBar outliner_main minSize:[mainMinWidth, mainMinHeight] maxSize:[-1,-1] style:#(#cui_dock_vert, #cui_floatable);
+			--Create main window.
+			CreateDialog outliner_main width height pos:[posx, posy] style:#(#style_toolwindow, #style_sysmenu, #style_resizing);	
+			cui.RegisterDialogBar outliner_main minSize:[mainMinWidth, mainMinHeight] maxSize:[-1,10000] style:#(#cui_dock_vert, #cui_floatable, #cui_handles);
 			if (dockFlag != #cui_floatable) do cui.DockDialogBar outliner_main dockFlag;
 	
+			--Fill the tree.
 			outliner.pushSceneToTree();
 			outliner.tree.FillTree();
 			

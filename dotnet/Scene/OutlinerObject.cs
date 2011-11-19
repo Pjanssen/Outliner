@@ -79,10 +79,11 @@ namespace Outliner.Scene
         {
             get
             {
-                if (Class == OutlinerScene.XrefObjectType && (IsGroupMember || IsGroupHead)) return "{[ " + Name + " ]}";
-                if (Class == OutlinerScene.XrefObjectType) return "{ " + Name + " }";
-                if (IsGroupMember || IsGroupHead) return "[ " + Name + " ]";
-                return Name;
+                String n = (this.Name != String.Empty) ? this.Name : "-unnamed-";
+                if (Class == OutlinerScene.XrefObjectType && (IsGroupMember || IsGroupHead)) return "{[ " + n + " ]}";
+                if (Class == OutlinerScene.XrefObjectType) return "{ " + n + " }";
+                if (IsGroupMember || IsGroupHead) return "[ " + n + " ]";
+                return n;
             }
         }
         override public Boolean CanEditName { get { return true; } }

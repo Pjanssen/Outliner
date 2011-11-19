@@ -40,19 +40,11 @@ namespace Outliner
                     _nameFilter = value;
                 else
                 {
-                    Boolean beginsWithAsterisk = false;
-                    if (value.Substring(0, 1) == "*")
-                    {
-                        beginsWithAsterisk = true;
-                        _nameFilter = Regex.Escape(value.Substring(1, value.Length - 1));
-                    }
-                    else
-                        _nameFilter = Regex.Escape(value);
-
-                    if (beginsWithAsterisk)
-                        _nameFilter = "." + _nameFilter;
-                    else
-                        _nameFilter = "^" + _nameFilter;
+                    // Escape the filter value.
+                    _nameFilter = "^" + Regex.Escape(value);
+                    
+                    // Replace all escaped occurrences of * with [\w\s]*.
+                    _nameFilter = Regex.Replace(_nameFilter, @"(\\\*)", @"[\w\s]*");
                 }
             }
         }
@@ -156,12 +148,14 @@ namespace Outliner
             if (!ShowHelpers && obj.SuperClass == OutlinerScene.HelperType) return false;
             if (!ShowSpaceWarps && obj.SuperClass == OutlinerScene.SpacewarpType) return false;
 
-            if ((!ShowBones || !ShowParticles || !ShowGeometry) && obj.SuperClass == OutlinerScene.GeometryType)
+            if ((!ShowBones || !ShowParticles || !ShowGeometry || !ShowHelpers) && obj.SuperClass == OutlinerScene.GeometryType)
             {
                 if (obj.Class == OutlinerScene.BoneType || obj.Class == OutlinerScene.BipedType)
                     return ShowBones;
-                else if (obj.Class == OutlinerScene.PfSourceType || obj.Class == OutlinerScene.PCloudType || 
-                         obj.Class == OutlinerScene.PArrayType || obj.Class == OutlinerScene.PBlizzardType || 
+                else if (obj.Class == OutlinerScene.TargetType)
+                    return ShowHelpers;
+                else if (obj.Class == OutlinerScene.PfSourceType || obj.Class == OutlinerScene.PCloudType ||
+                         obj.Class == OutlinerScene.PArrayType || obj.Class == OutlinerScene.PBlizzardType ||
                          obj.Class == OutlinerScene.PSprayType || obj.Class == OutlinerScene.PSuperSprayType ||
                          obj.Class == OutlinerScene.PSnowType)
                     return ShowParticles;

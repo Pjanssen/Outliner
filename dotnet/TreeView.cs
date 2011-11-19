@@ -538,7 +538,7 @@ namespace Outliner
             {
                 if (n is OutlinerObject && ((OutlinerObject)n).LayerHandle != layer.Handle)
                     return true;
-                else if (n is OutlinerLayer && n.ParentHandle != layer.Handle)
+                else if (n is OutlinerLayer && n.Handle != layer.Handle && n.ParentHandle != layer.Handle && !((OutlinerLayer)n).IsDefaultLayer)
                     return true;
             }
 
@@ -1965,7 +1965,6 @@ namespace Outliner
                 List<Int32> layerHandles = new List<Int32>();
                 foreach (OutlinerNode node in _selectedNodes)
                 {
-
                     if (node.Handle != layerHandle)
                     {
                         if (node is OutlinerObject)
@@ -1973,7 +1972,7 @@ namespace Outliner
                             SetObjectLayer(node.Handle, layerHandle);
                             objectHandles.Add(node.Handle);
                         }
-                        else if (node is OutlinerLayer)
+                        else if (node is OutlinerLayer && !((OutlinerLayer)node).IsDefaultLayer)
                         {
                             TreeNode cn;
                             if (_treeNodes.TryGetValue(node, out cn) && !IsChildOfNode(tn, cn))
@@ -2231,28 +2230,22 @@ namespace Outliner
             m_Hook.ReleaseHandle();
             
             OutlinerNode node = (OutlinerNode)e.Node.Tag;
+            Boolean continueEditing = false;
             if (e.Label != null && e.Label != node.Name)
             {
                 if (e.Label.Length == 0)
                 {
-                    e.Node.EndEdit(true);
-                    e.Node.BeginEdit();
-                    return;
+                    continueEditing = true;
                 }
-
-                if (node is OutlinerLayer && !Scene.IsValidLayerName((OutlinerLayer)node, e.Label))
+                else if (node is OutlinerLayer && !Scene.IsValidLayerName((OutlinerLayer)node, e.Label))
                 {
                     MessageBox.Show(OutlinerResources.InvalidLayerNameMessage, OutlinerResources.InvalidLayerNameTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    e.Node.EndEdit(true);
-                    e.Node.BeginEdit();
-                    return;
+                    continueEditing = true;
                 }
                 else if (node is OutlinerMaterial && !Scene.IsValidMaterialName((OutlinerMaterial)node, e.Label))
                 {
                     MessageBox.Show(OutlinerResources.InvalidMaterialNameMessage, OutlinerResources.InvalidMaterialNameTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    e.Node.EndEdit(true);
-                    e.Node.BeginEdit();
-                    return;
+                    continueEditing = true;
                 }
                 else
                 {
@@ -2265,11 +2258,13 @@ namespace Outliner
                 }
             }
 
-            // CancelEdit true isn't pretty, but doing so enables you to set e.node.text.
             e.CancelEdit = true;
             e.Node.Text = node.DisplayName;
 
-            this.LabelEdit = false;
+            if (continueEditing)
+                e.Node.BeginEdit();
+            else
+                this.LabelEdit = false;
         }
 
         #endregion

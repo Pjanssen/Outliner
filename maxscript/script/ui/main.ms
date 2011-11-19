@@ -8,18 +8,18 @@ rollout outliner_main "Outliner"
 	local sortmode_images;
 	
 	editText search "" pos:[margin - 4, margin];
-	checkbutton searchCaseSensitive "" width:search.height height:search.height pos:[margin, margin] tooltip:"Search case-sensitive";
+	checkbutton searchCaseSensitive "" width:search.height height:search.height pos:[margin, margin] tooltip:"Search case-sensitive" border:false;
 	
 	dotNetControl tree "Outliner.TreeView" pos:[margin, margin + search.height + 2];
 	
 	--Button y position is set in positionElements()
-	checkbutton listmode_h tooltip:"Hierarchy Mode" width:btn_w height:btn_h pos:[margin, 0];
-	checkbutton listmode_l tooltip:"Layer Mode" width:btn_w height:btn_h pos:[margin + btn_w, 0];
-	checkbutton listmode_m tooltip:"Material Mode (beta)" width:btn_w height:btn_h pos:[margin + btn_w*2, 0];
+	checkbutton listmode_h tooltip:"Hierarchy Mode" width:btn_w height:btn_h pos:[margin, 0] border:false;
+	checkbutton listmode_l tooltip:"Layer Mode" width:btn_w height:btn_h pos:[margin + btn_w, 0] border:false;
+	checkbutton listmode_m tooltip:"Material Mode (beta)" width:btn_w height:btn_h pos:[margin + btn_w*2, 0] border:false;
 	
-	button sortmode_btn width:btn_w height:btn_h pos:[margin + btn_w * 3 + 4, 0];
-	checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filter" width:btn_w height:btn_h pos:[margin + btn_w * 4 + 8, 0];
-	button options tooltip:"Options" width:btn_w height:btn_h pos:[0, 0];
+	button sortmode_btn width:btn_w height:btn_h pos:[margin + btn_w * 3 + 4, 0] border:false;
+	checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filter" width:btn_w height:btn_h pos:[margin + btn_w * 4 + 8, 0] border:false;
+	button options tooltip:"Options" width:btn_w height:btn_h pos:[0, 0] border:false;
 	
 	
 	--Position Elements.
@@ -278,6 +278,7 @@ rollout outliner_main "Outliner"
 	local outliner_handleKeyUp;
 	local TreeEventHandlers_SelectionChanged;
 	local TreeEventHandlers_NodeHidden;
+	local TreeEventHandlers_NodeFrozen;
 	local TreeEventHandlers_NodeRenamed;
 	local TreeEventHandlers_ObjectMaterialChanged;
 	local TreeEventHandlers_SpaceWarpBound;
@@ -286,6 +287,7 @@ rollout outliner_main "Outliner"
 	local TreeEventHandlers_ObjectLinked;
 	local TreeEventHandlers_ObjectGrouped;
 	local TreeEventHandlers_LayerLinked;
+	local TreeEventHandlers_LayerActiveChanged;
 	local TreeEventHandlers_ContextMenuOpened;
 	local TreeEventHandlers_ContextMenuItemClicked;
 	
@@ -294,6 +296,7 @@ rollout outliner_main "Outliner"
 		outliner_handleKeyUp = outliner.handleKeyUp
 		TreeEventHandlers_SelectionChanged			= outliner_TreeEventHandlers.SelectionChanged;
 		TreeEventHandlers_NodeHidden	 			= outliner_TreeEventHandlers.NodeHidden;
+		TreeEventHandlers_NodeFrozen				= outliner_TreeEventHandlers.NodeFrozen;
 		TreeEventHandlers_NodeRenamed				= outliner_TreeEventHandlers.NodeRenamed;
 		TreeEventHandlers_ObjectMaterialChanged		= outliner_TreeEventHandlers.ObjectMaterialChanged;
 		TreeEventHandlers_SpaceWarpBound			= outliner_TreeEventHandlers.SpaceWarpBound;
@@ -302,6 +305,7 @@ rollout outliner_main "Outliner"
 		TreeEventHandlers_ObjectLinked				= outliner_TreeEventHandlers.ObjectLinked;
 		TreeEventHandlers_ObjectGrouped				= outliner_TreeEventHandlers.ObjectGrouped;
 		TreeEventHandlers_LayerLinked				= outliner_TreeEventHandlers.LayerLinked;
+		TreeEventHandlers_LayerActiveChanged		= outliner_TreeEventHandlers.LayerActiveChanged;
 		TreeEventHandlers_ContextMenuOpened			= outliner_TreeEventHandlers.ContextMenuOpened;
 		TreeEventHandlers_ContextMenuItemClicked	= outliner_TreeEventHandlers.ContextMenuItemClicked;
 	)
@@ -311,6 +315,7 @@ rollout outliner_main "Outliner"
 		outliner_handleKeyUp = undefined;
 		TreeEventHandlers_SelectionChanged			= undefined;
 		TreeEventHandlers_NodeHidden				= undefined;
+		TreeEventHandlers_NodeFrozen				= undefined;
 		TreeEventHandlers_NodeRenamed				= undefined;
 		TreeEventHandlers_ObjectMaterialChanged		= undefined;
 		TreeEventHandlers_SpaceWarpBound			= undefined;
@@ -319,6 +324,7 @@ rollout outliner_main "Outliner"
 		TreeEventHandlers_ObjectLinked				= undefined;
 		TreeEventHandlers_ObjectGrouped				= undefined;
 		TreeEventHandlers_LayerLinked				= undefined;
+		TreeEventHandlers_LayerActiveChanged		= undefined;
 		TreeEventHandlers_ContextMenuOpened			= undefined;
 		TreeEventHandlers_ContextMenuItemClicked	= undefined;
 	)
@@ -347,16 +353,20 @@ rollout outliner_main "Outliner"
 		
 		tree.TreeViewNodeSorter 	= dotNetObject ("Outliner.NodeSorters." + (getPrefFn #Tree #sortMode) + "Sorter");	
 		
-		tree.HighlighLastSelectedObject	= (getPrefFn #Tree #highlightLastSel);
-		tree.AutoExpandHierarchy		= (getPrefFn #Tree #autoExpandHierarchy);
-		tree.AutoExpandLayer			= (getPrefFn #Tree #autoExpandLayer);
-		tree.AutoExpandMaterial			= (getPrefFn #Tree #autoExpandMaterial);
-		tree.HideGroupMembersLayerMode 	= (getPrefFn #Tree #hideGroupMembersLayerMode);
+		tree.ShowNodeHideButton			= getPrefFn #Tree #showNodeHideButton;
+		tree.ShowNodeFreezeButton		= getPrefFn #Tree #showNodeFreezeButton;
+		tree.HighlighLastSelectedObject	= getPrefFn #Tree #highlightLastSel;
+		tree.AutoExpandHierarchy		= getPrefFn #Tree #autoExpandHierarchy;
+		tree.AutoExpandLayer			= getPrefFn #Tree #autoExpandLayer;
+		tree.AutoExpandMaterial			= getPrefFn #Tree #autoExpandMaterial;
+		tree.HideGroupMembersLayerMode 	= getPrefFn #Tree #hideGroupMembersLayerMode;
 		
-		tree.ListMode			 = outliner.parseDotNetEnum "Outliner.OutlinerListMode" (getPrefFn #Tree #listMode);
-		tree.DoubleClickAction	 = outliner.parseDotNetEnum "Outliner.DoubleClickAction" (getPrefFn #Tree #doubleClickAction);
-		tree.DragMouseButton	 = outliner.parseDotNetEnum "System.Windows.Forms.MouseButtons" (getPrefFn #Tree #dragMouseButton);
-		tree.ExpandHierarchyKey	 = outliner.parseDotNetEnum "System.Windows.Forms.Keys" (getPrefFn #Tree #expandHierarchyKey);
+		tree.ListMode				= outliner.parseDotNetEnum "Outliner.OutlinerListMode" (getPrefFn #Tree #listMode);
+		tree.IconClickAction		= outliner.parseDotNetEnum "Outliner.IconClickAction" (getPrefFn #Tree #iconClickAction);
+		tree.NodeButtonsLocation	= outliner.parseDotNetEnum "Outliner.NodeButtonsLocation" (getPrefFn #Tree #nodeButtonsLocation);
+		tree.DoubleClickAction		= outliner.parseDotNetEnum "Outliner.DoubleClickAction" (getPrefFn #Tree #doubleClickAction);
+		tree.DragMouseButton		= outliner.parseDotNetEnum "System.Windows.Forms.MouseButtons" (getPrefFn #Tree #dragMouseButton);
+		tree.ExpandHierarchyKey 	= outliner.parseDotNetEnum "System.Windows.Forms.Keys" (getPrefFn #Tree #expandHierarchyKey);
 		
 		tree.ExpandSelectionPolicyHierarchy = outliner.parseDotNetEnum "Outliner.ExpandPolicy" (getPrefFn #Tree #expandSelPolicyHierarchy);
 		tree.ExpandSelectionPolicyLayer		= outliner.parseDotNetEnum "Outliner.ExpandPolicy" (getPrefFn #Tree #expandSelPolicyLayer);
@@ -470,7 +480,9 @@ rollout outliner_main "Outliner"
 	on tree NodeHidden e do
 		TreeEventHandlers_NodeHidden e;
 
-
+	on tree NodeFrozen e do
+		TreeEventHandlers_NodeFrozen e;
+		
 	on tree NodeRenamed e do
 		TreeEventHandlers_NodeRenamed e;
 
@@ -502,6 +514,9 @@ rollout outliner_main "Outliner"
 	on tree LayerLinked e do
 		TreeEventHandlers_LayerLinked e;
 
+	on tree LayerActiveChanged e do
+		TreeEventHandlers_LayerActiveChanged e;
+		
 
 	on tree ContextMenuOpened e do
 		TreeEventHandlers_ContextMenuOpened e;

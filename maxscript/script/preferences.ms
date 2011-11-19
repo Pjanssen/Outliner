@@ -14,7 +14,7 @@ struct outlinerPreferences (
 	(
 		#(
 			--General section
-			(outlinerPrefsEntry section:#General key:#version					default:0),
+			(outlinerPrefsEntry section:#General key:#version					default:0.0),
 			(outlinerPrefsEntry section:#General key:#versionString				default:""),
 			(outlinerPrefsEntry section:#General key:#matModeFirstRun			default:true),
 			(outlinerPrefsEntry section:#General key:#addNestedLayerMessage		default:true),
@@ -52,6 +52,10 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyHierarchy	default:"WhenNecessary"),
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyLayer		default:"Never"),
 			(outlinerPrefsEntry section:#Tree	key:#expandSelPolicyMaterial	default:"WhenNecessary"),
+			(outlinerPrefsEntry section:#Tree	key:#showNodeHideButton			default:true),
+			(outlinerPrefsEntry section:#Tree	key:#showNodeFreezeButton		default:true),
+			(outlinerPrefsEntry section:#Tree	key:#nodeButtonsLocation		default:"BeforeNode"),
+			(outlinerPrefsEntry section:#Tree	key:#iconClickAction			default:"SetActive"),
 			
 			--Visual section
 			(outlinerPrefsEntry	section:#Visual	key:#iconset					default:"Max"),

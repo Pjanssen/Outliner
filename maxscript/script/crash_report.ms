@@ -219,7 +219,7 @@ struct outliner_crash_report
 		
 		--Write 3dsmax version
 		local maxv = maxVersion();
-		format "3dsmax version: % (%)\n" (if (maxv[1] < 10) then maxv[1] else 2008 + (maxv[1] / 1000 - 10)) maxv[1] to:stream;
+		format "3dsmax version: % %\n" (if (maxv[1] < 10) then maxv[1] else 2008 + (maxv[1] / 1000 - 10)) (if (is64bitapplication()) then "64bit" else "32bit") to:stream;
 		
 		--Write Outliner version.
 		local outlinerVersion = "unknown";
@@ -344,7 +344,7 @@ struct outliner_crash_report
 				if (fromEmail != "") then
 					url += fromEmail;
 				else
-					url += "-Not provided";
+					url += "-Not provided-";
 				url += "\r\n\r\nDetails:\r\n";
 				if (details != "") then
 					url += details;

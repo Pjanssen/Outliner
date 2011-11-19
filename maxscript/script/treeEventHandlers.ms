@@ -30,7 +30,12 @@ struct outliner_TreeEventHandlers
 					-- Select layers.
 					if (listMode == "Layer") then
 					(
-						for l in e.SelectedLayerHandles do (GetAnimByHandle l).select true;
+						for l in e.SelectedLayerHandles do 
+						(
+							local layer = GetAnimByHandle l;
+							if (layer != undefined) do
+								layer.select true;
+						)
 					)
 					
 					-- Select materials.
@@ -96,6 +101,46 @@ struct outliner_TreeEventHandlers
 			)
 			
 			outliner_status.hiddenInOutliner = false;
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
+	
+	
+	
+		/**
+	 * NODE HIDDEN
+	 */
+	function NodeFrozen e =
+	(
+		try
+		(
+			outliner_status.frozenInOutliner = true;
+			
+			local undoString = if (e.NewValue) then "Freeze" else "Unfreeze";
+			
+			undo undoString on
+			(
+				with redraw off
+				(		
+					for handle in e.Handles do
+					(
+						local n = GetAnimByHandle handle;
+						if (n != undefined) do
+						(
+							if (isKindOf n node) then
+								n.isNodeFrozen = e.newValue;
+							else if (isKindOf n Base_Layer) then
+								outliner_NestedLayers.setLayerProperty n #isFrozen e.newValue;
+						)
+					)
+				)
+			)
+			
+			outliner_status.frozenInOutliner = false;
 		)
 		catch
 		(
@@ -317,12 +362,17 @@ struct outliner_TreeEventHandlers
 						local n = GetAnimByHandle handle;
 						if (isValidNode n) do
 						(
-							if (not refs.dependencyLoopTest targetNode n) then
-								n.Parent = targetNode;
+							if (targetNode == undefined) then
+								n.parent = undefined;
 							else
 							(
-								messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
-								outliner_callbacks.nodeLinkedIntern n;
+								if (not refs.dependencyLoopTest targetNode n) then
+									n.parent = targetNode;
+								else
+								(
+									messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
+									outliner_callbacks.nodeLinkedIntern n;
+								)
 							)
 						)
 					)
@@ -362,25 +412,29 @@ struct outliner_TreeEventHandlers
 						local n = GetAnimByHandle handle;
 						if (isValidNode n) do
 						(
-							if (not refs.dependencyLoopTest targetNode n) then
+							if (e.Linked) do
 							(
-								if (e.Linked) do
+								if (targetNode == undefined) then
+									n.parent = undefined;
+								else
 								(
-									
-									local parentToDelete;
-									if (n.parent != undefined AND isGroupHead n.parent AND n.parent.children.count == 1) do
-										parentToDelete = n.parent;
-								 
-									n.Parent = targetNode;
-									if (parentToDelete != undefined) do
-										delete parentToDelete;
+									if (not refs.dependencyLoopTest targetNode n) then
+									(
+										local parentToDelete;
+										if (n.parent != undefined AND isGroupHead n.parent AND n.parent.children.count == 1) do
+											parentToDelete = n.parent;
+									 
+										n.Parent = targetNode;
+										if (parentToDelete != undefined) do
+											delete parentToDelete;
+									)
+									else
+									(
+										messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
+										outliner_callbacks.nodeLinkedIntern n;
+									)
 								)
 								setGroupMember n e.IsGroupMember;
-							)
-							else
-							(
-								messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
-								outliner_callbacks.nodeLinkedIntern n;
 							)
 						)
 					)
@@ -425,6 +479,30 @@ struct outliner_TreeEventHandlers
 		)
 	),
 	
+	
+	
+	/**
+	 * LAYER ACTIVE CHANGED
+	 */
+	function LayerActiveChanged e =
+	(
+		try
+		(
+			for h in e.Handles do
+			(
+				local layer = GetAnimByHandle h;
+				if (layer != undefined AND e.newValue) do
+				(
+					layer.current = true;
+				)
+			)
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
 	
 	
 	

@@ -1,3 +1,5 @@
+global outliner_callbacks;
+
 struct outlinerCallbacks (
 	callbacksEnum = #(
 				(Pair key:#selectionSetChanged		value:"outliner_callbacks.selectionChanged()"),
@@ -29,7 +31,7 @@ struct outlinerCallbacks (
 				(Pair key:#colorChanged				value:"outliner_callbacks.colorChanged()"),
 				(Pair key:#preSystemShutdown		value:"try ( outliner_callbacks.preSystemShutdown() ) catch ()")
 			),
-	
+	nodeEventCallbackItem,
 	isCreatingNode = false,
 	isDeleting = false,
 	isMerging = false,
@@ -175,6 +177,9 @@ struct outlinerCallbacks (
 		)
 		
 		createLayerChangeHandlers();
+		
+		if (outliner.maxv > 10) do
+			nodeEventCallbackItem = NodeEventCallback modelStructured:(function ms_fn evt n = ( outliner_callbacks.modelStructured evt n; )); --workaround to avoid issue with function not yet being declared.
  		
 		outliner_callbacks.setLayerNames();
 	),
@@ -184,6 +189,7 @@ struct outlinerCallbacks (
 		callbacks.removeScripts id:#outliner;
 		removeLayerChangeHandlers();
 		removeMaterialChangeHandlers();
+		nodeEventCallbackItem = undefined;
 		disposeFunctionCache();
 	),
 	
@@ -387,7 +393,7 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			if (not isMerging) do
+			if (not outliner_status.frozenInOutliner AND not isMerging) do
 			(
 				local node = callbacks.notificationParam();
 				tree_setObjectFrozenFn (GetHandleByAnim node) node.isFrozen;
@@ -400,6 +406,25 @@ struct outlinerCallbacks (
 		)
 	),
 	
+	
+	
+	function modelStructured evt nodes =
+	(
+		try
+		(
+			for n in nodes do
+			(
+				local obj = GetAnimByHandle n;
+				if (isValidNode obj) do
+					outliner.tree.SetObjectClass n (getClassName obj) ((superClassOf obj) as string);
+			)
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	),
 	
 	
 	
@@ -559,7 +584,13 @@ struct outlinerCallbacks (
 	(
 		try
 		(
-			tree_SetLayerHiddenFrozenFn (GetHandleByAnim layer) (outliner_NestedLayers.getLayerProperty layer #isHidden) (outliner_NestedLayers.getLayerProperty layer #isFrozen);
+			if (layer != undefined AND not (isDeleted layer)) do
+			(
+				local isHidden = outliner_NestedLayers.getLayerProperty layer #isHidden;
+				local isFrozen = outliner_NestedLayers.getLayerProperty layer #isFrozen;
+				if (isHidden != undefined AND isFrozen != undefined) do
+					tree_SetLayerHiddenFrozenFn (GetHandleByAnim layer) isHidden isFrozen;
+			)
 		)
 		catch
 		(
@@ -614,7 +645,9 @@ struct outlinerCallbacks (
 				
 				if (LayerManager.current != currentLayer) do
 				(
-					tree_SetLayerActiveFn (GetHandleByAnim currentLayer.layerAsRefTarg) false;
+					if (not (isDeleted currentLayer)) do 
+						tree_SetLayerActiveFn (GetHandleByAnim currentLayer.layerAsRefTarg) false;
+						
 					currentLayer = LayerManager.current;
 					tree_SetLayerActiveFn (GetHandleByAnim currentLayer.layerAsRefTarg) true;
 				)

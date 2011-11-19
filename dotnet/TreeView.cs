@@ -1802,6 +1802,34 @@ namespace Outliner
             }
         }
 
+        //Returns true if an IDisplayable of a node can be set. That is, when
+        //its property is not overridden by its (parent-)layer.
+        private Boolean canSetProperty(OutlinerNode n, String propName)
+        {
+            IDisplayable objToInspect = null;
+            if (n is OutlinerObject)
+                objToInspect = ((OutlinerObject)n).Layer;
+            else if (n is OutlinerLayer)
+            {
+                if (n.Parent == null)
+                    return true;
+                else if (!(n.Parent is IDisplayable))
+                    return false;
+                else
+                    objToInspect = (IDisplayable)n.Parent;
+            }
+            else if (n is IDisplayable)
+                objToInspect = (IDisplayable)n;
+            else
+                return false;
+
+            System.Reflection.PropertyInfo propInfo = objToInspect.GetType().GetProperty(propName);
+            if (propInfo.PropertyType == typeof(Boolean))
+                return !(Boolean)propInfo.GetValue(objToInspect, null);
+            else
+                return false;
+        }
+
         private void OnHideButtonClick(TreeNode tn, MouseEventArgs e)
         {
             if (!(tn.Tag is OutlinerNode) || !(tn.Tag is IDisplayable) || (e.Button & MouseButtons.Left) != MouseButtons.Left)
@@ -1818,7 +1846,7 @@ namespace Outliner
                 OutlinerNode[] selNodes = SelectedOutlinerNodes;
                 foreach (OutlinerNode n in selNodes)
                 {
-                    if (n is IDisplayable && (!(node is OutlinerObject) || !((OutlinerObject)node).Layer.IsHidden))
+                    if (this.canSetProperty(n, "IsHidden"))
                     {
                         if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
                         {
@@ -1834,7 +1862,7 @@ namespace Outliner
                     }
                 }
             }
-            else if (!(node is OutlinerObject) || !((OutlinerObject)node).Layer.IsHidden)
+            else if (this.canSetProperty(node, "IsHidden"))
             {
                 if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
                 {
@@ -1871,7 +1899,7 @@ namespace Outliner
                 OutlinerNode[] selNodes = SelectedOutlinerNodes;
                 foreach (OutlinerNode n in selNodes)
                 {
-                    if (n is IDisplayable && (!(n is OutlinerObject) || !((OutlinerObject)n).Layer.IsFrozen))
+                    if (this.canSetProperty(n, "IsFrozen"))
                     {
                         if (n is OutlinerObject && ((OutlinerObject)n).IsGroupHead)
                         {
@@ -1887,7 +1915,7 @@ namespace Outliner
                     }
                 }
             }
-            else if (!(node is OutlinerObject) || !((OutlinerObject)node).Layer.IsFrozen)
+            else if (this.canSetProperty(node, "IsFrozen"))
             {
                 if (node is OutlinerObject && ((OutlinerObject)node).IsGroupHead)
                 {
@@ -3495,7 +3523,26 @@ namespace Outliner
 
         #endregion
 
+        //Function wrapper to avoid having to make 3 function calls from 3dsmax.
+        public void SetNodeDisplayProperties(Int32 handle, Boolean isHidden, Boolean isFrozen, Boolean boxMode)
+        {
+            OutlinerNode n = this.Scene.GetNodeByHandle(handle);
+            if (n is IDisplayable)
+            {
+                ((IDisplayable)n).BoxMode = boxMode;
 
+                if (n is OutlinerObject)
+                {
+                    SetObjectHidden(handle, isHidden);
+                    SetObjectFrozen(handle, isFrozen);
+                }
+                else if (n is OutlinerLayer)
+                {
+                    SetLayerHidden(handle, isHidden);
+                    SetLayerFrozen(handle, isFrozen);
+                }
+            }
+        }
 
         //Object functions.
         #region AddObjectToTree, DeleteObject
@@ -3800,12 +3847,7 @@ namespace Outliner
             }
         }
 
-        //Function wrapper to avoid having to make 2 function calls from 3dsmax.
-        public void SetLayerHiddenFrozen(Int32 layerHandle, Boolean isHidden, Boolean isFrozen)
-        {
-            SetLayerHidden(layerHandle, isHidden);
-            SetLayerFrozen(layerHandle, isFrozen);
-        }
+        
 
         public void SetLayerActive(Int32 layerHandle, Boolean isActive)
         {

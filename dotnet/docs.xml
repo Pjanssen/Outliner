@@ -1,0 +1,560 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Outliner.TreeView</name>
+    </assembly>
+    <members>
+        <member name="T:Outliner.OutlinerNodeInfo">
+            <summary>
+            Node properties.
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.Colour">
+            <summary>
+            Node Colour.
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.Hidden">
+            <summary>
+            Node Hidden State.
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.Frozen">
+            <summary>
+            Node Frozen State.
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.IsGroupHead">
+            <summary>
+            IsGroupHead
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.IsGroupMember">
+            <summary>
+            IsGroupMember
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.InodeHandle">
+            <summary>
+            Node reference integer.
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.Layer">
+            <summary>
+            Node Layer
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.Material">
+            <summary>
+            Node Material
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.NodeRef">
+            <summary>
+            3dsMax Node reference object
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.ObjClass">
+            <summary>
+            Node Class
+            </summary>
+        </member>
+        <member name="F:Outliner.OutlinerNodeInfo.ObjSuperClass">
+            <summary>
+            Node SuperClass
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Alphabet">
+            <summary>
+            Sort Alphabetically.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Colour">
+            <summary>
+            Sort by node color.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.CreationTime">
+            <summary>
+            Sort by creation time.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Layer">
+            <summary>
+            Sort by layer.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Material">
+            <summary>
+            Sort by material.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Type">
+            <summary>
+            Sort by type.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSortMode.Visibility">
+            <summary>
+            Sort by visibility.
+            </summary>
+        </member>
+        <member name="T:Outliner.NodeSorter">
+            <summary>
+            Node Sorter.
+            </summary>
+        </member>
+        <member name="F:Outliner.NodeSorter.SortMode">
+            <summary>
+            Sort Mode.
+            </summary>
+        </member>
+        <member name="M:Outliner.NodeSorter.Compare(System.Object,System.Object)">
+            <summary>
+            Compare Function.
+            </summary>
+        </member>
+        <member name="T:Outliner.TreeViewSelectionMode">
+            <summary>
+            Selection mode for the treeview.	
+            </summary>
+            <remarks>
+            The Selection mode determines how treeview nodes can be selected.
+            </remarks>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.SingleSelect">
+            <summary>
+            Only one node can be selected at a time.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.MultiSelect">
+            <summary>
+            Multiple nodes can be selected at the same time without restriction.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.MultiSelectSameRootBranch">
+            <summary>
+            Multiple nodes that belong to the same root branch can be selected at the same time.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.MultiSelectSameLevel">
+            <summary>
+            Multiple nodes that belong to the same level can be selected at the same time.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.MultiSelectSameLevelAndRootBranch">
+            <summary>
+            Multiple nodes that belong to the same level and same root branch can be selected at the same time.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeViewSelectionMode.MultiSelectSameParent">
+            <summary>
+            Only nodes that belong to the same direct parent can be selected at the same time.
+            </summary>
+        </member>
+        <member name="T:Outliner.TreeNodeEventHandler">
+            <summary>
+            Delegate used for tree node events.
+            </summary>
+        </member>
+        <member name="T:Outliner.TreeView">
+            <summary>
+            The TreeView control is a regular treeview with multi-selection capability.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.blnInternalCall">
+            <summary>
+            Used to make sure that SelectedNode can only be used from within this class.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.htblSelectedNodes">
+            <summary>
+            Hashtable that contains all selected nodes.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.blnSelectionChanged">
+            <summary>
+            Track whether the total SelectedNodes changed across multiple operations
+            for SelectionsChanged event
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.htblSelectedNodesOrigColors">
+            <summary>
+            Hashtable to preserve Node's original colors (colors can be set on the TreeView, or individual nodes)
+            (GKM)
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.tnNodeToStartEditOn">
+            <summary>
+            Keeps track of node that has to be pu in edit mode.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.blnWasDoubleClick">
+            <summary>
+            Remembers whether mouse click on a node was single or double click.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.tnMostRecentSelectedNode">
+            <summary>
+            Keeps track of most recent selected node.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.tnSelectionMirrorPoint">
+            <summary>
+            Keeps track of the selection mirror point; this is the last selected node without SHIFT key pressed.
+            It is used as the mirror node during SHIFT selection.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.intMouseClicks">
+            <summary>
+            Keeps track of the number of mouse clicks.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.selectionMode">
+            <summary>
+            Selection mode.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.selectionBackColor">
+            <summary>
+            Backcolor for selected nodes.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.blnNodeProcessedOnMouseDown">
+            <summary>
+            Keeps track whether a node click has been handled by the mouse down event. This is almost always the
+            case, except when a selected node has been clicked again. Then, it will not be handled in the mouse
+            down event because we might want to drag the node and if that's the case, node should not go in edit 
+            mode.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.tnToFlash">
+            <summary>
+            Holds node that needs to be flashed.
+            </summary>
+        </member>
+        <member name="F:Outliner.TreeView.tnKeysStartNode">
+            <summary>
+            Keeps track of the first selected node when selection has begun with the keyboard.
+            </summary>
+        </member>
+        <member name="M:Outliner.TreeView.SelectedNodes_TreeNodeAdded(System.Windows.Forms.TreeNode)">
+            <summary>
+            Occurs when a tree node is added to the SelectedNodes collection.
+            </summary>
+            <param name="tn">Tree node that was added.</param>
+        </member>
+        <member name="M:Outliner.TreeView.SelectedNodes_TreeNodeInserted(System.Windows.Forms.TreeNode)">
+            <summary>
+            Occurs when a tree node is inserted to the SelectedNodes collection.
+            </summary>
+            <param name="tn">tree node that was inserted.</param>
+        </member>
+        <member name="M:Outliner.TreeView.SelectedNodes_TreeNodeRemoved(System.Windows.Forms.TreeNode)">
+            <summary>
+            Occurs when a tree node is removed from the SelectedNodes collection.
+            </summary>
+            <param name="tn">Tree node that was removed.</param>
+        </member>
+        <member name="M:Outliner.TreeView.SelectedNodes_SelectedNodesCleared(System.Object,System.EventArgs)">
+            <summary>
+            Occurs when the SelectedNodes collection was cleared.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectAllNodes(System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects all selected nodes.
+            </summary>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectAllNodesNotBelongingToLevel(System.Int32,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects all selected nodes that don't belong to the specified level.
+            </summary>
+            <param name="level">Node level.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectAllNodesNotBelongingDirectlyToParent(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects all selected nodes that don't belong directly to the specified parent.
+            </summary>
+            <param name="parent">Parent node.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectAllNodesNotBelongingToParent(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects all selected nodes that don't belong directly or indirectly to the specified parent.
+            </summary>
+            <param name="parent">Parent node.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectAllNodesExceptNode(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects all selected nodes, except for the specified node which should not be touched.
+            </summary>
+            <param name="nodeKeepSelected">Node not to touch.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.OnBeforeSelect(System.Windows.Forms.TreeViewCancelEventArgs)">
+            <summary>
+            occurs when a node is about to be selected.
+            </summary>
+            <param name="e">TreeViewCancelEventArgs.</param>
+        </member>
+        <member name="M:Outliner.TreeView.IsNodeSelected(System.Windows.Forms.TreeNode)">
+            <summary>
+            Determines whether the specified node is selected or not.
+            </summary>
+            <param name="tn">Node to check.</param>
+            <returns>True if specified node is selected, false if not.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.SelectNode(System.Windows.Forms.TreeNode,System.Boolean,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            (Un)selects the specified node.
+            </summary>
+            <param name="tn">Node to (un)select.</param>
+            <param name="select">True to select node, false to unselect node.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+            <returns>True if node was selected, false if not.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.SelectNodesInsideRange(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Selects nodes within the specified range.
+            </summary>
+            <param name="startNode">Start node.</param>
+            <param name="endNode">End Node.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectNodesOutsideRange(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Unselects nodes outside the specified range.
+            </summary>
+            <param name="startNode">Start node.</param>
+            <param name="endNode">End node.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.UnselectNodesRecursively(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeViewAction)">
+            <summary>
+            Recursively unselect node.
+            </summary>
+            <param name="tn">Node to recursively unselect.</param>
+            <param name="tva">Specifies the action that caused the selection change.</param>
+        </member>
+        <member name="M:Outliner.TreeView.IsClickOnNode(System.Windows.Forms.TreeNode,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Determines whether a mouse click was inside the node bounds or outside the node bounds..
+            </summary>
+            <param name="tn">TreeNode to check.</param>
+            <param name="e">MouseEventArgs.</param>
+            <returns>True is mouse was clicked inside the node bounds, false if it was clicked ouside the node bounds.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.GetNodeLevel(System.Windows.Forms.TreeNode)">
+            <summary>
+            Gets level of specified node.
+            </summary>
+            <param name="node">Node.</param>
+            <returns>Level of node.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.IsChildOf(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeNode)">
+            <summary>
+            Determines whether the specified node is a child (indirect or direct) of the specified parent.
+            </summary>
+            <param name="child">Node to check.</param>
+            <param name="parent">Parent node.</param>
+            <returns>True if specified node is a direct or indirect child of parent node, false if not.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.GetRootParent(System.Windows.Forms.TreeNode)">
+            <summary>
+            Gets root parent of specified node.
+            </summary>
+            <param name="child">Node.</param>
+            <returns>Root parent of specified node.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.GetNumberOfVisibleNodes">
+            <summary>
+            Gets number of visible nodes.
+            </summary>
+            <returns>Number of visible nodes.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.GetLastVisibleNode">
+            <summary>
+            Gets last visible node.
+            </summary>
+            <returns>Last visible node.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.GetNextTreeNode(System.Windows.Forms.TreeNode,System.Boolean,System.Int32)">
+            <summary>
+            Gets next tree node(s), starting from the specified node and direction.
+            </summary>
+            <param name="start">Node to start from.</param>
+            <param name="down">True to go down, false to go up.</param>
+            <param name="intNumber">Number of nodes to go down or up.</param>
+            <returns>Next node.</returns>
+        </member>
+        <member name="M:Outliner.TreeView.SetFocusToNode(System.Windows.Forms.TreeNode,System.Boolean)">
+            <summary>
+            makes focus rectangle visible or hides it.
+            </summary>
+            <param name="tn">Node to make focus rectangle (in)visible for.</param>
+            <param name="visible">True to make focus rectangle visible, false to hide it.</param>
+        </member>
+        <member name="M:Outliner.TreeView.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Outliner.TreeView.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Outliner.TreeView.OnMouseUp(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse button is up after a click.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Outliner.TreeView.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Occurs when mouse is down.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Outliner.TreeView.FlashNode">
+            <summary>
+            Flashes node.
+            </summary>
+        </member>
+        <member name="M:Outliner.TreeView.StartEdit">
+            <summary>
+            Starts edit on a node.
+            </summary>
+        </member>
+        <member name="M:Outliner.TreeView.ProcessNodeRange(System.Windows.Forms.TreeNode,System.Windows.Forms.TreeNode,System.Windows.Forms.MouseEventArgs,System.Windows.Forms.Keys,System.Windows.Forms.TreeViewAction,System.Boolean)">
+            <summary>
+            Processes a node range.
+            </summary>
+            <param name="startNode">Start node of range.</param>
+            <param name="endNode">End node of range.</param>
+            <param name="e">MouseEventArgs.</param>
+            <param name="keys">Keys.</param>
+            <param name="tva">TreeViewAction.</param>
+            <param name="allowStartEdit">True if node can go to edit mode, false if not.</param>
+        </member>
+        <member name="M:Outliner.TreeView.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            occurs when a key is down.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Outliner.TreeView.OnAfterCollapse(System.Windows.Forms.TreeViewEventArgs)">
+            <summary>
+            Occurs after a node is collapsed.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:Outliner.TreeView.OnItemDrag(System.Windows.Forms.ItemDragEventArgs)">
+            <summary>
+            Occurs when an item is being dragged.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="P:Outliner.TreeView.SelectedNode">
+            <summary>
+            This property is for internal use only. Use SelectedNodes instead.
+            </summary>
+        </member>
+        <member name="P:Outliner.TreeView.SelectionMode">
+            <summary>
+            Gets/sets selection mode.
+            </summary>
+        </member>
+        <member name="P:Outliner.TreeView.SelectionBackColor">
+            <summary>
+            Gets/sets backcolor for selected nodes.
+            </summary>
+        </member>
+        <member name="P:Outliner.TreeView.SelectedNodes">
+            <summary>
+            Gets selected nodes.
+            </summary>
+        </member>
+        <member name="T:Outliner.NodesCollection">
+            <summary>
+            Collection of selected nodes.
+            </summary>
+        </member>
+        <member name="M:Outliner.NodesCollection.Add(System.Windows.Forms.TreeNode)">
+            <summary>
+            Adds a tree node to the collection.
+            </summary>
+            <param name="treeNode">Tree node to add.</param>
+            <returns>The position into which the new element was inserted.</returns>
+        </member>
+        <member name="M:Outliner.NodesCollection.Insert(System.Int32,System.Windows.Forms.TreeNode)">
+            <summary>
+            Inserts a tree node at specified index.
+            </summary>
+            <param name="index">The position into which the new element has to be inserted.</param>
+            <param name="treeNode">Tree node to insert.</param>
+        </member>
+        <member name="M:Outliner.NodesCollection.Remove(System.Windows.Forms.TreeNode)">
+            <summary>
+            Removed a tree node from the collection.
+            </summary>
+            <param name="treeNode">Tree node to remove.</param>
+        </member>
+        <member name="M:Outliner.NodesCollection.Contains(System.Windows.Forms.TreeNode)">
+            <summary>
+            Determines whether treenode belongs to the collection.
+            </summary>
+            <param name="treeNode">Tree node to check.</param>
+            <returns>True if tree node belongs to the collection, false if not.</returns>
+        </member>
+        <member name="M:Outliner.NodesCollection.IndexOf(System.Windows.Forms.TreeNode)">
+            <summary>
+            Gets index of tree node in the collection.
+            </summary>
+            <param name="treeNode">Tree node to get index of.</param>
+            <returns>Index of tree node in the collection.</returns>
+        </member>
+        <member name="M:Outliner.NodesCollection.OnClear">
+            <summary>
+            Occurs when collection is being cleared.
+            </summary>
+        </member>
+        <member name="E:Outliner.NodesCollection.TreeNodeAdded">
+            <summary>
+            Event fired when a tree node has been added to the collection.
+            </summary>
+        </member>
+        <member name="E:Outliner.NodesCollection.TreeNodeRemoved">
+            <summary>
+            Event fired when a tree node has been removed to the collection.
+            </summary>
+        </member>
+        <member name="E:Outliner.NodesCollection.TreeNodeInserted">
+            <summary>
+            Event fired when a tree node has been inserted to the collection.
+            </summary>
+        </member>
+        <member name="E:Outliner.NodesCollection.SelectedNodesCleared">
+            <summary>
+            Event fired the collection has been cleared.
+            </summary>
+        </member>
+        <member name="P:Outliner.NodesCollection.Item(System.Int32)">
+            <summary>
+            Gets tree node at specified index.
+            </summary>
+        </member>
+    </members>
+</doc>

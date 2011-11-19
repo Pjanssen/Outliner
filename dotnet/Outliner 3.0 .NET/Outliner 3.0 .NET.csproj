@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Outliner</RootNamespace>
+    <AssemblyName>Outliner</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\outliner 3.0 Maxscript\script\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\maxscript\script\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ContextMenus.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\DragDropHandlers\SelectionSetDragDropHandler.cs" />
+    <Compile Include="Controls\DragDropHandlers\LayerDragDropHandler.cs" />
+    <Compile Include="Controls\DragDropHandlers\NullDragDropHandler.cs" />
+    <Compile Include="Controls\DragDropHandlers\ObjectDragDropHandler.cs" />
+    <Compile Include="Controls\Filters\BoneFilter.cs" />
+    <Compile Include="Controls\Filters\CustomFilters.cs" />
+    <Compile Include="Controls\Filters\CustomNodeFilter.cs" />
+    <Compile Include="Controls\Filters\HelperFilter.cs" />
+    <Compile Include="Controls\Filters\SuperClassFilter.cs" />
+    <Compile Include="Controls\Filters\FlatListNodeFilterCollection.cs" />
+    <Compile Include="Controls\Filters\FrozenFilter.cs" />
+    <Compile Include="Controls\Filters\GeometryFilter.cs" />
+    <Compile Include="Controls\Filters\HiddenFilter.cs" />
+    <Compile Include="Controls\Filters\NodeFilterCollection.cs" />
+    <Compile Include="Controls\Filters\ParticleFilter.cs" />
+    <Compile Include="Controls\Filters\UnassignedMaterialFilter.cs" />
+    <Compile Include="Controls\Filters\XRefFilter.cs" />
+    <Compile Include="Controls\NodeColor.cs" />
+    <Compile Include="Controls\OutlinerContextMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\OutlinerContextMenu.Designer.cs">
+      <DependentUpon>OutlinerContextMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OutlinerSplitContainer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeViewColors.cs" />
+    <Compile Include="Controls\TreeViewModes\FlatObjectListMode.cs" />
+    <Compile Include="Controls\TreeViewModes\HierarchyMode.cs" />
+    <Compile Include="Controls\TreeViewModes\LayerMode.cs" />
+    <Compile Include="Controls\TreeViewModes\MaterialMode.cs" />
+    <Compile Include="Controls\NodePropertyChangedEventArgs.cs" />
+    <Compile Include="Controls\TreeNodeData.cs" />
+    <Compile Include="Controls\Filters\FilterResult.cs" />
+    <Compile Include="Controls\NodeSorters\AlphabeticalSorter.cs" />
+    <Compile Include="Controls\NodeSorters\ChronologicalSorter.cs" />
+    <Compile Include="Controls\BitmapProcessing.cs" />
+    <Compile Include="Controls\SelectionChangedEventArgs.cs" />
+    <Compile Include="Controls\DoubleClickAction.cs" />
+    <Compile Include="Controls\DragDropHandlers\DragDropHandler.cs" />
+    <Compile Include="Controls\DragDropHandlers\TreeDragDropHandler.cs" />
+    <Compile Include="Controls\IconClickAction.cs" />
+    <Compile Include="Controls\IconSet.cs" />
+    <Compile Include="Controls\MainContainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MainContainer.Designer.cs">
+      <DependentUpon>MainContainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NodeButtonLocation.cs" />
+    <Compile Include="Controls\TreeViewModes\SelectionSetMode.cs" />
+    <Compile Include="Controls\TreeViewModes\TreeViewNullMode.cs" />
+    <Compile Include="Controls\TreeViewSettings.cs" />
+    <Compile Include="Controls\Filters\NodeFilter.cs" />
+    <Compile Include="Controls\Filters\NameFilter.cs" />
+    <Compile Include="Controls\NodeSorters\LayerSorter.cs" />
+    <Compile Include="Controls\NodeSorters\MaterialSorter.cs" />
+    <Compile Include="Controls\TreeViewModes\TreeViewMode.cs" />
+    <Compile Include="MaxIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MaxIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="MayaIcons16x16.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MayaIcons16x16.resx</DependentUpon>
+    </Compile>
+    <Compile Include="MayaIcons20x20.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MayaIcons20x20.resx</DependentUpon>
+    </Compile>
+    <Compile Include="MXSFileWatcher.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\NodeSorters\OutlinerNodeSorter.cs" />
+    <Compile Include="OutlinerTreeController.cs">
+    </Compile>
+    <Compile Include="OutlinerResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OutlinerResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SceneDataType.cs" />
+    <Compile Include="Scene\IDisplayable.cs" />
+    <Compile Include="Scene\OutlinerLayer.cs" />
+    <Compile Include="Scene\OutlinerMaterial.cs" />
+    <Compile Include="Scene\OutlinerNode.cs" />
+    <Compile Include="Scene\OutlinerNodeEvents.cs" />
+    <Compile Include="Scene\OutlinerObject.cs" />
+    <Compile Include="Scene\OutlinerScene.cs" />
+    <Compile Include="Scene\MaxTypes.cs" />
+    <Compile Include="Controls\TreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\NodeSorters\TypeSorter.cs" />
+    <Compile Include="Controls\NodeSorters\VisibilitySorter.cs" />
+    <Compile Include="Scene\SelectionSet.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\MainContainer.resx">
+      <DependentUpon>MainContainer.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MaxIcons.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MaxIcons.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OutlinerResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>OutlinerResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\bone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\camera.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\container.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\container_closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\geometry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\helper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\layer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\layer_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\material.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\material_unassigned.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\material_xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\nurbs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\particle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\shape.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\spacewarp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\max_icons\xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MayaIcons16x16.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MayaIcons16x16.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MayaIcons20x20.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MayaIcons20x20.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\max_icons\xref_group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\bone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\camera.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\container.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\container_closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\geometry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\helper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\layer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\layer_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\material.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\material_unassigned.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\material_xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\nurbs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\particle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\shape.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\spacewarp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_20x20\xref_group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\bone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\camera.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\container.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\container_closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\geometry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\helper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\layer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\layer_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\material.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\material_unassigned.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\material_xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\nurbs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\particle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\shape.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\spacewarp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\xref.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\maya_icons_16x16\xref_group.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\activelayer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\advrename.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\childnodes.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\freeze.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\hide.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\layer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\newcontainer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\newgroup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\newlayer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\properties.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\rename.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\ungroup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\unlink.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\add_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\add_button_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\boxmode_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\boxmode_button_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\freeze_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\freeze_button_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\hide_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\node_buttons\hide_button_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\slate_mat_editor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\OutlinerContextMenu.resx">
+      <DependentUpon>OutlinerContextMenu.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\contextmenu_icons\slate_mat_editor_new.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\filter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\layer_mode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\material_mode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\hierarchy_mode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_type.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_alphabetical.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_chronological.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_layer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_material.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\sort_visibility.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\window_new.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\case_sensitive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\window_options.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\filter_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\window_split_ver.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\window_split_hor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\flat_object_list_mode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\selection_set_mode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\new_selectionset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\max_icons\selectionset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contextmenu_icons\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -10,6 +10,9 @@ Thumbs.db
 *.user
 *.vsmdi
 *.testsettings
+*.testrunconfig
+UpgradeLog*
+_UpgradeReport_Files
 
 # Compiled files #
 ##################

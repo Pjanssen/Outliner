@@ -7,13 +7,20 @@ struct Pair
 	value
 )
 
---Define required globals
+--Define global objects.
 global outliner;
-global outlinerCore;
 global outliner_callbacks;
+global outliner_sceneFunctions;
 global outliner_status;
-global outliner_main;
 global outliner_update;
+global outliner_crash_report;
+--Define rollout globals.
+global outliner_main;
+global outliner_sortmode;
+global outliner_filter_config;
+global outliner_options;
+global outliner_layerprops;
+
 	
 	
 if (outliner_restart_required == true) then
@@ -21,15 +28,13 @@ if (outliner_restart_required == true) then
 else
 (
 	--Import scripts.
+	fileIn "helperFunctions.ms";
 	fileIn "keyboardActionsFile.ms";
 	fileIn "nestedLayers.ms";
 	fileIn "preferences.ms";
+	fileIn "sceneFunctions.ms";
 	fileIn "callbacks.ms";
 	fileIn "treeEventHandlers.ms";
-	fileIn "ui/filter_config.ms";
-	fileIn "ui/options.ms";
-	fileIn "ui/layer_properties.ms";
-	fileIn "ui/sortmode.ms";
 	fileIn "ui/main.ms";
 	fileIn "ui.ms";
 	fileIn "update.ms";

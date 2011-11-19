@@ -1,0 +1,64 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Outliner 3.0 .NET", "Outliner 3.0 .NET\Outliner 3.0 .NET.csproj", "{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Outliner Unit Tests", "Outliner Unit Tests\Outliner Unit Tests.csproj", "{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{511EE746-F07D-44BB-A6A1-A5942FC3B97F}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		Outliner 3.0 .NET.vsmdi = Outliner 3.0 .NET.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlinerTestForm", "OutlinerTestForm\OutlinerTestForm.csproj", "{8FC5846F-A55C-49E1-9793-7591053EB33C}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Outliner 3.0 .NET.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D4F88FA6-2A2C-4D32-86FA-D025390DC55B}.Release|x86.ActiveCfg = Release|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B6CBEE61-0E10-4F4B-BBE7-B909B2429C74}.Release|x86.ActiveCfg = Release|Any CPU
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Debug|x86.ActiveCfg = Debug|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Debug|x86.Build.0 = Debug|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Release|Any CPU.ActiveCfg = Release|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Release|x86.ActiveCfg = Release|x86
+		{8FC5846F-A55C-49E1-9793-7591053EB33C}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

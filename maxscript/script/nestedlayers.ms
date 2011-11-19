@@ -12,7 +12,7 @@ outlinerNestedLayerData = attributes outlinerNestedLayerData version:1 attribID:
 
 struct outliner_NestedLayers
 (
-	function addLayerDeletedCallback =
+	public function addLayerDeletedCallback =
 	(
 		local callbackStr = ("
 			for def in custAttributes.getSceneDefs() while (attrDef == undefined) do
@@ -40,40 +40,19 @@ struct outliner_NestedLayers
 		callbacks.addScript #layerDeleted callbackStr id:#outliner_nestedlayers persistent:true;
 	),
 	
-	
-	function addFileOpenCallback =
-	(
-		local callbackStr = ("
-			local outliner_prefs_file = (GetDir #userScripts) + \"/outliner_prefs.ini\";
-			if (not (doesFileExist outliner_prefs_file) AND not (GetQuietMode())) do (
-				local containsNestedLayers = false;
-				for def in custAttributes.getSceneDefs() while (not containsNestedLayers) do
-					if (def.name == #outlinerNestedLayerData) do containsNestedLayers = true;
-				if (containsNestedLayers) do (
-					(dotNetClass \"MessageBox\").Show \"This scene contains nested layer data created by the Outliner Scene Management tool.\nThe Outliner can be downloaded from www.scriptspot.com.\n\nThis will not interfere with regular layer or layer manager behavior.\" \"Outliner nested layer data found\" (dotnetclass \"MessageBoxButtons\").OK (dotnetclass \"MessageBoxIcon\").Information;
-					callbacks.removeScripts #filePostOpen id:#outliner_nestedlayers;
-				)
-			)
-		")
 		
-		callbacks.addScript #filePostOpen callbackStr id:#outliner_nestedlayers persistent:true;
-	),
 	
-	
-	function addLayerData layer =
+	public function addLayerData layer =
 	(
 		if (not (isKindOf layer Base_Layer)) do
 			layer = layer.layerAsRefTarg;
 		
 		outliner_NestedLayers.addLayerDeletedCallback();
-		
-		if (outliner.prefs.getValue #General #addNestedLayerMessage) do
-			outliner_NestedLayers.addFileOpenCallback();
 			
 		custAttributes.add layer outlinerNestedLayerData;
 	),
 	
-	function getLayerData layer =
+	public function getLayerData layer =
 	(
 		if (not (isKindOf layer Base_Layer)) do
 			layer = layer.layerAsRefTarg;
@@ -81,7 +60,7 @@ struct outliner_NestedLayers
 		custAttributes.get layer outlinerNestedLayerData
 	),
 	
-	function getAddLayerData layer =
+	public function getAddLayerData layer =
 	(
 		local ca = outliner_NestedLayers.getLayerData layer;
 		if (ca == undefined) do
@@ -93,7 +72,7 @@ struct outliner_NestedLayers
 		ca;
 	),
 	
-	function deleteLayerData layer =
+	public function deleteLayerData layer =
 	(
 		if (not (isKindOf layer Base_Layer)) do
 			layer = layer.layerAsRefTarg;
@@ -103,7 +82,7 @@ struct outliner_NestedLayers
 	
 	
 	
-	function getLayerProperty layer prop =
+	public function getLayerProperty layer prop =
 	(
 		try
 		(
@@ -120,10 +99,11 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	),
 	
-	function setLayerProperty layer prop value setByParent:false =
+	public function setLayerProperty layer prop value setByParent:false =
 	(
 		try
 		(
@@ -167,11 +147,12 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	),
 	
 	
-	function updateLayerProperties layer =
+	public function updateLayerProperties layer =
 	(
 		try
 		(
@@ -191,13 +172,14 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	),
 	
 	
 	
 	
-	function getLayerParent layer =
+	public function getLayerParent layer =
 	(
 		try
 		(
@@ -212,6 +194,7 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	),
 	
@@ -220,7 +203,7 @@ struct outliner_NestedLayers
 	
 	
 	
-	function setLayerParent layer parent =
+	public function setLayerParent layer parent =
 	(
 		local success = true;
 		try
@@ -266,6 +249,7 @@ struct outliner_NestedLayers
 			local depLoopTestRev = refs.dependencyLoopTest parent layer;
 			--Generate crash report.
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 		
 		success;
@@ -273,7 +257,7 @@ struct outliner_NestedLayers
 	
 	
 	
-	function getAllChildLayers layer =
+	public function getAllChildLayers layer =
 	(
 		try
 		(
@@ -300,11 +284,12 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	),
 	
 	
-	function propagatePropertyToChildLayers layer prop value =
+	public function propagatePropertyToChildLayers layer prop value =
 	(
 		try
 		(
@@ -328,6 +313,7 @@ struct outliner_NestedLayers
 		catch
 		(
 			fileIn "crash_report.ms";
+			outliner_crash_report.handle_exception();
 		)
 	)
 

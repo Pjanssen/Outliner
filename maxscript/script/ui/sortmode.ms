@@ -66,19 +66,7 @@ rollout outliner_sortmode "Sort Mode"
 			for i = 1 to buttons.count do
 			(
 				buttons[i].tooltip = sortmodes[i];
-				
-				local sortImgFile = outliner.icondir + "sortmode_icons.bmp";
-		
-				-- ColorTheme feature was introduced in 3dsmax2010 (v12).
-				if (outliner.maxV < 12) then
-				(
-					if ((outliner.prefs.getValue #Visual #colorscheme) == "Dark") do
-						sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
-				
-					buttons[i].images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", 6, i, i, i, i);
-				)
-				else
-					buttons[i].images = #(sortImgFile, undefined, 6, i, i, i, i, true, true);
+				buttons[i].images = #(outliner.icondir + "sortmode_icons.bmp", undefined, 6, i, i, i, i, true, true);
 	
 				if (sortmodes[i] == sortmode) do
 				(

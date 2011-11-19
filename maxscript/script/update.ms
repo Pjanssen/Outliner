@@ -1,6 +1,6 @@
 global outliner_update;
 
-rollout outlinerUpdateRollout "Outliner Update Available"
+rollout outliner_update_rollout "Outliner Update Available"
 (
 	label update_lbl "" align:#left offset:[0, 5];
 	label changelog_lbl "Changelog:" align:#left offset:[0, 5];
@@ -13,7 +13,7 @@ rollout outlinerUpdateRollout "Outliner Update Available"
 	
 	function onChangelogDownloadCompleted s e =
 	(
-		outlinerUpdateRollout.changelog_txt.text = e.result;
+		outliner_update_rollout.changelog_txt.text = e.result;
 	)
 	
 	function getChangelog =
@@ -27,10 +27,10 @@ rollout outlinerUpdateRollout "Outliner Update Available"
 	
 	function close =
 	(
-		destroyDialog outlinerUpdateRollout;
+		destroyDialog outliner_update_rollout;
 	)
 
-	on outlinerUpdateRollout open do
+	on outliner_update_rollout open do
 	(
 		update_lbl.text = "A new Outliner version (" + (outliner_update.latestVersion as string) + ") is available and can be downloaded and installed now!";
 		changelog_txt.Text = "Retrieving changelog...";
@@ -142,7 +142,7 @@ struct outlinerUpdate
 			
 			if (outliner_update.latestVersion != undefined AND outliner_update.latestVersion > currentVersion AND (outliner_update.latestVersion > ignoreVersion OR outliner_update.manualUpdate)) then
 			(
-				createDialog outlinerUpdateRollout 500 300;
+				createDialog outliner_update_rollout 500 300;
 			)
 			else if (outliner_update.manualUpdate) do
 			(

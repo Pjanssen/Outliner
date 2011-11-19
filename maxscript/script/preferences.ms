@@ -1,17 +1,17 @@
 struct outlinerPrefsEntry
 (
-	section,
-	key,
-	value,
-	default
+	public section,
+	public key,
+	public value,
+	public default
 )
 
 
 struct outlinerPreferences (
-	iniFile,
-	entries = #(),
+	public iniFile,
+	public entries = #(),
 	
-	function readEntry entry =
+	private function readEntry entry =
 	(
 		if (iniFile == undefined) do
 			return false;
@@ -39,7 +39,7 @@ struct outlinerPreferences (
 
 	
 	
-	function writeEntry entry =
+	private function writeEntry entry =
 	(
 		if (iniFile == undefined) do
 			return false;
@@ -49,7 +49,7 @@ struct outlinerPreferences (
 	
 	
 	
-	function getEntry section key =
+	private function getEntry section key =
 	(
 		local entry;
 		local notfound = true;
@@ -71,13 +71,13 @@ struct outlinerPreferences (
 	
 	
 	
-	function getValue section key =
+	public function getValue section key =
 	(
 		local entry = getEntry section key;
 		entry.value;
 	),
 	
-	function setValue section key value write:true =
+	public function setValue section key value write:true =
 	(
 		local entry = getEntry section key;
 		entry.value = value;
@@ -87,24 +87,23 @@ struct outlinerPreferences (
 
 	
 	
-	function loadPreferences = 
+	public function loadPreferences = 
 	(
 		for entry in entries do
 			readEntry entry;
 	),
 	
 	
-	function savePreferences = 
+	public function savePreferences = 
 	(
 		for entry in entries do
 			writeEntry entry;
 	),
 	
-	function createPreferenceEntries =
+	public function createPreferenceEntries =
 	(
 		#(
 			--General section
-			(outlinerPrefsEntry section:#General key:#addNestedLayerMessage			default:true),
 			(outlinerPrefsEntry section:#General key:#openAtStartup					default:false),
 			(outlinerPrefsEntry section:#General key:#checkForUpdates				default:true),
 			(outlinerPrefsEntry section:#General key:#checkUpdatesInterval			default:1),
@@ -129,7 +128,6 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree key:#objFilterAffectVpt			default:false),
 			(outlinerPrefsEntry section:#Tree key:#searchCaseSensitive			default:false),
 			(outlinerPrefsEntry section:#Tree key:#dragMouseButton				default:"Middle"),
-			(outlinerPrefsEntry section:#Tree key:#expandHierarchyKey			default:"Control"),
 			(outlinerPrefsEntry section:#Tree key:#doubleClickAction			default:"Rename"),
 			(outlinerPrefsEntry section:#Tree key:#highlightLastSel				default:false),
 			(outlinerPrefsEntry section:#Tree key:#hideGroupMembersLayerMode	default:false),
@@ -141,13 +139,9 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree key:#expandSelPolicyLayer			default:"Never"),
 			(outlinerPrefsEntry section:#Tree key:#expandSelPolicyMaterial		default:"WhenNecessary"),
 			(outlinerPrefsEntry section:#Tree key:#showNodeHideButton			default:true),
-			(outlinerPrefsEntry section:#Tree key:#nodeHideButtonLocation		default:"BeforeNode"),
 			(outlinerPrefsEntry section:#Tree key:#showNodeFreezeButton			default:true),
-			(outlinerPrefsEntry section:#Tree key:#nodeFreezeButtonLocation		default:"BeforeNode"),
 			(outlinerPrefsEntry section:#Tree key:#showNodeBoxModeButton		default:false),
-			(outlinerPrefsEntry section:#Tree key:#nodeBoxModeButtonLocation	default:"BeforeNode"),
-			(outlinerPrefsEntry section:#Tree key:#showNodeAddButton			default:true),
-			(outlinerPrefsEntry section:#Tree key:#nodeAddButtonLocation		default:"AfterNode"),
+			(outlinerPrefsEntry section:#Tree key:#showNodeAddToLayerButton		default:true),
 			(outlinerPrefsEntry section:#Tree key:#iconClickAction				default:"SetActive"),
 			(outlinerPrefsEntry section:#Tree key:#invertNodeHideButton			default:false),
 			
@@ -161,7 +155,7 @@ struct outlinerPreferences (
 		)
 	),
 	
-	function createProductEntries =
+	public function createProductEntries =
 	(
 		#(
 			(outlinerPrefsEntry section:#General key:#version					default:0.0),

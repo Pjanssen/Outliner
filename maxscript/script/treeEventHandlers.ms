@@ -1,10 +1,25 @@
 struct outliner_TreeEventHandlers
 (
+
 	/**
 	 * SELECTION CHANGED
 	 */
-	function SelectionChanged e =
+	public function SelectionChanged e =
 	(
+		if (outliner_status != undefined) do
+			outliner_status.lastTreeAction = #selectionChanged;
+			
+		local selNodes = for n in e.SelectedNodeHandles where (isValidNode (obj = (GetAnimByHandle n))) collect obj;
+					
+		-- Select nodes.
+		if (selNodes.count == 0) then
+			clearSelection();
+		else
+			select selNodes;
+
+		if (outliner_status != undefined) do
+			outliner_status.lastTreeAction = undefined;
+/*						
 		try 
 		(
 			outliner_status.selectedInOutliner = true;
@@ -65,9 +80,83 @@ struct outliner_TreeEventHandlers
 		(
 			fileIn "crash_report.ms";
 		)
+		
+*/
 	),
 	
 	
+	public function NodesParentChanged e =
+	(
+		try
+		(
+			local undoString;
+			local targetNode;
+			local nodeHandles = e.NodeHandles
+			
+			if (e.TargetHandle != -1) then 
+			(
+				undoString = "Link";
+				targetNode = (GetAnimByHandle e.TargetHandle);
+			)
+			else
+				undoString = "Unlink";
+			
+			
+			undo undoString on
+			(
+				with redraw off
+				(
+					local n;
+					for handle in nodeHandles do
+					(
+						n = GetAnimByHandle handle;
+						if (isValidNode n) do
+						(
+							if (targetNode == undefined) then
+								n.parent = undefined;
+							else
+							(
+								if (not refs.dependencyLoopTest targetNode n) then
+									n.parent = targetNode;
+								else
+								(
+									messagebox ("Linking " + n.name + " to " + targetNode.name + " would create a dependency loop.") title:"Link failed";
+									outliner_callbacks.nodeLinkedIntern n;
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+		catch
+		(
+			fileIn "crash_report.ms";
+		)
+	),
+	
+	
+	private function NodeHiddenChanged e =
+	(
+	
+	),
+	
+	private function NodeFrozenChanged e =
+	(
+	
+	),
+	
+	private function NodeBoxModeChanged e =
+	(
+	
+	),
+	
+	private function NodeNameChanged e =
+	(
+	
+	),
+	
+
 	
 	
 	/**

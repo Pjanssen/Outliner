@@ -1,16 +1,16 @@
 struct outlinerCrashReport
 (
-	exception,
-	stackStream,
-	stackSummary,
-	stackFirstLevel,
+	private exception,
+	private stackStream,
+	private stackSummary,
+	private stackFirstLevel,
 	
-	prefs_file = (GetDir #userScripts) + "/outliner_prefs.ini",
-	product_info_file = (GetDir #userScripts) + "/outliner_product_info.ini",
+	private prefs_file = (GetDir #userScripts) + "/outliner_prefs.ini",
+	private product_info_file = (GetDir #userScripts) + "/outliner_product_info.ini",
 	
 	
 	
-	function createStackSummary stackStream firstLevelOnly:false =
+	private function createStackSummary stackStream firstLevelOnly:false =
 	(
 		if (stackStream == undefined) do
 			return "";
@@ -52,7 +52,7 @@ struct outlinerCrashReport
 					if (fileNamePos != undefined) do
 					(
 						stackSummary += " in ";
-						stackSummary += substring fileStr fileNamePos -1;
+						stackSummary += substring fileStr (fileNamePos + 10) -1;
 					)
 					
 					local lineStr = readDelimitedString stackStream "\n";
@@ -76,7 +76,7 @@ struct outlinerCrashReport
 	/**
 	 * WRITE EXCEPTION DATA TO FILE
 	 */
-	function writeExceptionDataToFile file =
+	private function writeExceptionDataToFile file =
 	(
 		local stream;
 		try
@@ -110,7 +110,7 @@ struct outlinerCrashReport
 	/**
 	 * WRITE OUTLINER STATUS TO STREAM
 	 */
-	function writeOutlinerStatus stream =
+	private function writeOutlinerStatus stream =
 	(
 		format "Outliner Status\n--------------\n" to:stream;
 		local errStr = "-Unable to retreive-\n\n";
@@ -162,7 +162,7 @@ struct outlinerCrashReport
 	/**
 	 * DUMP SCENE
 	 */
-	function dumpScene stream nodeList depth =
+	private function dumpScene stream nodeList depth =
 	(
 		if (stream != undefined AND nodeList != undefined) do
 		(
@@ -182,7 +182,7 @@ struct outlinerCrashReport
 	/**
 	 * DUMP OUTLINER TREENODES
 	 */
-	function dumpTreeNodes stream nodeList depth =
+	private function dumpTreeNodes stream nodeList depth =
 	(
 		if (stream != undefined AND nodeList != undefined) do
 		(
@@ -207,7 +207,7 @@ struct outlinerCrashReport
 	/**
 	 * DUMP OUTLINER SCENE HIERARCHY
 	 */
-	function dumpOutlinerSceneHierarchy stream nodeList depth =
+	private function dumpOutlinerSceneHierarchy stream nodeList depth =
 	(
 		if (stream != undefined AND nodeList != undefined) do
 		(
@@ -229,7 +229,7 @@ struct outlinerCrashReport
 	/**
 	 * DUMP OUTLINER SCENE LAYERS
 	 */
-	function dumpOutlinerSceneLayers stream nodeList depth =
+	private function dumpOutlinerSceneLayers stream nodeList depth =
 	(
 		if (stream != undefined AND nodeList != undefined) do
 		(
@@ -257,7 +257,7 @@ struct outlinerCrashReport
 	),
 	
 	
-	function dumpOutlinerSceneObjectInfo stream =
+	private function dumpOutlinerSceneObjectInfo stream =
 	(
 		if (stream != undefined) do
 		(
@@ -280,7 +280,7 @@ struct outlinerCrashReport
 	/**
 	 * WRITE OUTLINER DATA TO FILE
 	 */
-	function getOutlinerVersion =
+	private function getOutlinerVersion =
 	(
 		local outlinerVersion = "unknown";
 		if (hasINISetting product_info_file "General" "version") then
@@ -290,14 +290,14 @@ struct outlinerCrashReport
 		outlinerVersion;
 	),
 	
-	function pTime t =
+	private function pTime t =
 	(
 		if (t < 10) then
 			"0" + (t as string);
 		else
 			t;
 	),
-	function doHeapCheck =
+	private function doHeapCheck =
 	(
 		local heapChk = heapCheck();
 		if (heapChk == -1) then
@@ -311,7 +311,7 @@ struct outlinerCrashReport
 		else
 			return "OK - Heap appears to be consistent (_HEAPOK)";
 	),
-	function writeOutlinerDataToFile file =
+	private function writeOutlinerDataToFile file =
 	(
 		local stream = createFile file;
 		
@@ -380,16 +380,16 @@ struct outlinerCrashReport
 	),
 	
 	
-	stackFile,
-	writeStackSuccess,
-	outlinerDataFile,
-	writeOutlinerDataSuccess,
-	detailsFile,
-	packFile,
-	webClient,
+	private stackFile,
+	private writeStackSuccess,
+	private outlinerDataFile,
+	private writeOutlinerDataSuccess,
+	private detailsFile,
+	private packFile,
+	public webClient,
 	
 	
-	function deleteTempFiles =
+	public function deleteTempFiles =
 	(
 		try ( deleteFile stackFile; ) catch ()
 		try ( deleteFile outlinerDataFile; ) catch ()
@@ -397,7 +397,7 @@ struct outlinerCrashReport
 		try ( deleteFile packFile; ) catch ()
 	),
 	
-	function uploadCompleted s e =
+	private function uploadCompleted s e =
 	(
 		local mb = dotNetClass "System.Windows.Forms.MessageBox";
 		local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
@@ -419,8 +419,10 @@ struct outlinerCrashReport
 		e.UserState.value.deleteTempFiles();
 	),
 	
-	function sendReport report_instance fromEmail details =
+	public function sendReport fromEmail details =
 	(
+		setINISetting product_info_file "General" "crashReportEmail" fromEmail;
+		
 		local filesToPack = #(prefs_file, product_info_file);
 		if (writeStackSuccess) do append filesToPack stackFile;
 		if (writeOutlinerDataSuccess) do append filesToPack outlinerDataFile;
@@ -454,9 +456,9 @@ struct outlinerCrashReport
 					url += "-Unable to retrieve-";
 				)
 				url += "\r\n\r\nException:\r\n";
-				url += report_instance.exception;
+				url += exception;
 				url += "\r\n\r\nStack:\r\n";
-				url += report_instance.stackFirstLevel;
+				url += stackFirstLevel;
 				url += "\r\n\r\nEmail address:\r\n";
 				if (fromEmail != "") then
 					url += fromEmail;
@@ -472,7 +474,7 @@ struct outlinerCrashReport
 	            dotNet.addEventHandler webClient "UploadFileCompleted" uploadCompleted;
 	            
             
-	            webClient.UploadFileAsync uploadUri "POST" packFile (dotNetMXSValue report_instance);
+	            webClient.UploadFileAsync uploadUri "POST" packFile (dotNetMXSValue this);
 	        ) catch 
 	        (
 	        	messageBox "Failed to send error report." "Error";
@@ -484,10 +486,10 @@ struct outlinerCrashReport
 	),
 	
 	
-	dialog_w = 360,
-	dialog_h = 535,
+	private dialog_w = 360,
+	private dialog_h = 535,
 	
-	crashReport_rollout = rollout crashReport_rollout "Outliner Error Report"
+	private crashReport_rollout = rollout crashReport_rollout "Outliner Error Report"
 	(
 		local report_instance;
 		local send_report = false;
@@ -541,9 +543,7 @@ struct outlinerCrashReport
 		
 		on sendBtn pressed do
 		(
-			setINISetting report_instance.product_info_file "General" "crashReportEmail" emailTxt.text;
-			
-			report_instance.sendReport report_instance emailTxt.text detailsTxt.text;
+			report_instance.sendReport emailTxt.text detailsTxt.text;
 			send_report = true;
 			close();
 		)
@@ -563,7 +563,7 @@ struct outlinerCrashReport
 
 	
 	
-	function handle_exception report_instance =
+	public function handle_exception =
 	(
 		global outliner_handling_exception
 
@@ -592,7 +592,7 @@ struct outlinerCrashReport
 			try 
 			(
 				createDialog crashReport_rollout dialog_w dialog_h;
-				crashReport_rollout.report_instance			= report_instance;
+				crashReport_rollout.report_instance			= this;
 				crashReport_rollout.contentLink1.address	= stackFile;
 				crashReport_rollout.contentLink2.address	= prefs_file;
 				crashReport_rollout.contentLink3.address	= outlinerDataFile;
@@ -603,4 +603,3 @@ struct outlinerCrashReport
 )
 
 outliner_crash_report = outlinerCrashReport();
-outliner_crash_report.handle_exception outliner_crash_report;

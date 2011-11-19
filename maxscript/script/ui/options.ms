@@ -1,7 +1,4 @@
 (
-	global outliner_options;
-	global outliner_options_general;
-	
 	local marginX = 10;
 	local marginY = 5;
 	local chkbxDY = 21;
@@ -232,7 +229,7 @@
 		(
 			colorScheme.items				= getINISetting (outliner.dir + "colorSchemes.ini");
 			colorScheme.selection			= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
-			iconSet.Items					= outliner.getNamesDotNetEnum "Outliner.IconSet";
+			iconSet.Items					= outlinerHelperFunctions.getNamesDotNetEnum "Outliner.IconSet";
 			iconSet.selection				= findItem iconSet.items (getPrefFn #Visual #iconSet);
 			invertIcons.checked				= getPrefFn #Visual #invertIcons;
 			buttonsLocation.selection		= if (getPrefFn #Visual #buttonsAtTop) then 1 else 2;
@@ -314,7 +311,6 @@
 		dropdownlist expandSelectionPolicy "" items:#("Never", "When Necessary", "Always") width:drpDwnW pos:[marginX, marginY + chkbxDY - 2] tooltip:"If set to \"When necessary\", parents of selected nodes will only be expanded when no other selected nodes are directly visible.";
 		label expandSelectionPolicyLbl "Expand selection" pos:[drpDwnLblX, marginY + chkbxDY + 1];
 		checkbox hideGroupMembersLayerMode "Hide group contents in layer mode" pos:[marginX,  marginY + chkbxDY * 2] tooltip:"When enabled, only top-level group heads will be shown. When moving it to another layer, all group contents will be moved as well.";
-		checkbox addNestedLayerCheck "Add Outliner check to scene when using nested layers" pos:[marginX, marginY + chkbxDY * 3] tooltip:"If this option is enabled, and someone who doesn't have the Outliner installed uses a scene with nested layers, he/she will be notified of this (once).";
 		
 		
 		on autoExpandLayer changed checked do
@@ -331,9 +327,6 @@
 			outliner.tree.HideGroupMembersLayerMode = checked;
 		)
 	
-		on addNestedLayerCheck changed checked do
-			setPrefFn #General #addNestedLayerMessage checked;
-			
 		on expandSelectionPolicy selected sel do
 		(
 			local expPolicy = substituteString expandSelectionPolicy.selected " " "";
@@ -345,7 +338,6 @@
 		(
 			autoExpandLayer.checked = getPrefFn #Tree #autoExpandLayer;
 			hideGroupMembersLayerMode.checked = getPrefFn #Tree #hideGroupMembersLayerMode;
-			addNestedLayerCheck.checked = getPrefFn #General #addNestedLayerMessage;
 			
 			local expPolicy = getPrefFn #Tree #expandSelPolicyLayer;
 			expandSelectionPolicy.selection = if (expPolicy == "Never") then 1 else if (expPolicy == "WhenNecessary") then 2 else 3;
@@ -421,7 +413,7 @@
 			
 		on outliner_options_about open do
 		(
-			if (outliner.ui.usingMaxDarkScheme()) then
+			if (outlinerHelperFunctions.usingMaxDarkScheme()) then
 			(
 				logoImg.bitmap = openBitmap (Outliner.icondir + "logo_dark.bmp");
 				logoImg.transparent = color 82 82 82;

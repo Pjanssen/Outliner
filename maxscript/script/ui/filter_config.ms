@@ -162,32 +162,16 @@ rollout outliner_filter_config "Filters"
 	function setButtonImages =
 	(
 		local iconSet = outliner.prefs.getValue #Visual #iconset;
-		local imageFile = outliner.icondir;
-		local alphaImageFile = outliner.icondir;
+		local imageFile;
 		if (iconSet == "Max") then
-		(
-			imageFile += "filter_icons_max";
-			alphaImageFile += "filter_icons_max_a.bmp";
-		)
+			imageFile = outliner.icondir + "filter_icons_max.bmp";
 		else
-		(
-			imageFile += "filter_icons_maya";
-			alphaImageFile += "filter_icons_maya_a.bmp";
-		)
-		
-		if ((outliner.prefs.getValue #Visual #colorscheme) == "Dark" AND outliner.maxV < 12) do
-			imageFile += "_dark";
+			imageFile = outliner.icondir + "filter_icons_maya.bmp";
 
-		imageFile += ".bmp";
-		
 		for i = 1 to buttons.count do
 		(
 			local imgIndex = i * 2 - 1;
-			-- ColorTheme feature was introduced after 3dsmax2010 (v12).
-			if (outliner.maxV < 12) then
-				buttons[i].images = #(imageFile, alphaImageFile, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex);
-			else
-				buttons[i].images = #(imageFile, undefined, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex, true, true);
+			buttons[i].images = #(imageFile, undefined, 13 * 2, imgIndex + 1, imgIndex, imgIndex + 1, imgIndex, true, true);
 		)
 	)
 	

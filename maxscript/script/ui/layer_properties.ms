@@ -1,6 +1,4 @@
 (
-	global outliner_layerprops;
-	
 	local margin = 5;
 	local ctrlX = 10;
 	local chkbxDY = 18;

@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="activelayer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\activelayer.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="add_button" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\add_button.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="add_button_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\add_button_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="advrename" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\advrename.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="boxmode_button" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\boxmode_button.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="boxmode_button_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\boxmode_button_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="childnodes" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\childnodes.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ContextMenuAddTo" xml:space="preserve">
+    <value>Add Selection To</value>
+  </data>
+  <data name="ContextMenuAdvRename" xml:space="preserve">
+    <value>Advanced Rename</value>
+  </data>
+  <data name="ContextMenuBackfaceCull" xml:space="preserve">
+    <value>Backface Cull</value>
+  </data>
+  <data name="ContextMenuBoxMode" xml:space="preserve">
+    <value>Display As Box</value>
+  </data>
+  <data name="ContextMenuCreateNewLayer" xml:space="preserve">
+    <value>Create New Layer</value>
+  </data>
+  <data name="ContextMenuDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ContextMenuDisplayBoundingBox" xml:space="preserve">
+    <value>Bounding Box</value>
+  </data>
+  <data name="ContextMenuDisplayProperties" xml:space="preserve">
+    <value>Display Settings</value>
+  </data>
+  <data name="ContextMenuDisplaySeeThrough" xml:space="preserve">
+    <value>See Through</value>
+  </data>
+  <data name="ContextMenuDisplayShaded" xml:space="preserve">
+    <value>Shaded</value>
+  </data>
+  <data name="ContextMenuDisplayTrajectory" xml:space="preserve">
+    <value>Trajectory</value>
+  </data>
+  <data name="ContextMenuDisplayViewport" xml:space="preserve">
+    <value>Viewport</value>
+  </data>
+  <data name="ContextMenuDisplayWireframe" xml:space="preserve">
+    <value>Wireframe</value>
+  </data>
+  <data name="ContextMenuEditMaterial" xml:space="preserve">
+    <value>Edit material in ...</value>
+  </data>
+  <data name="ContextMenuEditMaterialInCurrentSlate" xml:space="preserve">
+    <value>Current Slate</value>
+  </data>
+  <data name="ContextMenuEditMaterialInNewSlate" xml:space="preserve">
+    <value>New Slate</value>
+  </data>
+  <data name="ContextMenuFreeze" xml:space="preserve">
+    <value>Freeze Selection</value>
+  </data>
+  <data name="ContextMenuHide" xml:space="preserve">
+    <value>Hide Selection</value>
+  </data>
+  <data name="ContextMenuInheritFromLayer" xml:space="preserve">
+    <value>Inherit From Layer</value>
+  </data>
+  <data name="ContextMenuInheritFromLayerAll" xml:space="preserve">
+    <value>Set All Objects Inherit From Layer</value>
+  </data>
+  <data name="ContextMenuLayerProperties" xml:space="preserve">
+    <value>Layer Properties</value>
+  </data>
+  <data name="ContextMenuNewContainer" xml:space="preserve">
+    <value>New Container</value>
+  </data>
+  <data name="ContextMenuNewGroup" xml:space="preserve">
+    <value>New Group</value>
+  </data>
+  <data name="ContextMenuNewLayer" xml:space="preserve">
+    <value>New Layer</value>
+  </data>
+  <data name="ContextMenuObjectProperties" xml:space="preserve">
+    <value>Object Properties</value>
+  </data>
+  <data name="ContextMenuRename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="ContextMenuRender" xml:space="preserve">
+    <value>Render</value>
+  </data>
+  <data name="ContextMenuRenderCastShadows" xml:space="preserve">
+    <value>Cast Shadows</value>
+  </data>
+  <data name="ContextMenuRenderProperties" xml:space="preserve">
+    <value>Render Settings</value>
+  </data>
+  <data name="ContextMenuRenderReceiveShadows" xml:space="preserve">
+    <value>Receive Shadows</value>
+  </data>
+  <data name="ContextMenuRenderVisToCam" xml:space="preserve">
+    <value>Visible To Camera</value>
+  </data>
+  <data name="ContextMenuRenderVisToRefl" xml:space="preserve">
+    <value>Visible To Reflections/Refractions</value>
+  </data>
+  <data name="ContextMenuSelectChildnodes" xml:space="preserve">
+    <value>Select Childnodes</value>
+  </data>
+  <data name="ContextMenuSetActiveLayer" xml:space="preserve">
+    <value>Set Active Layer</value>
+  </data>
+  <data name="ContextMenuShowInVpt" xml:space="preserve">
+    <value>Show Material In Viewport</value>
+  </data>
+  <data name="ContextMenuUnfreeze" xml:space="preserve">
+    <value>Unfreeze Selection</value>
+  </data>
+  <data name="ContextMenuUngroup" xml:space="preserve">
+    <value>Ungroup</value>
+  </data>
+  <data name="ContextMenuUnhide" xml:space="preserve">
+    <value>Unhide Selection</value>
+  </data>
+  <data name="ContextMenuUnlink" xml:space="preserve">
+    <value>Unlink</value>
+  </data>
+  <data name="delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\delete.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="freeze" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\freeze.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="freeze_button" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\freeze_button.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="freeze_button_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\freeze_button_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hide" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\hide.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hide_button" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\hide_button.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hide_button_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\node_buttons\hide_button_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="InvalidLayerNameMessage" xml:space="preserve">
+    <value>Layer names must be unique (case-insensitive)</value>
+  </data>
+  <data name="InvalidLayerNameTitle" xml:space="preserve">
+    <value>Invalid layer name</value>
+  </data>
+  <data name="InvalidMaterialNameMessage" xml:space="preserve">
+    <value>Material names must be unique (case-insensitive)</value>
+  </data>
+  <data name="InvalidMaterialNameTitle" xml:space="preserve">
+    <value>Invalid material name</value>
+  </data>
+  <data name="layer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\layer.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="newcontainer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\newcontainer.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="newgroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\newgroup.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="newlayer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\newlayer.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="properties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\properties.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rename" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\rename.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slate_mat_editor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\slate_mat_editor.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slate_mat_editor_new" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\slate_mat_editor_new.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ungroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\ungroup.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="unlink" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\unlink.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="filter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\filter.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hierarchy_mode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\hierarchy_mode.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="layer_mode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\layer_mode.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="material_mode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\material_mode.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_alphabetical" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_alphabetical.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_chronological" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_chronological.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_layer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_layer.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_material" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_material.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_type" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_type.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sort_visibility" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\sort_visibility.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="case_sensitive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\case_sensitive.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="window_new" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\window_new.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="window_options" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\window_options.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="filter_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\filter_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="window" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\window.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="window_split_hor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\window_split_hor.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="window_split_ver" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\window_split_ver.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="flat_object_list_mode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\flat_object_list_mode.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="selection_set_mode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\selection_set_mode.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="new_selectionset" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\contextmenu_icons\new_selectionset.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+</root>

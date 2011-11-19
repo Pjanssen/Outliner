@@ -1,16 +1,14 @@
 (
-	local version = 2.03;
-	local versionStr = "2.0.3";
+	local version = 2.04;
+	local versionStr = "2.0.4";
 	
 	global outliner_restart_required;
 	
 	local tempDir = (GetDir #temp) + "/outliner";
 	local userScriptDir = (GetDir #userScripts) + "/outliner";
 	local userStartupScriptDir = (GetDir #userStartupScripts) + "/outliner";
-	local userMacrosDir = (GetDir #userMacros) + "/outliner";
 	local userIconsDir = (GetDir #userIcons);
 	
-	local workflowtoolsDir = userMacrosDir + "_workflowtools";
 	local prefsFile = (GetDir #userScripts) + "/outliner_prefs.ini";
 	
 	
@@ -41,7 +39,7 @@
 	local str_dotnetVersionFail = "The Outliner requires .NET Framework 3.5 or higher.";
 	local str_uninstFailed		= "Uninstalling previous version failed.\n\nIt is possible that 3dsmax is locking some files,\nor administrator rights may be required.\nSee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
 	local str_updPrefFileFailed	= "Updating preferences file failed.  ";
-	local str_cpNewFilesFailed	= "Copying new files failed.\n\nPlease see the Maxscript Listener (F11) for details.   ";
+	local str_cpNewFilesFailed	= "Copying new files failed.\n\nThis could be caused by high security settings.\nPlease see the Maxscript Listener (F11) for details.   ";
 	local str_assignHKFailed	= "Assigning shortcut failed.  ";
 	local str_loadMcrFailed		= "Loading macroscripts failed.\n\nPlease see the Maxscript Listener (F11) for details.   ";
 	
@@ -85,13 +83,13 @@
 								  ((GetDir #Scripts) + "/outliner"), 
 								  ((GetDir #maxroot) + "/stdplugs/stdscripts/outliner"),
 								  ((GetDir #ui) + "macroscripts/outliner"),
+								  ((GetDir #userMacros) + "/outliner"),
 								  userScriptDir,
-								  userStartupScriptDir,
-								  userMacrosDir
+								  userStartupScriptDir
 								 );
 		for d in oldOutlinerDirs do 
 		(
-			if ((getDirectories d).count > 0) do 
+			if (System_IO_Directory.Exists d) do 
 			(
 				try (
 					System_IO_Directory.Delete d true;
@@ -147,7 +145,8 @@
 		local success = true;
 		
 		local System_IO_Directory = dotNetClass "System.IO.Directory";
-		if ((getDirectories workflowtoolsDir).count > 0) do
+		local oldWfToolsDir = (GetDir #userMacros) + "/outliner_workflowtools";
+		if (System_IO_Directory.Exists oldWfToolsDir) do
 		(
 			try (
 				System_IO_Directory.delete workflowtoolsDir true;
@@ -204,6 +203,7 @@
 		)
 		
 		setINISetting prefsFile "General" "version" (version as string);
+		setINISetting prefsFile "General" "versionString" versionStr;
 		
 		true;
 	)
@@ -227,7 +227,14 @@
 		local success = registry.openkey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5" key:&rKey accessright:#readonly;
 		if (success) do
 			registry.closeKey rKey;
-			
+		
+		if (not success) do
+		(
+			success = registry.openkey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4" key:&rKey accessright:#readonly;
+			if (success) do
+				registry.closeKey rKey;
+		)
+		
 		success;
 	)
 	
@@ -261,7 +268,6 @@
 		(
 			copyDirectory (tempDir + "/script") userScriptDir;
 			copyDirectory (tempDir + "/startupScript") userStartupScriptDir;
-			copyDirectory (tempDir + "/macroscripts") userMacrosDir;
 			
 			local iconFiles = System_IO_Directory.getFiles (tempDir + "/icons") "*.bmp";
 			for ico in iconFiles do
@@ -292,7 +298,7 @@
 		(
 			colorman.reInitIcons();
 			
-			local files = GetFiles (userMacrosDir + "/*.mcr");
+			local files = GetFiles (tempDir + "/macroscripts/*.mcr");
 			for file in files do
 				fileIn file;
 		)
@@ -362,14 +368,16 @@
 		outliner_install.progress_txt.text += txt;
 	)
 	
-	function installation_success inst =
+	function installation_success inst showHowToUse:false =
 	(
 		addStatusText ("\n\n" + inst + " succeeded.")
 		outliner_install.close_btn.enabled = true;
 		
-		local inst_txt = inst + " complete.   \n";
+		local inst_txt = inst + " complete.";
+		if (showHowToUse) do
+			inst_txt += "\nYou can assign the Outliner to a shortcut or toolbar button using:\nCustomize > Customize User Interface > Open/Close Outliner";
 		if (outliner_restart_required == true) do
-			inst_txt += "You'll have to restart 3dsmax before using the Outliner!   ";
+			inst_txt += "\nYou'll have to restart 3dsmax before using the Outliner!   ";
 		
 		local mb = dotNetClass "System.Windows.Forms.MessageBox";
 		local mbBtn = dotNetClass "System.Windows.Forms.MessageBoxButtons";
@@ -486,6 +494,7 @@
 			installation_failed str_inst str_updPrefFileFailed;
 			return false;
 		)
+
 		
 		
 		addStatusText str_cpNewFiles;
@@ -500,36 +509,24 @@
 			
 		
 		
-		addStatusText str_checkRestartReq;
-		outliner_restart_required = restartRequired();
-		if (outliner_restart_required) then
-			addStatusText "yes";
-		else
-			addStatusText "no";
-		
-		
 		
 		
 		
 		addStatusText str_loadMcr;
-		if (not outliner_restart_required) then
-		(
-			if (loadMacroScripts()) then
-				addStatusText str_done;
-			else
-			(
-				addStatusText str_failed;
-				installation_failed str_inst str_loadMcrFailed;
-				return false;
-			)
-		)
+		if (loadMacroScripts()) then
+			addStatusText str_done;
 		else
-			addStatusText str_skipped;
+		(
+			addStatusText str_failed;
+			installation_failed str_inst str_loadMcrFailed;
+			return false;
+		)
 			
 			
 		
 		addStatusText str_assignHotkey;
 		local action = getHotkeyAction();
+		local do_assignHotkey = false;
 		if (action == undefined OR action.macro_name != "toggleOutliner" OR action.macro_category != "Outliner") then
 		(
 			local queryStr = "Do you want to assign opening the outliner to 'H' ?";
@@ -549,7 +546,7 @@
 				)
 			)
 			
-			local do_assignHotkey = queryBox queryStr title:"Assign shortcut";
+			do_assignHotkey = queryBox queryStr title:"Assign shortcut";
 			if (do_assignHotkey) then
 			(
 				if (assignHotkey()) then
@@ -569,7 +566,18 @@
 		
 		try ( KeyboardActionsFile.maxReloadKeyboardFile(); ) catch()
 		
-		installation_success str_inst;
+		
+		
+		addStatusText str_checkRestartReq;
+		outliner_restart_required = restartRequired();
+		if (outliner_restart_required) then
+			addStatusText "yes";
+		else
+			addStatusText "no";
+		
+		
+		
+		installation_success str_inst showHowToUse:(not do_assignHotkey);
 		true;
 	)
 	

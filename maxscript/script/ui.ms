@@ -29,7 +29,7 @@ struct outlinerStatus
 )
 
 
-rollout outliner_initializing ("Outliner " + outliner.versionStr)
+rollout outliner_initializing "Outliner"
 (
 	label init_lbl "Initializing Outliner..." offset:[0, 8] align:#center;
 )
@@ -108,6 +108,7 @@ struct outlinerUI
 			outliner_callbacks.selectionChanged();
 	
 			outliner_status.windowOpen = true;
+			updateToolbarButtons();
 		)
 		catch
 		(
@@ -149,6 +150,7 @@ struct outlinerUI
 		outliner.disposeFunctionCache();
 		
 		outliner_status.windowOpen = false;
+		updateToolbarButtons();
 	),
 	
 	
@@ -165,10 +167,10 @@ struct outlinerUI
 				if (outliner_status.filterConfigOpen) do
 					destroyDialog outliner_filter_config;
 	
-				local width = 165;
+				local width = 194;
 				local height = 55;
 				local dialog_pos = GetDialogPos outliner_main;
-				local posx = dialog_pos.x + outliner_main.filter_enabled.pos.x;
+				local posx = dialog_pos.x + outliner_main.filter_enabled.pos.x - 69;
 				local posy = dialog_pos.y + outliner_main.filter_enabled.pos.y - height - 30;
 				CreateDialog outliner_filter_config width height pos:[posx, posy] style:#(#style_sysmenu, #style_toolwindow);
 					

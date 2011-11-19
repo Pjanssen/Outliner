@@ -15,6 +15,7 @@ struct outlinerPreferences (
 		#(
 			--General section
 			(outlinerPrefsEntry section:#General key:#version					default:0),
+			(outlinerPrefsEntry section:#General key:#versionString				default:""),
 			(outlinerPrefsEntry section:#General key:#matModeFirstRun			default:true),
 			(outlinerPrefsEntry section:#General key:#addNestedLayerMessage		default:true),
 			(outlinerPrefsEntry section:#General key:#openAtStartup				default:false),
@@ -36,7 +37,8 @@ struct outlinerPreferences (
 			(outlinerPrefsEntry section:#Tree	key:#sortMode					default:"Alphabetical"),
 			(outlinerPrefsEntry section:#Tree	key:#objFilter					default:#{1..11}),
 			(outlinerPrefsEntry section:#Tree	key:#objFilterEnabled			default:false),
-			(outlinerPrefsEntry section:#Tree	key:#objFilterAffectsVpt		default:false),
+			(outlinerPrefsEntry section:#Tree	key:#objFilterAffectLayers		default:false),
+			(outlinerPrefsEntry section:#Tree	key:#objFilterAffectVpt			default:false),
 			(outlinerPrefsEntry section:#Tree	key:#searchCaseSensitive		default:false),
 			(outlinerPrefsEntry section:#Tree	key:#dragMouseButton			default:"Middle"),
 			(outlinerPrefsEntry section:#Tree	key:#expandHierarchyKey			default:"Control"),
@@ -54,7 +56,8 @@ struct outlinerPreferences (
 			--Visual section
 			(outlinerPrefsEntry	section:#Visual	key:#iconset					default:"Max"),
 			(outlinerPrefsEntry	section:#Visual	key:#invertIcons				default:true),
-			(outlinerPrefsEntry section:#Visual	key:#colorscheme				default:"")
+			(outlinerPrefsEntry section:#Visual	key:#colorscheme				default:""),
+			(outlinerPrefsEntry section:#Visual	key:#buttonsAtTop				default:false)
 		  )
 	),
 	entries = createEntriesEnum(),

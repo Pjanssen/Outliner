@@ -1,7 +1,7 @@
 macroScript toggleOutliner 
 	category:"Outliner" 
-	toolTip:"Open/Close Outliner Window" 
-	buttonText:"Open/Close Outliner Window"
+	toolTip:"Open/Close Outliner" 
+	buttonText:"Open/Close Outliner"
 	icon:#("Outliner", 1)
 (
 	global outliner;

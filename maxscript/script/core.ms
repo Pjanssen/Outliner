@@ -1,7 +1,6 @@
 struct outlinerCore
 (
-	version				= 2.03,
-	versionStr			= "2.0.3",
+	version,
 	maxV				= (maxVersion())[1] / 1000,
 	dir					= ((GetDir #userScripts) + "/outliner/"),
 	icondir				= dir + "ui/icons/",
@@ -177,12 +176,15 @@ struct outlinerCore
 	--Add an object to the Scene in the treeview. (doesn't add it to the tree nodes itself though!)
 	function addObjectToTree o layerHandle: =
 	(
-		if (layerHandle == unsupplied) do
-			layerHandle = GetHandleByAnim o.layer.layerAsRefTarg;
-			
-		local parentHandle = if (o.parent != undefined) then (GetHandleByAnim o.parent) else -1;
-		local matHandle = if (o.material != undefined) then (GetHandleByAnim o.material) else -1;
-		tree_Scene_AddObjectFn (GetHandleByAnim o) parentHandle layerHandle matHandle o.name (getClassName o) ((superclassof o) as string) o.isNodeHidden o.isNodeFrozen (isGroupHead o) (isGroupMember o);
+		if (isValidNode o) do
+		(
+			if (layerHandle == unsupplied) do
+				layerHandle = GetHandleByAnim o.layer.layerAsRefTarg;
+				
+			local parentHandle = if (o.parent != undefined) then (GetHandleByAnim o.parent) else -1;
+			local matHandle = if (o.material != undefined) then (GetHandleByAnim o.material) else -1;
+			tree_Scene_AddObjectFn (GetHandleByAnim o) parentHandle layerHandle matHandle o.name (getClassName o) ((superclassof o) as string) o.isNodeHidden o.isNodeFrozen (isGroupHead o) (isGroupMember o);
+		)
 	),
 	
 	
@@ -513,8 +515,16 @@ struct outlinerCore
 			for handle in nodeHandles do
 			(
 				local n = GetAnimByHandle handle;
-				if (n != undefined AND (isProperty n prop)) do
-					setProperty n prop value;
+				if (n != undefined) do
+				(
+					if (isKindOf n Node AND (isProperty n prop)) then
+						setProperty n prop value;
+					else if (isKindOf n Base_Layer AND (isProperty n prop)) then
+					(
+						setProperty n prop value;
+						outliner_NestedLayers.propagatePropertyToChildLayers n prop value;
+					)
+				)
 			)
 		)
 		catch
@@ -970,6 +980,8 @@ struct outlinerCore
 			
 			prefs = outlinerPreferences iniFile:((GetDir #userScripts) + "/outliner_prefs.ini");
 			prefs.loadPreferences();
+			
+			version = prefs.getValue #General #version;
 			
 			ui = outlinerUI();
 			

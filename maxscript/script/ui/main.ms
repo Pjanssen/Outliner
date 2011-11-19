@@ -1,4 +1,4 @@
-rollout outliner_main ("Outliner " + outliner.versionStr)
+rollout outliner_main "Outliner"
 (
 	local getPrefFn;
 	local setPrefFn;
@@ -30,13 +30,23 @@ rollout outliner_main ("Outliner " + outliner.versionStr)
 		search.width				= mainW - search.height - 2 - margin * 2;
 		searchCaseSensitive.pos.x	= mainW - search.height - margin;
 		tree.width					= mainW - margin * 2;
+		tree.height					= outliner_main.height - search.height - btn_h - margin * 2 - 6;
+		options.pos.x				= mainW - margin - btn_w;
 		
-		options.pos.x = mainW - margin - btn_w;
+		local buttonsAtTop = getPrefFn #Visual #buttonsAtTop;
+		if (buttonsAtTop) then
+		(
+			listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = margin;
+			search.pos.y = searchCaseSensitive.pos.y = margin + btn_h + margin;
+			tree.pos.y = search.pos.y + search.height + 2;
+		)
+		else
+		(
+			search.pos.y = searchCaseSensitive.pos.y = margin;
+			tree.pos.y = search.pos.y + search.height + 2;
+			listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = (outliner_main.height - btn_h - margin);
+		)
 		
-		local btn_y = outliner_main.height - btn_h - margin;
-		listmode_h.pos.y = listmode_l.pos.y = listmode_m.pos.y = filter_enabled.pos.y = sortmode_btn.pos.y = options.pos.y = btn_y;
-		
-		tree.height		= outliner_main.height - search.height - btn_h - margin * 2 - 6;
 	)
 	
 	
@@ -153,29 +163,31 @@ rollout outliner_main ("Outliner " + outliner.versionStr)
 
 
 	/** FILTER **/
-	function setHideByCategory =
+	function setHideByCategory forceSet:false =
 	(
-		if (getPrefFn #Tree #objFilterAffectsVpt) do
+		local objFilterAffectVpt	= getPrefFn #Tree #objFilterAffectVpt;
+		local objFilterEnabled		= getPrefFn #Tree #objFilterEnabled;
+		local objFilter				= getPrefFn #Tree #objFilter;
+		local hideByCat_enum 		= #(&hideByCategory.geometry, &hideByCategory.shapes, &hideByCategory.lights, 
+										&hideByCategory.cameras, &hideByCategory.helpers, &hideByCategory.spacewarps, 
+										&hideByCategory.bones, &hideByCategory.particles);
+		
+		if (objFilterAffectVpt OR forceSet) do
 		(
-			local objFilter = getPrefFn #Tree #objFilter;
-			local objFilterEnabled = getPrefFn #Tree #objFilterEnabled;
-			local hideByCat_enum = #(&hideByCategory.geometry, &hideByCategory.shapes, &hideByCategory.lights, &hideByCategory.cameras,
-									&hideByCategory.helpers, &hideByCategory.spacewarps, &hideByCategory.bones, &hideByCategory.particles);
-			
 			disableSceneRedraw();
 			
-			if (not objFilterEnabled) then
+			if (objFilterAffectVpt AND objFilterEnabled) then
+			(
+				for i = 1 to hideByCat_enum.count do *hideByCat_enum[i] = not objFilter[i];
+				maxOps.hideFrozenObjects = not objFilter[11];
+			)
+			else
 			(
 				for i = 1 to hideByCat_enum.count do *hideByCat_enum[i] = false;
 				maxOps.hideFrozenObjects = false;
 			)
-			else
-			(
-				for i = 1 to hideByCat_enum.count do not objFilter[i];
-				maxOps.hideFrozenObjects = not objFilter[11];
-			)
 			
-			enableSceneRedraw()
+			enableSceneRedraw();
 			completeRedraw();
 		)
 	)
@@ -197,6 +209,9 @@ rollout outliner_main ("Outliner " + outliner.versionStr)
 	
 	on filter_enabled rightclick do 
 	(
+		if (not filter_enabled.checked) do
+			setFilterEnabled true;
+			
 		outliner.UI.openFilterConfigWindow();
 	)
 	
@@ -213,14 +228,44 @@ rollout outliner_main ("Outliner " + outliner.versionStr)
 	 */
 	on search changed text do 
 	(
-		tree.SelectNodesByName text (getPrefFn #Tree #searchCaseSensitive);
+		try
+		(
+			tree.Filter.NameFilter = text;
+			tree.FillTree();
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
+	)
+	
+	on search entered text do
+	(
+		try
+		(
+			tree.SelectFilteredNodes();
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
 	)
 	
 	on searchCaseSensitive changed checked do
 	(
-		setPrefFn #Tree #searchCaseSensitive checked;
-		if (search.text != "") do
-			tree.SelectNodesByName search.text checked;
+		try
+		(
+			setPrefFn #Tree #searchCaseSensitive checked;
+			tree.Filter.NameFilterCaseSensitive = checked;
+			tree.FillTree();
+		)
+		catch
+		(
+			local crashReport = outliner_crash_report();
+			crashReport.handle_exception crashReport;
+		)
 	)
 	
 	
@@ -318,7 +363,8 @@ rollout outliner_main ("Outliner " + outliner.versionStr)
 		tree.ExpandSelectionPolicyMaterial	= outliner.parseDotNetEnum "Outliner.ExpandPolicy" (getPrefFn #Tree #expandSelPolicyMaterial);
 			
 
-		tree.Filter.Enabled	= (getPrefFn #Tree #objFilterEnabled);
+		tree.Filter.Enabled			= getPrefFn #Tree #objFilterEnabled;
+		tree.Filter.AffectLayers	= getPrefFn #Tree #objFilterAffectLayers;
 		local filter_enum	= #(&tree.Filter.showGeometry, &tree.Filter.showShapes, &tree.Filter.showLights, &tree.Filter.showCameras,
 					   			&tree.Filter.showHelpers, &tree.Filter.showSpaceWarps, &tree.Filter.showBones, &tree.Filter.showParticles,
 					   			&tree.Filter.showXRefs, &tree.Filter.showHidden, &tree.Filter.showFrozen);

@@ -1,15 +1,16 @@
 (
-	local version = 2.01;
-	local versionStr = "2.0.1";
+	local version = 2.03;
+	local versionStr = "2.0.3";
 	
 	global outliner_restart_required;
 	
 	local tempDir = (GetDir #temp) + "/outliner";
-	local scriptDir = (GetDir #Scripts) + "/outliner";
-	local stdscriptDir = (GetDir #maxroot) + "/stdplugs/stdscripts/outliner";
-	local macroscriptsDir = (GetDir #ui) + "macroscripts/outliner"
-	local workflowtoolsDir = stdscriptDir + "_workflowtools";
-	local iconsDir = (GetDir #ui) + "/icons";
+	local userScriptDir = (GetDir #userScripts) + "/outliner";
+	local userStartupScriptDir = (GetDir #userStartupScripts) + "/outliner";
+	local userMacrosDir = (GetDir #userMacros) + "/outliner";
+	local userIconsDir = (GetDir #userIcons);
+	
+	local workflowtoolsDir = userMacrosDir + "_workflowtools";
 	local prefsFile = (GetDir #userScripts) + "/outliner_prefs.ini";
 	
 	
@@ -24,7 +25,7 @@
 	local str_remScrFiles		= "\nRemoving script files...";
 	local str_remPrefFiles		= "\nRemoving preferences file...";
 	local str_remWFToolsFiles	= "\nRemoving Workflow Tools files...";
-	local str_remScrFilesFailed = "Removing script files failed.\n\nIt is possible that 3dsmax is locking some files,\nsee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
+	local str_remScrFilesFailed = "Removing script files failed.\n\nIt is possible that 3dsmax is locking some files,\nor administrator rights may be required.\nSee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
 	local str_remPrefFileFailed	= "Removing preferences file failed.  ";
 	local str_remWFToolsFilesFailed = "Removed Workflow Tools files failed.\nSee the maxscript listener (F11) for details.";
 	local str_remWFTools		= "Do you want to remove the Outliner Workflow Tools too?";
@@ -37,7 +38,8 @@
 	local str_checkRestartReq	= "\nChecking if restart is required...";
 	local str_loadMcr			= "\nLoading macroscripts...";
 	local str_maxVersionFail	= "The Outliner requires 3dsmax 2008 or higher.";
-	local str_uninstFailed		= "Uninstalling previous version failed.\n\nIt is possible that 3dsmax is locking some files,\nsee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
+	local str_dotnetVersionFail = "The Outliner requires .NET Framework 3.5 or higher.";
+	local str_uninstFailed		= "Uninstalling previous version failed.\n\nIt is possible that 3dsmax is locking some files,\nor administrator rights may be required.\nSee the maxscript listener (F11) for details.\nRecommendation: restart 3dsmax and try again.     ";
 	local str_updPrefFileFailed	= "Updating preferences file failed.  ";
 	local str_cpNewFilesFailed	= "Copying new files failed.\n\nPlease see the Maxscript Listener (F11) for details.   ";
 	local str_assignHKFailed	= "Assigning shortcut failed.  ";
@@ -46,7 +48,7 @@
 	
 	function printException executingFn exception =
 	(
-		format "Installer exception:\n%\n%\n" executingFn exception;
+		format "Outliner installer exception:\n%\n%\n" executingFn exception;
 	)
 	
 	
@@ -78,7 +80,15 @@
 		local System_IO_Directory = dotNetClass "System.IO.Directory";
 		
 		local startupDir = (GetDir #startupScripts);
-		local oldOutlinerDirs = #((startupDir + "/outliner"), (startupDir + "/grin_tools/outliner"), scriptDir, stdscriptDir);
+		local oldOutlinerDirs = #((startupDir + "/outliner"), 
+								  (startupDir + "/grin_tools/outliner"), 
+								  ((GetDir #Scripts) + "/outliner"), 
+								  ((GetDir #maxroot) + "/stdplugs/stdscripts/outliner"),
+								  ((GetDir #ui) + "macroscripts/outliner"),
+								  userScriptDir,
+								  userStartupScriptDir,
+								  userMacrosDir
+								 );
 		for d in oldOutlinerDirs do 
 		(
 			if ((getDirectories d).count > 0) do 
@@ -93,8 +103,19 @@
 			)
 		)
 		
-		-- Remove icon files
-		local iconFiles = getFiles (iconsDir + "/*Outliner*");
+		-- Remove icon files 
+		--old location
+		local iconFiles = getFiles ((GetDir #ui) + "/icons/*Outliner*");
+		for ico in iconFiles do
+		(
+			if ((findString ico "_wftools_") == undefined) do
+			(
+				if (not (deleteFile ico)) do 
+					success = false;
+			)
+		)
+		--new location
+		iconFiles = getFiles (userIconsDir + "/*Outliner*");
 		for ico in iconFiles do
 		(
 			if ((findString ico "_wftools_") == undefined) do
@@ -104,14 +125,6 @@
 			)
 		)
 		
-		-- Remove normal macros
-		local oldMacros = (getFiles (macroscriptsDir + "/*"));
-		for mcr in oldMacros do
-		(
-			if (not (deleteFile mcr)) do 
-				success = false;
-		)
-		try ( System_IO_Directory.Delete macroScriptsDir true ) catch ()
 	
 	
 		-- Remove user macros
@@ -133,11 +146,11 @@
 	(
 		local success = true;
 		
-		local dirIO = dotNetClass "System.IO.Directory";
+		local System_IO_Directory = dotNetClass "System.IO.Directory";
 		if ((getDirectories workflowtoolsDir).count > 0) do
 		(
 			try (
-				dirIO.delete workflowtoolsDir true;
+				System_IO_Directory.delete workflowtoolsDir true;
 			) catch 
 			(
 				printException "removeWorkflowTools" (getCurrentException());
@@ -146,12 +159,19 @@
 		)
 		
 		-- Remove icon files
-		local iconFiles = getFiles (iconsDir + "/*Outliner_wftools*");
+		local iconFiles = getFiles ((GetDir #ui) + "/icons/*Outliner_wftools*");
 		for ico in iconFiles do
 		(
 			if (not (deleteFile ico)) do 
 				success = false;
 		)
+		iconFiles = getFiles (userIconsDir + "/*Outliner_wftools*");
+		for ico in iconFiles do
+		(
+			if (not (deleteFile ico)) do 
+				success = false;
+		)
+
 	
 		-- Remove user macros
 		local userMacroDir = (GetDir #userMacros);
@@ -178,7 +198,7 @@
 		if (doesFileExist prefsFile) do
 		(
 			local oldVersion = (getINISetting prefsFile "General" "version") as float; 
-			if (oldVersion == undefined OR oldVersion < version) then
+			if (oldVersion == undefined OR oldVersion < 2.0) then
 				deleteFile prefsFile;
 			--actual updating can be implemented for later versions...
 		)
@@ -200,22 +220,32 @@
 		((maxVersion())[1] >= 10000);
 	)
 	
+	function checkDotNetVersion =
+	(
+		--Returns true if the .NET Framework 3.5 key could be opened.
+		local rKey;
+		local success = registry.openkey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5" key:&rKey accessright:#readonly;
+		if (success) do
+			registry.closeKey rKey;
+			
+		success;
+	)
 	
 	function copyDirectory sourceDir targetDir =
 	(
-		local Directory = dotNetClass "System.IO.Directory";
-		local SearchOption = dotNetClass "System.IO.SearchOption";
-		local File = dotNetClass "System.IO.File";
-		local allFiles = Directory.GetFiles sourceDir "*.*" SearchOption.AllDirectories;
+		local System_IO_Directory = dotNetClass "System.IO.Directory";
+		local System_IO_SearchOption = dotNetClass "System.IO.SearchOption";
+		local System_IO_File = dotNetClass "System.IO.File";
+		local allFiles = System_IO_Directory.GetFiles sourceDir "*.*" System_IO_SearchOption.AllDirectories;
 		
 		
 		for sourceFile in allFiles do
 		(
 			local targetFile = targetDir + (substring sourceFile (sourceDir.count + 1) -1);
 			local targetFileDir = getFilenamePath targetFile;
-			if (not (Directory.Exists targetFileDir)) do
-				Directory.CreateDirectory targetFileDir;
-			File.Copy sourceFile targetFile;
+			if (not (System_IO_Directory.Exists targetFileDir)) do
+				System_IO_Directory.CreateDirectory targetFileDir;
+			System_IO_File.Copy sourceFile targetFile;
 		)
 	)
 	
@@ -224,22 +254,18 @@
 	(
 		local success = true;
 		
-		local dir = dotNetClass "System.IO.Directory";
-		local file = dotNetClass "System.IO.File";
+		local System_IO_Directory = dotNetClass "System.IO.Directory";
+		local System_IO_File = dotNetClass "System.IO.File";
 		
 		try 
 		(
-			copyDirectory (tempDir + "/script") scriptDir;
-			copyDirectory (tempDir + "/stdscript") stdscriptDir;
-			copyDirectory (tempDir + "/macroscripts") macroscriptsDir;
-			/*
-			dir.Move (tempDir + "/script") scriptDir;
-			dir.Move (tempDir + "/stdscript") stdscriptDir;
-			dir.Move (tempDir + "/macroscripts") macroscriptsDir;
-			*/
-			iconFiles = dir.getFiles (tempDir + "/icons") "*.bmp";
+			copyDirectory (tempDir + "/script") userScriptDir;
+			copyDirectory (tempDir + "/startupScript") userStartupScriptDir;
+			copyDirectory (tempDir + "/macroscripts") userMacrosDir;
+			
+			local iconFiles = System_IO_Directory.getFiles (tempDir + "/icons") "*.bmp";
 			for ico in iconFiles do
-				file.Move ico (iconsDir + "/" + (filenameFromPath ico));	
+				System_IO_File.Move ico (userIconsDir + "/" + (filenameFromPath ico));	
 		)
 		catch 
 		(
@@ -266,7 +292,7 @@
 		(
 			colorman.reInitIcons();
 			
-			local files = GetFiles (macroscriptsDir + "/*.mcr");
+			local files = GetFiles (userMacrosDir + "/*.mcr");
 			for file in files do
 				fileIn file;
 		)
@@ -286,7 +312,7 @@
 		try
 		(
 			global KeyboardActionsFile;
-			fileIn (scriptDir + "/keyboardActionsFile.ms");
+			fileIn (userScriptDir + "/keyboardActionsFile.ms");
 			
 			local kbd_man = KeyboardActionsFile file:(KeyboardActionsFile.getDefaultKeyboardFile());
 			action = kbd_man.getActionFromKeyCode (kbd_man.getModKeyCodeFromString "") (kbd_man.getKeyCodeFromString "H") table_id1:kbd_man.macro_table_id table_id2:kbd_man.main_table_id;
@@ -431,6 +457,12 @@
 		if (not checkMaxVersion()) do
 		(
 			installation_failed str_inst str_maxVersionFail;
+			return false;
+		)
+		
+		if (not checkDotNetVersion()) do
+		(
+			installation_failed str_inst str_dotNetVersionFail;
 			return false;
 		)
 		

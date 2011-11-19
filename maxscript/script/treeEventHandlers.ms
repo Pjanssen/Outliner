@@ -73,9 +73,6 @@ struct outliner_TreeEventHandlers
 	(
 		try
 		(
-			i = 5;
-			i.x = 10;
-			
 			outliner_status.hiddenInOutliner = true;
 			
 			local undoString = if (e.NewValue) then "Hide" else "Unhide";

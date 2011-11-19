@@ -418,30 +418,15 @@ rollout outliner_options_workflowtools "Workflow Tools Options"
 
 rollout outliner_options_about "About \x26 Donate"
 (
-   imgTag logoImg width:262 height:66 align:#center offset:[0, -10]
    label versionLbl "";
    label nameLbl "Copyright \xa9 2011, Pier Janssen"
    hyperlink mailLbl "pier@threesixty.nl" address:"mailto:pier@threesixty.nl" align:#center;
-   hyperlink siteLbl "www.threesixty.nl" address:"http://www.threesixty.nl/" align:#center offset:[0, -2];
+   hyperlink siteLbl "outliner.threesixty.nl" address:"http://outliner.threesixty.nl/" align:#center offset:[0, -2];
    
-   hyperlink donateLbl "Cick here to make a small donation through PayPal." align:#center offset:[0, 10] address:"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=XQGQPSEAW5HVC&lc=GB&item_name=Outliner%20donations%20%2d%20Pier%20Janssen&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted";
+   hyperlink donateLbl "Cick here to make a donation." align:#center offset:[0, 10] address:"http://script.threesixty.nl/outliner/index.php/donate";
    label donateLbl2 "Doing so will support future development and maintenance." align:#center offset:[0, -4];
    label donateLbl3 "And you'll get the Outliner Workflow Tools in return!" align:#center offset:[0, -4];
    label donateLbl4 "Thank you." align:#center offset:[0, -4];
-      
-   on outliner_options_about open do
-   (
-      if (outliner.ui.usingMaxDarkScheme()) then
-      (
-         logoImg.bitmap = openBitmap (Outliner.icondir + "logo_dark.bmp");
-         logoImg.transparent = color 82 82 82;
-      )
-      else
-      (
-         logoImg.bitmap = openBitmap (Outliner.icondir + "logo_light.bmp");
-         logoImg.transparent = color 186 186 186;
-      )
-   )
    
    function setUIValues = 
    (

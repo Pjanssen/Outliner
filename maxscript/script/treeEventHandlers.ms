@@ -73,6 +73,9 @@ struct outliner_TreeEventHandlers
 	(
 		try
 		(
+			i = 5;
+			i.x = 10;
+			
 			outliner_status.hiddenInOutliner = true;
 			
 			local undoString = if (e.NewValue) then "Hide" else "Unhide";
@@ -234,7 +237,7 @@ struct outliner_TreeEventHandlers
 			local targetNode = GetAnimByHandle e.TargetHandle;
 			local nodes = for handle in e.Handles collect (GetAnimByHandle handle);
 			
-			if (targetNode != undefined AND nodes.count > 0 AND e.Grouped) do
+			if (targetNode != undefined AND nodes.count > 0 AND e.IsGroupMember) do
 			(
 				undo "Add to container" on
 				(

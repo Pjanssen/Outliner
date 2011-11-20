@@ -7,7 +7,8 @@ function SelectionChanged e =
 (
    try 
    (
-      outliner_status.selectedInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #selectionChanged;
       
       local listMode = outliner.prefs.getValue #Tree #listMode;
       
@@ -60,8 +61,6 @@ function SelectionChanged e =
             )
          )
       )
-   
-      outliner_status.selectedInOutliner = false;
    )
    catch
    (
@@ -79,7 +78,8 @@ function NodeHidden e =
 (
    try
    (
-      outliner_status.hiddenInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #displayPropertiesChanged;
       
       local undoString = if (e.NewValue) then "Hide" else "Unhide";
       
@@ -100,8 +100,6 @@ function NodeHidden e =
             )
          )
       )
-      
-      outliner_status.hiddenInOutliner = false;
    )
    catch
    (
@@ -118,7 +116,8 @@ function NodeFrozen e =
 (
    try
    (
-      outliner_status.frozenInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #displayPropertiesChanged;
       
       local undoString = if (e.NewValue) then "Freeze" else "Unfreeze";
       
@@ -139,8 +138,6 @@ function NodeFrozen e =
             )
          )
       )
-      
-      outliner_status.frozenInOutliner = false;
    )
    catch
    (
@@ -158,6 +155,9 @@ function NodeBoxModeChanged e =
 (
    try
    (
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #displayPropertiesChanged;
+      
       with redraw off
       (     
          for handle in e.Handles do
@@ -190,7 +190,8 @@ function NodeRenamed e =
 (
    try
    (
-      outliner_status.renamedInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #nameChanged;
       
       local n = (GetAnimByHandle e.Handle);
       
@@ -208,8 +209,6 @@ function NodeRenamed e =
             n.setName e.Name;
          )
       )
-      
-      outliner_status.renamedInOutliner = false;
    )
    catch
    (
@@ -329,7 +328,8 @@ function ObjectLayerChanged e =
 (
    try
    (
-      outliner_status.layerChangedInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #layerChanged;
       
       local targetLayer = (GetAnimByHandle e.TargetHandle);
       if (targetLayer != undefined) do
@@ -357,8 +357,6 @@ function ObjectLayerChanged e =
             )
          )
       )
-      
-      outliner_status.layerChangedInOutliner = false;
    )
    catch
    (
@@ -376,7 +374,8 @@ function ObjectLinked e =
 (
    try
    (
-      outliner_status.linkedInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #linkChanged;
       
       local undoString;
       local targetNode;
@@ -394,31 +393,28 @@ function ObjectLinked e =
       (
          with redraw off
          (
-            for handle in e.Handles do
+            for h in e.Handles where isValidNode (n = GetAnimByHandle h) do
             (
-               local n = GetAnimByHandle handle;
-               if (isValidNode n) do
+               if (targetNode == undefined) then
+                  n.parent = undefined;
+               else
                (
-                  if (targetNode == undefined) then
-                     n.parent = undefined;
+                  if (not refs.dependencyLoopTest targetNode n) then
+                     n.parent = targetNode;
                   else
                   (
-                     if (not refs.dependencyLoopTest targetNode n) then
-                        n.parent = targetNode;
-                     else
-                     (
-                        messagebox ("Linking " + n.name + " to " + targetNode.name + \
-                                    " would create a dependency loop.") \
-                                    title:"Link failed";
-                        outliner_callbacks.nodeLinkedIntern n;
-                     )
+                     messagebox ("Linking " + n.name + \
+                                 " to " + targetNode.name + \
+                                 " would create a dependency loop.") \
+                                 title:"Link failed";
+                                 
+                     --Undo link operation in Outliner.
+                     outliner_callbacks.nodeLinkedIntern n;
                   )
                )
             )
          )
       )
-      
-      outliner_status.linkedInOutliner = false;
    )
    catch
    (
@@ -436,7 +432,9 @@ function ObjectGrouped e =
 (
    try
    (
-      outliner_status.linkedInOutliner = true;
+      --Signal the outliner to ignore events fired by this method.
+      append outliner_status.ignoreEvents #linkChanged;
+      append outliner_status.ignoreEvents #groupChanged;
       
       local undoString = if (e.IsGroupMember) then "Add to group" \
                                               else "Remove from group";
@@ -447,56 +445,51 @@ function ObjectGrouped e =
       (
          with redraw off
          (
-            for handle in e.Handles do
+            for h in e.Handles where isValidNode (n = GetAnimByHandle h) do
             (
-               local n = GetAnimByHandle handle;
-               if (isValidNode n) do
+               if (e.Linked) do
                (
-                  if (e.Linked) do
+                  if (targetNode == undefined) then
                   (
-                     if (targetNode == undefined) then
+                     --Link object.
+                     local parent = n.parent;
+                     n.parent = undefined;
+                   
+                     --Delete group head if necessary.
+                     if (parent != undefined AND isGroupHead parent AND \
+                                                 parent.children.count == 0) do
+                        delete parent;
+                  )
+                  else
+                  (
+                     if (not refs.dependencyLoopTest targetNode n) then
                      (
-                        local parentToDelete;
-                        if (n.parent != undefined \
-                            AND isGroupHead n.parent \
-                            AND n.parent.children.count == 1) do
-                           parentToDelete = n.parent;
-                           
-                        n.parent = undefined;
-                        
-                        if (parentToDelete != undefined) do
-                           delete parentToDelete;
+                        --Link object.
+                        local parent = n.parent;
+                        n.parent = targetNode;
+                   
+                        --Delete group head if necessary.
+                        if (parent != undefined AND isGroupHead parent AND \
+                                                 parent.children.count == 0) do
+                           delete parent;
                      )
                      else
                      (
-                        if (not refs.dependencyLoopTest targetNode n) then
-                        (
-                           local parentToDelete;
-                           if (n.parent != undefined \
-                               AND isGroupHead n.parent \
-                               AND n.parent.children.count == 1) do
-                              parentToDelete = n.parent;
-                         
-                           n.Parent = targetNode;
-                           if (parentToDelete != undefined) do
-                              delete parentToDelete;
-                        )
-                        else
-                        (
-                           messagebox ("Linking " + n.name + " to " + targetNode.name + \
-                                       " would create a dependency loop.") \
-                                       title:"Link failed";
-                           outliner_callbacks.nodeLinkedIntern n;
-                        )
+                        messagebox ("Linking " + n.name + \
+                                    " to " + targetNode.name + \
+                                    " would create a dependency loop.") \
+                                    title:"Link failed";
+                                    
+                        --Undo link operation in Outliner.
+                        outliner_callbacks.nodeLinkedIntern n;
                      )
-                     setGroupMember n e.IsGroupMember;
                   )
                )
+               
+               setGroupMember n e.IsGroupMember;
             )
          )
       )
-         
-      outliner_status.linkedInOutliner = false;
    )
    catch
    (

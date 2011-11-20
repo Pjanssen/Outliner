@@ -6,12 +6,8 @@ struct outlinerStatus
    sortModeOpen,
    closingOutliner,
    
+   ignoreEvents,
    selectedInOutliner,
-   hiddenInOutliner,
-   frozenInOutliner,
-   renamedInOutliner,
-   linkedInOutliner,
-   layerChangedInOutliner,
    matChangedInOutliner,
    
    expandedNodeHandles,
@@ -21,12 +17,12 @@ struct outlinerStatus
    function reset =
    (
       windowOpen = optionsOpen = filterConfigOpen = sortModeOpen = false;
-      closingOutliner = selectedInOutliner = hiddenInOutliner = false;
-      frozenInOutliner = renamedInOutliner = linkedInOutliner = false;
-      layerChangedInOutliner = matChangedInOutliner = false;
+      closingOutliner = false;
+      selectedInOutliner = matChangedInOutliner = false;
+      ignoreEvents = #();
    ),
    
-   init = reset();
+   on create do reset();
 )--End struct.
 
 

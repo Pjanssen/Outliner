@@ -3630,43 +3630,45 @@ namespace Outliner
 
       #region SetObjectParent
 
-      public void SetObjectParent(Int32 handle, Int32 newParentHandle, Boolean isGroupMember)
+      public void SetObjectParent(Int32 handle, Int32 newParentHandle)
       {
          OutlinerObject obj = Scene.GetObjectByHandle(handle);
          if (obj == null)
             return;
 
-         if (ListMode == OutlinerListMode.Layer)
-         {
-            Scene.SetObjectParentHandle(obj, newParentHandle);
-            if (isGroupMember != obj.IsGroupMember)
-            {
-               obj.IsGroupMember = isGroupMember;
-               if (HideGroupMembersLayerMode)
-               {
-                  if (isGroupMember)
-                     RemoveNodeFromTree(obj, true);
-                  else
-                     AddObjectToTree(obj);
-               }
-               else
-               {
-                  TreeNode tn;
-                  if (_treeNodes.TryGetValue(obj, out tn))
-                  {
-                     BeginTimedUpdate();
-                     tn.Text = obj.DisplayName;
-                  }
-               }
-            }
-         }
-         else if (ListMode == OutlinerListMode.Hierarchy)
+         if (ListMode == OutlinerListMode.Hierarchy)
          {
             BeginTimedUpdate();
             BeginTimedSort();
 
-            LinkObject(obj, newParentHandle, obj.IsGroupMember != isGroupMember, isGroupMember);
+            LinkObject(obj, newParentHandle, false, obj.IsGroupMember);
          }
+         else
+            Scene.SetObjectParentHandle(obj, newParentHandle);
+      }
+
+      public void SetObjectIsGroupMember(Int32 handle, Boolean isGroupMember)
+      {
+         OutlinerObject obj = Scene.GetObjectByHandle(handle);
+         if (obj == null)
+            return;
+
+         obj.IsGroupMember = isGroupMember;
+         
+         TreeNode tn;
+         if (_treeNodes.TryGetValue(obj, out tn))
+         {
+            BeginTimedUpdate();
+            tn.Text = obj.DisplayName;
+
+            if (ListMode == OutlinerListMode.Layer && HideGroupMembersLayerMode)
+            {
+               if (isGroupMember)
+                  RemoveNodeFromTree(obj, true);
+               else
+                  AddObjectToTree(obj);
+            }
+         } 
       }
 
       #endregion

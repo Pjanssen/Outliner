@@ -192,7 +192,7 @@ function refresh =
       tree.FillTree();
    
       if (outliner_callbacks != undefined) do
-         outliner_callbacks.selectionChanged();
+         outliner_callbacks.selectionChanged #selectionChanged #();
    )
    OK;
 ),

@@ -7,7 +7,6 @@ struct outlinerStatus
    closingOutliner,
    
    ignoreEvents,
-   selectedInOutliner,
    matChangedInOutliner,
    
    expandedNodeHandles,
@@ -18,11 +17,12 @@ struct outlinerStatus
    (
       windowOpen = optionsOpen = filterConfigOpen = sortModeOpen = false;
       closingOutliner = false;
-      selectedInOutliner = matChangedInOutliner = false;
+      matChangedInOutliner = false;
       ignoreEvents = #();
    ),
    
-   on create do reset();
+   on create do 
+      reset();
 )--End struct.
 
 

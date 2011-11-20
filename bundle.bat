@@ -28,7 +28,7 @@ IF EXIST %output% ( del /Q /S %output% || goto :error )
 
 ::Copy the maxscript dir to a temporary directory.
 ECHO.
-ECHO Creating maxscript to temporary mzp directory...
+ECHO Copying maxscript to temporary mzp directory...
 xcopy %dir%maxscript %targetDir% /e /q || goto :error
 
 

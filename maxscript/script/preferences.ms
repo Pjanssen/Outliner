@@ -1,17 +1,22 @@
 struct outlinerPrefsEntry
 (
+public
    section,
    key,
    value,
-   default
+   default,
+   
+   on create do 
+      value = default;
 )
 
 
 struct outlinerPreferences (
-iniFile,
-entries = #(),
 
-function readEntry entry =
+public iniFile,
+public entries = #(),
+
+private function readEntry entry =
 (
    if (iniFile == undefined) do
       return false;
@@ -39,7 +44,7 @@ function readEntry entry =
 
 
 
-function writeEntry entry =
+private function writeEntry entry =
 (
    if (iniFile == undefined) do
       return false;
@@ -49,7 +54,7 @@ function writeEntry entry =
 
 
 
-function getEntry section key =
+private function getEntry section key =
 (
    local entry;
    local notfound = true;
@@ -71,13 +76,13 @@ function getEntry section key =
 
 
 
-function getValue section key =
+public function getValue section key =
 (
    local entry = getEntry section key;
    entry.value;
 ),
 
-function setValue section key value write:true =
+public function setValue section key value write:true =
 (
    local entry = getEntry section key;
    entry.value = value;
@@ -87,20 +92,20 @@ function setValue section key value write:true =
 
 
 
-function loadPreferences = 
+public function loadPreferences = 
 (
    for entry in entries do
       readEntry entry;
 ),
 
 
-function savePreferences = 
+public function savePreferences = 
 (
    for entry in entries do
       writeEntry entry;
 ),
 
-function createPreferenceEntries =
+public function createPreferenceEntries =
 (
 #(
    --General section
@@ -161,13 +166,14 @@ function createPreferenceEntries =
 )--End preference entries.
 ),
 
-function createProductEntries =
+public function createProductEntries =
 (
 #(
    (outlinerPrefsEntry section:#General key:#version                default:0.0),
    (outlinerPrefsEntry section:#General key:#versionString          default:""),
    (outlinerPrefsEntry section:#General key:#product_id_a           default:0),
    (outlinerPrefsEntry section:#General key:#product_id_b           default:0),
+   (outlinerPrefsEntry section:#General key:#outlinerInstalled      default:false),
    (outlinerPrefsEntry section:#General key:#workflowToolsInstalled default:false),
    (outlinerPrefsEntry section:#General key:#crashReportEmail       default:"")
 )--End product entries.

@@ -151,16 +151,16 @@ function createCallbacks =
    
    
    nodeEventCB = NodeEventCallback mouseUp:true delay:10;
-   nodeEventCB.callbackBegin    = outliner_callbacks.callbackBegin;
-   nodeEventCB.callbackEnd      = outliner_callbacks.callbackEnd;
-   nodeEventCB.selectionChanged = outliner_callbacks.selectionChanged;
-   nodeEventCB.added            = outliner_callbacks.nodesAdded;
-   nodeEventCB.nameChanged      = outliner_callbacks.nodesNameChanged;
-   nodeEventCB.linkChanged      = outliner_callbacks.nodesLinked;
-   nodeEventCB.groupChanged     = outliner_callbacks.nodesGroupChanged;
-   nodeEventCB.layerChanged     = outliner_callbacks.nodesLayerChanged;
-   nodeEventCB.modelStructured  = outliner_callbacks.modelStructured;
-   nodeEventCB.displayPropertiesChanged = outliner_callbacks.displayPropertiesChanged;
+   nodeEventCB.callbackBegin    = (fn a e h = outliner_callbacks.callbackBegin e h);
+   nodeEventCB.callbackEnd      = (fn a e h = outliner_callbacks.callbackEnd e h);
+   nodeEventCB.selectionChanged = (fn a e h = outliner_callbacks.selectionChanged e h);
+   nodeEventCB.added            = (fn a e h = outliner_callbacks.nodesAdded e h);
+   nodeEventCB.nameChanged      = (fn a e h = outliner_callbacks.nodesNameChanged e h);
+   nodeEventCB.linkChanged      = (fn a e h = outliner_callbacks.nodesLinked e h);
+   nodeEventCB.groupChanged     = (fn a e h = outliner_callbacks.nodesGroupChanged e h);
+   nodeEventCB.layerChanged     = (fn a e h = outliner_callbacks.nodesLayerChanged e h);
+   nodeEventCB.modelStructured  = (fn a e h = outliner_callbacks.modelStructured e h);
+   nodeEventCB.displayPropertiesChanged = (fn a e h = outliner_callbacks.displayPropertiesChanged e h);
 ),
 
 function removeCallbacks = 
@@ -172,6 +172,7 @@ function removeCallbacks =
    
    nodeEventCB.enabled = false;
    nodeEventCB = undefined;
+
    --Garbage collection is performed in ui.closeOutliner()
 ),
 

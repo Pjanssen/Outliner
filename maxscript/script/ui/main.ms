@@ -23,70 +23,91 @@ checkbutton filter_enabled tooltip:"Enable Filter\nRight-Click to configure filt
 button options tooltip:"Options" width:btn_w height:btn_h pos:[0, margin] border:false;
 
 
+--Position the main buttons (vertically).
+function positionButtons y =
+(
+   listmode_h.pos.y     = y;
+   listmode_l.pos.y     = y;
+   listmode_m.pos.y     = y;
+   sortmode_btn.pos.y   = y;
+   filter_enabled.pos.y = y;
+   options.pos.y        = y;
+)
+
+--Position search bar (vertically).
+function positionSearchBar y =
+(
+   searchField.pos.y         = y;
+   searchClear.pos.y         = y;
+   searchCaseSensitive.pos.y = y;
+)
+
+--Search bar visibility.
+function setSearchBarVisible v =
+(
+   searchField.visible         = v;
+   searchClear.visible         = v;
+   searchCaseSensitive.visible = v;
+)
+
 --Position Elements.
 function positionElements = 
 (
-   local mainW = outliner_main.width;
-   local showSearchBar = getPrefFn #Visual #showSearchBar;
+   local mainW          = outliner_main.width;
+   local showSearchBar  = getPrefFn #Visual #showSearchBar;
    local searchBarAtTop = getPrefFn #Visual #searchBarAtTop;
-   local buttonsAtTop = getPrefFn #Visual #buttonsAtTop;
+   local buttonsAtTop   = getPrefFn #Visual #buttonsAtTop;
    
-   tree.pos.y = margin;
+   local treePosY      = margin;
+   local buttonsPosY   = margin;
+   local searchBarPosY = margin;
    
-   listmode_h.pos.y = margin;
-   listmode_l.pos.y = margin;
-   listmode_m.pos.y = margin;
-   filter_enabled.pos.y = margin;
-   sortmode_btn.pos.y = margin;
-   options.pos.y = margin;
-   
-   searchField.visible = searchClear.visible = searchCaseSensitive.visible = showSearchBar;
-   
-   if (buttonsAtTop) then
+   if (buttonsAtTop) do
    (
-      searchField.pos.y += btn_h + margin;
-      searchClear.pos.y += btn_h + margin;
-      searchCaseSensitive.pos.y += btn_h + margin;
-      tree.pos.y += btn_h + margin;
+      treePosY      += btn_h + margin;
+      searchBarPosY += btn_h + margin;
    )
-   else
+   
+   if (showSearchBar) do
    (
-      listmode_h.pos.y = \
-      listmode_l.pos.y = \
-      listmode_m.pos.y = \
-      filter_enabled.pos.y = \
-      sortmode_btn.pos.y = \
-      options.pos.y = (outliner_main.height - btn_h - margin);
+      if (searchBarAtTop) then
+         treePosY += searchField.height + margin;
+      else
+         searchBarPosY = outliner_main.height - searchField.height - margin;
    )
+   
+   if (not buttonsAtTop) do
+   (
+      buttonsPosY = outliner_main.height - btn_h - margin;
+      if (showSearchBar AND not searchBarAtTop) do
+         searchBarPosY -= (btn_h + margin);
+   )
+   
    
    if (showSearchBar) then
    (
-      searchField.pos.y = margin;
-      searchClear.pos.y = margin;
-      searchCaseSensitive.pos.y = margin;
       searchField.width         = mainW - (searchField.height * 2) - (margin * 2) - 1;
       searchClear.pos.x         = mainW - (searchField.height * 2) - margin;
       searchCaseSensitive.pos.x = mainW - searchField.height - margin;
       tree.height               = outliner_main.height - searchField.height - btn_h - margin * 2 - 6;
-      
-      if (searchBarAtTop) then
-         tree.pos.y += searchField.height + 2;
-      else
-         searchField.pos.y = searchClear.pos.y = searchCaseSensitive.pos.y = tree.pos.y + tree.height + 2;
    )
    else
    (
       tree.height = outliner_main.height - btn_h - margin - 6;
       --Even though visible is set to false, the controls still catch mouse 
       --clicks if they're in the same bounds as the tree..
-      searchField.pos.y = -25;
-      searchClear.pos.y = -25;
-      searchCaseSensitive.pos.y = -25;
+      searchBarPosY = -25;
    )
    
+   
+   tree.pos.y = treePosY;
+   positionButtons buttonsPosY;
+   positionSearchBar searchBarPosY;
+   
+   setSearchBarVisible showSearchBar;
 
-   tree.width              = mainW - margin * 2;
-   options.pos.x           = mainW - margin - btn_w;
+   tree.width    = mainW - margin * 2;
+   options.pos.x = mainW - margin - btn_w;
 )
 
 
@@ -232,20 +253,11 @@ function setHideByCategory forceSet:false =
    )
 )
 
-function setFilterEnabled enabled =
-(
-   setPrefFn #Tree #objFilterEnabled enabled;
-   
-   setHideByCategory();
-   
-   filter_enabled.checked = enabled;
-   tree.Filter.Enabled = enabled;
-   tree.FillTree();
-)
+
 
 on filter_enabled changed checked do
 (
-   setFilterEnabled checked;
+   outliner.setFilterEnabled checked;
 )
 
 on filter_enabled rightclick do 

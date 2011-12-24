@@ -108,8 +108,24 @@ function installUpdate =
    local downloadSuccess = dragAndDrop.downloadPackage #(installerUrl) dragDropDir true;
    if (downloadSuccess) then
    (
-      local dropFile = dragDropDir + "/" + (filenameFromPath installerUrl);
-      dragAndDrop.dropPackage (windows.getMAXHWND()) [0, 0] dropFile;
+      local mzp = pathConfig.appendPath dragDropDir (filenameFromPath installerUrl);
+      
+      local extractDir = "";
+      local dropFile = ""
+
+      if msZip.unloadPackage mzp &extractDir &dropFile then
+      (
+         try (
+            fileIn (pathConfig.appendPath extractDir "installer\\installer.ms");
+            outlinerInstaller.install();
+         ) catch (
+            format "** Outliner: automatic installer failed. **\n"
+            format "%\n" (getCurrentException());
+            MessageBox "It seems that something went wrong with the installer!\nPlease download the latest installer from the website and start the installation manually." title:"Outliner installer error";
+         )
+         
+      )
+      
       deleteFile dropFile;
    )
    else

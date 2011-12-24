@@ -19,7 +19,8 @@ function onChangelogDownloadCompleted s e =
 function getChangelog =
 (
    local webClient = dotNetObject "System.Net.WebClient";
-   local url = "http://script.threesixty.nl/outliner/get_latest.php?file=changelog&raw_file=true";
+   local url = "http://script.threesixty.nl/outliner/get_changelog.php?html=0&";
+   url += outliner_update.createUpdateArgStr();
    
    dotnet.addEventHandler webClient "DownloadStringCompleted" onChangelogDownloadCompleted;
    webClient.DownloadStringAsync (dotnetObject "System.Uri" url);

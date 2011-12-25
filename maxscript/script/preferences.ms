@@ -127,9 +127,8 @@ public function createPreferenceEntries =
    --Tree section
    (outlinerPrefsEntry section:#Tree key:#listMode                  default:"Hierarchy"),
    (outlinerPrefsEntry section:#Tree key:#sortMode                  default:"Alphabetical"),
-   (outlinerPrefsEntry section:#Tree key:#objFilter                 default:#{1..11}),
+   (outlinerPrefsEntry section:#Tree key:#objFilter                 default:#{1..12}),
    (outlinerPrefsEntry section:#Tree key:#objFilterEnabled          default:false),
-   (outlinerPrefsEntry section:#Tree key:#objFilterAffectLayers     default:false),
    (outlinerPrefsEntry section:#Tree key:#objFilterAffectVpt        default:false),
    (outlinerPrefsEntry section:#Tree key:#searchCaseSensitive       default:false),
    (outlinerPrefsEntry section:#Tree key:#dragMouseButton           default:"Left"),

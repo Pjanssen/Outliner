@@ -401,10 +401,23 @@ private function updatePreferencesFile =
    )
    
    --Pre 2.1
-   --Remove nested layer warning preference.
    if (oldVersion < 2.1) do
    (
+      --Remove nested layer warning preference.
       delINISetting prefs_file #General #addNestedLayerMessage;
+      --Remove filter affects layers preference.
+      delINISetting prefs_file #Tree #objFilterAffectLayers;
+      --Update filters (shift indices 10, 11 to 11, 12).
+      try (
+         local filter = execute (getINISetting prefs_file #Tree #objFilter);
+         if (filter[11]) then filter[12] = true;
+         filter[11] = false;
+         if (filter[10]) then filter[11] = true;
+         filter[10] = true;
+         setINISetting prefs_file #Tree #objFilter (filter as string);
+      ) catch (
+         delINISetting prefs_file #Tree #objFilter;
+      )
    )
 
    

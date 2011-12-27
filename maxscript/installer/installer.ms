@@ -476,9 +476,19 @@ private function copyScriptFiles =
       copyDirectory (tempDir + "/script") userScriptDir;
       copyDirectory (tempDir + "/startupScript") userStartupScriptDir;
       
-      local iconFiles = Directory.getFiles (tempDir + "/icons") "*.bmp";
+      local iconDir = tempDir + "/script/ui/icons_";
+      local windowColor = (colorman.getcolor #window) * 255;
+      if (windowColor[1] < 120 AND windowColor[2] < 120 AND windowColor[3] < 120) then
+         iconDir += "dark";
+      else
+         iconDir += "light";
+         
+      local iconFiles = Directory.getFiles iconDir "*.bmp";
       for ico in iconFiles do
-         File.Move ico (userIconsDir + "/" + (filenameFromPath ico));  
+      (
+         local newIco = (userIconsDir + "/Outliner_" + (filenameFromPath ico));
+         File.Move ico newIco;
+      )
    )
    catch 
    (
@@ -574,7 +584,7 @@ private function createToolbars =
       --Filter toolbar.
       tbName = "Outliner Filters";
       local filters = #("Geometry", "Shapes", "Lights", "Cameras", "Helpers", \
-                        "SpaceWarps", "Bones", "Particles", "Xrefs", \
+                        "SpaceWarps", "Bones", "Particles", "Xrefs", "Groups", \
                         "Hidden", "Frozen");
       
       if (not cuiFile.ContainsToolbar tbName) do

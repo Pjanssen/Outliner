@@ -35,6 +35,7 @@ rollout outliner_initializing "Outliner"
 struct outlinerUI 
 (
 
+iconDir,
 mainMinWidth = 170,
 mainMinHeight = 200,
 
@@ -42,6 +43,35 @@ function usingMaxDarkScheme =
 (
    local windowColor = (colorman.getcolor #window) * 255;
    (windowColor[1] < 120 AND windowColor[2] < 120 AND windowColor[3] < 120)
+),
+
+
+--Sets the icon dir
+function setIconDir =
+(
+   if (usingMaxDarkScheme()) then
+      iconDir = pathConfig.appendPath outliner.dir "ui\\icons_dark";
+   else
+      iconDir = pathConfig.appendPath outliner.dir "ui\\icons_light";
+   
+   --TODO: check colorman interface for macro icons?
+   --TODO: small icons?
+   --TODO: reload icons?
+),
+
+
+--Returns the path to an icon bitmap file. The supplied icon should only
+--contain the base name of the icon. E.g. "main", "filters".
+function getIconPath icon =
+(
+   pathConfig.appendPath iconDir (icon + "_24i.bmp");
+),
+
+
+
+on create do
+(
+   setIconDir();
 ),
 
 

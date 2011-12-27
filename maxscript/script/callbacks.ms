@@ -741,6 +741,8 @@ function colorChanged =
    -- Pass an empty string to the tree colorscheme function to 
    -- autonatically find the right one.
    outliner.setTreeColorScheme "";
+   
+   outliner.ui.setIconDir();
 )
 
 )--End struct.

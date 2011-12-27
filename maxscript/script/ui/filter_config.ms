@@ -18,7 +18,7 @@ local btn_w = 25;
 local btn_h = 25;
 
 local btn_y2 = btn_y + btn_h;
-local btn_x2 = btn_x; -- + btn_w + 8;
+local btn_x2 = btn_x;
 checkButton filter_hi tooltip:"Hidden" width:btn_w height:btn_h pos:[btn_x2, btn_y];
 checkButton filter_fr tooltip:"Frozen" width:btn_w height:btn_h pos:[btn_x2, btn_y2];
 
@@ -153,13 +153,8 @@ on filter_fr rightclick do setFilterRange 11 12 (not filter_fr.checked);
 
 function setButtonImages =
 (
-   local iconSet = outliner.prefs.getValue #Visual #iconset;
-   local imageFile;
-   if (iconSet == "Max") then
-      imageFile = pathConfig.appendPath outliner.ui.iconDir "filters_max.bmp";
-   else
-      imageFile = pathConfig.appendPath outliner.ui.iconDir "filters_maya.bmp";
-   
+   local imageFile = outliner.ui.getIconPath "filters";
+ 
    for i = 1 to buttons.count do
    (
       local imgIndex = i * 2 - 1;

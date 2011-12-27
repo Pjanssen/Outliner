@@ -116,43 +116,23 @@ function positionElements =
 /**
  * BUTTON EVENTS & FUNCTIONS
  */
-local buttons = #(listmode_h, listmode_l, listmode_m, filter_enabled, options, searchCaseSensitive, searchClear);
+local buttons = #(listmode_h, listmode_l, listmode_m, \
+                  filter_enabled, options, \
+                  searchCaseSensitive, searchClear);
+
 function setButtonImages =
 (
-   local mainImgFile = outliner.icondir + "main_icons.bmp";
-   local sortImgFile = outliner.icondir + "sortmode_icons.bmp";
+   local mainImgFile = outliner.ui.getIconPath "main";
+   local sortImgFile = outliner.ui.getIconPath "sortmodes";
    local numMainImages = 7;
    local numSortImages = 6;
    
-   if (outliner.ui.usingMaxDarkScheme()) do
-   (
-      mainImgFile = outliner.icondir + "main_icons_dark.bmp";
-      sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
-   )
+   for i = 1 to buttons.count do 
+      buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, false);
    
-   -- ColorTheme feature was introduced in 3dsmax2010 (v12).
-   if (outliner.maxV < 12) then
-   (   
-      for i = 1 to buttons.count do 
-         buttons[i].images = #(mainImgFile, outliner.icondir + "main_icons_a.bmp", numMainImages, i, i, i, i);
-      sortmode_images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", numSortImages, 1, 1, 1, 1);
-   )
-   -- 2010, 2011
-   else if (outliner.maxV < 14) then
-   (
-      for i = 1 to buttons.count do 
-         buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, false);
-      sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, false);
-   )
-   -- 2012+
-   else
-   (
-      for i = 1 to 
-         buttons.count do buttons[i].images = #(mainImgFile, undefined, numMainImages, i, i, i, i, true, true);
-      sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, true);
-   )
-   
+   sortmode_images = #(sortImgFile, undefined, numSortImages, 1, 1, 1, 1, true, false);
    sortmode_btn.images = sortmode_images;
+   
 )
 
 
@@ -450,13 +430,12 @@ on outliner_main open do
       
 
    tree.Filter.Enabled      = getPrefFn #Tree #objFilterEnabled;
-   tree.Filter.AffectLayers = getPrefFn #Tree #objFilterAffectLayers;
    local filter_enum = #(&tree.Filter.showGeometry, &tree.Filter.showShapes, 
                          &tree.Filter.showLights,   &tree.Filter.showCameras,
                          &tree.Filter.showHelpers,  &tree.Filter.showSpaceWarps, 
                          &tree.Filter.showBones,    &tree.Filter.showParticles,
-                         &tree.Filter.showXRefs,    &tree.Filter.showHidden, 
-                         &tree.Filter.showFrozen);
+                         &tree.Filter.showXRefs,    &tree.Filter.showGroups,
+                         &tree.Filter.showHidden,   &tree.Filter.showFrozen);
    local objFilter = (getPrefFn #Tree #objFilter);
    for i = 1 to filter_enum.count do *filter_enum[i] = objFilter[i];
 

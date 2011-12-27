@@ -2,7 +2,7 @@ macroScript outliner_filter_toggle
 	category:"Outliner" 
 	toolTip:"Outliner Toggle Filter" 
 	buttonText:"Toggle Filter"
-	icon:#("Outliner_filter", 1)
+	icon:#("Outliner_main", 4)
 (
    global outliner;
 	global outliner_status;

@@ -1,8 +1,7 @@
 struct outlinerCore
 (
 maxV           = (maxVersion())[1] / 1000,
-dir            = ((GetDir #userScripts) + "/outliner/"),
-icondir        = dir + "ui/icons/",
+dir            = pathConfig.appendPath (GetDir #userScripts) "outliner\\",
 prefs,
 product_info,
 ui,
@@ -299,8 +298,8 @@ function setObjectFilter i enabled =
                             &tree.Filter.showLights,   &tree.Filter.showCameras,
                             &tree.Filter.showHelpers,  &tree.Filter.showSpaceWarps, 
                             &tree.Filter.showBones,    &tree.Filter.showParticles,
-                            &tree.Filter.showXRefs,    &tree.Filter.showHidden, 
-                            &tree.Filter.showFrozen);
+                            &tree.Filter.showXRefs,    &tree.Filter.showGroups,
+                            &tree.Filter.showHidden,   &tree.Filter.showFrozen);
 
       *filter_enum[i] = enabled;
       outliner.tree.FillTree();
@@ -1011,7 +1010,7 @@ function init =
    
    try
    (
-      CreateDialog outliner_initializing 150 40 style:#(#style_toolwindow);;
+      CreateDialog outliner_initializing 150 40 style:#(#style_toolwindow);
       
       try
       (
@@ -1024,6 +1023,9 @@ function init =
          messageBox ("Loading Outliner core failed.\n\n" + \
             "Tip: make sure you have the latest .NET Framework installed.\n" + \
             "Please see the Maxscript Listener (F11) for details.") title:"Error";
+            
+         destroyDialog outliner_initializing;
+         
          return false;
       )
       

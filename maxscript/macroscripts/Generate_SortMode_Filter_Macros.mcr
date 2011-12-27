@@ -50,7 +50,7 @@ for s = 1 to sortmodes.count do
 
 --Filter macros.
 local filters = #("Geometry", "Shapes", "Lights", "Cameras", "Helpers", \
-                  "SpaceWarps", "Bones", "Particles", "Xrefs", \
+                  "SpaceWarps", "Bones", "Particles", "Xrefs", "Groups", \
                   "Hidden", "Frozen");
 
 for f = 1 to filters.count do
@@ -60,8 +60,8 @@ for f = 1 to filters.count do
    mcr_str = substituteString mcr_str "%macro_name%" ("filter_" + fl);
    mcr_str = substituteString mcr_str "%tooltip%" ("\"Filter: " + fl + "\"");
    mcr_str = substituteString mcr_str "%buttontext%" ("\"Filter: " + fl + "\"");
-   mcr_str = substituteString mcr_str "%icon_name%" "Outliner_filter";
-   mcr_str = substituteString mcr_str "%icon_index%" ((f + 1) as string);
+   mcr_str = substituteString mcr_str "%icon_name%" "Outliner_filters";
+   mcr_str = substituteString mcr_str "%icon_index%" (f as string);
    mcr_str = substituteString mcr_str "%is_enabled_cond%" "(outliner.getFilterEnabled())";
    mcr_str = substituteString mcr_str "%is_checked_cond%" \
                ("(outliner.getFilterEnabled()) AND outliner.getObjectFilter " + (f as string));

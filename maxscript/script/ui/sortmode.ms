@@ -64,27 +64,15 @@ on outliner_sortmode open do
 (
    if (checkOutlinerStatus()) do
    (
-      local sortmode = outliner.prefs.getValue #Tree #sortmode;
+      local sortmode    = outliner.prefs.getValue #Tree #sortmode;
+      local sortImgFile = outliner.ui.getIconPath "sortmodes";
       for i = 1 to buttons.count do
       (
          buttons[i].tooltip = sortmodes[i];
-         
-         local sortImgFile = outliner.icondir + "sortmode_icons.bmp";
-   
-         if (outliner.ui.usingMaxDarkScheme()) do
-            sortImgFile = outliner.icondir + "sortmode_icons_dark.bmp";
-         
-         if (outliner.maxV < 12) then
-            buttons[i].images = #(sortImgFile, outliner.icondir + "sortmode_icons_a.bmp", 6, i, i, i, i);
-         else if (outliner.maxV < 14) then
-            buttons[i].images = #(sortImgFile, undefined, 6, i, i, i, i, true, false);
-         else
-            buttons[i].images = #(sortImgFile, undefined, 6, i, i, i, i, true, true);
+         buttons[i].images = #(sortImgFile, undefined, 6, i, i, i, i, true, false);
 
          if (sortmodes[i] == sortmode) do
-         (
             buttons[i].checked = true;
-         )
       )
    )
 )

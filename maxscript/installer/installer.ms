@@ -3,7 +3,8 @@ global outliner_restart_required;
 
 rollout outliner_install ""
 (
-   edittext progress_txt height:200 readonly:true;
+   edittext progress_txt height:200 readonly:true width:278 align:#center offset:[-1, 0];
+   progressbar progress_bar value:0 width:273 align:#center;
    button close_btn "Close" enabled:false width:273 align:#center    
    on close_btn pressed do
       destroyDialog outliner_install;
@@ -700,8 +701,9 @@ public function openInstallWindow height =
                                  lockHeight:true \
                                  style:#(#style_sysmenu, #style_toolwindow)
    
-   outliner_install.progress_txt.height = height - 40;
-   outliner_install.close_btn.pos.y = height - 28;
+   outliner_install.progress_txt.height = height - 60;
+   outliner_install.progress_bar.pos.y  = height - 48;
+   outliner_install.close_btn.pos.y     = height - 28;
 ),
 
 
@@ -712,7 +714,7 @@ private function setStatusTitle txt =
       outliner_install.title = txt;
 ),
 
-private function addStatusText txt newline:true =
+private function addStatusText txt newline:true progress:0 =
 (
    if (outliner_install.open) do
    (
@@ -720,6 +722,7 @@ private function addStatusText txt newline:true =
          txt = "\n" + txt;
       
       outliner_install.progress_txt.text += txt;
+      outliner_install.progress_bar.value += progress;
    )
 ),
 
@@ -732,7 +735,7 @@ private function installation_success inst silent:false showHowToUse:false =
       local inst_txt = (getString #instSuccess);
       
       addStatusText "";
-      addStatusText inst_txt;
+      addStatusText inst_txt progress:100;
       
       outliner_install.close_btn.enabled = true;
       
@@ -756,7 +759,7 @@ private function uninstallation_success silent:false =
    if (not silent) do
    (
       addStatusText "";
-      addStatusText (getString #uninstSuccess);
+      addStatusText (getString #uninstSuccess) progress:100;
       outliner_install.close_btn.enabled = true;
       
       local mb     = dotNetClass "System.Windows.Forms.MessageBox";
@@ -787,9 +790,11 @@ private function installation_failed inst msg silent:false =
  */
 public function uninstall silent:false =
 (
+   local progressDelta = ceil (100.0 / 5); --where 5 is the number of uninstallation steps.
+   
    if (not silent) do
    (
-      openInstallWindow 150;
+      openInstallWindow 170;
       setStatusTitle ((getString #title) + " " + (getString #uninst));
       addStatusText (getString #begUnInst);
    )
@@ -798,7 +803,7 @@ public function uninstall silent:false =
    --Remove script files.
    addStatusText (getString #remScriptFiles);
    if (removeScriptFiles()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -817,7 +822,7 @@ public function uninstall silent:false =
                    title:(getString #remWFToolsTitle section:#Queries)) then
       (
          if (removeWorkflowTools()) then
-            addStatusText (getString #done) newline:false;
+            addStatusText (getString #done) newline:false progress:progressDelta;
          else
          (
             addStatusText (getString #failed) newline:false;
@@ -835,7 +840,7 @@ public function uninstall silent:false =
    --Remove toolbars.
    addStatusText (getString #remToolbars);
    if (removeToolbars()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -848,7 +853,7 @@ public function uninstall silent:false =
    --Remove hotkey.
    addStatusText (getString #remHotkeys);
    if (removeHotkeys()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -865,7 +870,7 @@ public function uninstall silent:false =
                                title:(getString #remPrefsFileTitle section:#Queries)) then
    (
       if (removePreferencesFile()) then
-         addStatusText (getString #done) newline:false;
+         addStatusText (getString #done) newline:false progress:progressDelta;
       else
       (
          addStatusText (getString #failed) newline:false;
@@ -896,9 +901,10 @@ public function uninstall silent:false =
  */
 public function install silent:false =
 (
+   local progressDelta = ceil (100.0 / 8); --where 8 is the number of installation steps.
    if (not silent) do
    (
-      openInstallWindow 220;
+      openInstallWindow 230;
       setStatusTitle ((getString #title) + " " + (getString #inst));
       addStatusText (getString #begInst);
    )
@@ -921,13 +927,13 @@ public function install silent:false =
                           silent:silent;
       return false;
    )
-   addStatusText (getString #done) newline:false;
+   addStatusText (getString #done) newline:false progress:progressDelta;
    
    
    --Uninstall previous version.
    addStatusText (getString #uninstPrevVer);
    if (removeScriptFiles()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -942,7 +948,7 @@ public function install silent:false =
    --Update preferences.
    addStatusText (getString #updPrefFile);
    if (updatePreferencesFile()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -956,7 +962,7 @@ public function install silent:false =
    --Copy new files.
    addStatusText (getString #cpNewFiles);
    if (copyScriptFiles()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -971,7 +977,7 @@ public function install silent:false =
    --Load macroscripts
    addStatusText (getString #loadMcr);
    if (loadMacroScripts()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -985,7 +991,7 @@ public function install silent:false =
    --Create toolbars.
    addStatusText (getString #createToolbars);
    if (createToolbars()) then
-      addStatusText (getString #done) newline:false;
+      addStatusText (getString #done) newline:false progress:progressDelta;
    else
    (
       addStatusText (getString #failed) newline:false;
@@ -1025,7 +1031,7 @@ public function install silent:false =
       if (not silent AND do_assignHotkey) then
       (
          if (assignHotkey()) then
-            addStatusText (getString #done) newline:false;
+            addStatusText (getString #done) newline:false progress:progressDelta;
          else
          (
             addStatusText (getString #failed) newline:false;
@@ -1036,10 +1042,10 @@ public function install silent:false =
          )
       )
       else
-         addStatusText (getString #skipped) newline:false;
+         addStatusText (getString #skipped) newline:false progress:progressDelta;
    )
    else
-      addStatusText (getString #skipped) newline:false;
+      addStatusText (getString #skipped) newline:false progress:progressDelta;
    
    
    
@@ -1048,9 +1054,9 @@ public function install silent:false =
    addStatusText (getString #checkRestartReq);
    outliner_restart_required = restartRequired();
    if (outliner_restart_required) then
-      addStatusText "yes" newline:false;
+      addStatusText "yes" newline:false progress:progressDelta;
    else
-      addStatusText "no" newline:false;
+      addStatusText "no" newline:false progress:progressDelta;
    
    
    setIsOutlinerInstalled true;

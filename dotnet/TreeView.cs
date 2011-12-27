@@ -18,7 +18,7 @@ namespace Outliner
    {
       private Dictionary<OutlinerNode, TreeNode> _treeNodes;
       private HashSet<OutlinerNode> _selectedNodes;
-      private List<Int32> _expandedNodeHandles;
+      private HashSet<Int32> _expandedNodeHandles;
       private Boolean _restoringExpandedStates;
 
       private Timer _updateTimer;
@@ -236,7 +236,7 @@ namespace Outliner
 
          _treeNodes = new Dictionary<OutlinerNode, TreeNode>();
          _selectedNodes = new HashSet<OutlinerNode>();
-         _expandedNodeHandles = new List<Int32>();
+         _expandedNodeHandles = new HashSet<Int32>();
 
          _treeDragDropHandler = new TreeDragDropHandler(this, Scene);
 
@@ -1771,7 +1771,11 @@ namespace Outliner
       protected override void OnAfterExpand(TreeViewEventArgs e)
       {
          if (!_restoringExpandedStates && e.Node.Tag is OutlinerNode)
-            this._expandedNodeHandles.Add(((OutlinerNode)e.Node.Tag).Handle);
+         {
+            Int32 handle = ((OutlinerNode)e.Node.Tag).Handle;
+            if (!_expandedNodeHandles.Contains(handle))
+               this._expandedNodeHandles.Add(handle);
+         }
 
          base.OnAfterExpand(e);
       }
@@ -3490,7 +3494,7 @@ namespace Outliner
             if (!(_autoExpandHierarchy && ListMode == OutlinerListMode.Hierarchy) && !(_autoExpandLayer && ListMode == OutlinerListMode.Layer))
             {
                BeginTimedUpdate();
-               this._expandedNodeHandles = value.ToList();
+               this._expandedNodeHandles = new HashSet<Int32>(value);
                this.RestoreExpandedStates();
             }
          }

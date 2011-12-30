@@ -2,7 +2,7 @@ macroScript outliner_filter_affectvpt
 	category:"Outliner" 
 	toolTip:"Filter Affects Viewport" 
 	buttonText:"Filter Affects Viewport"
-	icon:#("Outliner_filters", 13)
+	icon:#("Outliner_filters", 14)
 (
    global outliner;
 	global outliner_status;

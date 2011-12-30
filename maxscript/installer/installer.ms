@@ -406,8 +406,6 @@ private function updatePreferencesFile =
    (
       --Remove nested layer warning preference.
       delINISetting prefs_file #General #addNestedLayerMessage;
-      --Remove filter affects layers preference.
-      delINISetting prefs_file #Tree #objFilterAffectLayers;
       --Update filters (shift indices 10, 11 to 11, 12).
       try (
          local filter = execute (getINISetting prefs_file #Tree #objFilter);

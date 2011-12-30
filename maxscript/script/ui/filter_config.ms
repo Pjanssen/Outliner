@@ -18,7 +18,10 @@ local btn_w = 25;
 local btn_h = 25;
 
 local btn_y2 = btn_y + btn_h;
-local btn_x2 = btn_x;
+checkButton affect_vpt tooltip:"Affect Viewport" width:btn_w height:btn_h pos:[btn_x, btn_y];
+checkButton affect_layers tooltip:"Affect Layers" width:btn_w height:btn_h pos:[btn_x, btn_y2];
+
+local btn_x2 = btn_x + btn_w + 8;
 checkButton filter_hi tooltip:"Hidden" width:btn_w height:btn_h pos:[btn_x2, btn_y];
 checkButton filter_fr tooltip:"Frozen" width:btn_w height:btn_h pos:[btn_x2, btn_y2];
 
@@ -36,8 +39,6 @@ checkButton filter_pa tooltip:"Particle Systems" width:btn_w height:btn_h pos:[b
 checkButton filter_xr tooltip:"XRefs" width:btn_w height:btn_h pos:[btn_x3 + btn_w * 3, btn_y2];
 checkButton filter_gr tooltip:"Groups" width:btn_w height:btn_h pos:[btn_x3 + btn_w * 4, btn_y2];
 
-
-checkButton affect_vpt tooltip:"Affect Viewport" width:btn_w height:btn_h pos:[btn_x3 + btn_w * 5 + 8, btn_y2];
 
 
 
@@ -61,6 +62,7 @@ function setButtonStates =
    (
       buttons[i].checked = *(filter_refs[i]);
    )
+   affect_layers.checked = outliner.prefs.getValue #Tree #objFilterAffectLayers;
    affect_vpt.checked = outliner.prefs.getValue #Tree #objFilterAffectVpt;
 )
 
@@ -106,6 +108,21 @@ function setFilter prop enabled =
    )
    else
       setFilterRange prop prop enabled;
+)
+
+
+on affect_layers changed checked do
+(
+   try
+   (
+      outliner.prefs.setValue #Tree #objFilterAffectLayers checked;
+      outliner.tree.Filter.AffectLayers = checked;
+      outliner.tree.FillTree();
+   )
+   catch
+   (
+      fileIn "../crash_report.ms";
+   )
 )
 
 
@@ -158,7 +175,7 @@ function setButtonImages =
    for i = 1 to buttons.count do
    (
       local imgIndex = i * 2 - 1;
-      buttons[i].images = #(imageFile, undefined, 13, \
+      buttons[i].images = #(imageFile, undefined, 14, \
                             i, i, i, i, true, false);
    )
 )
@@ -173,7 +190,7 @@ on outliner_filter_config open do
       --       correspond for functions to work correctly!
       buttons = #(filter_go, filter_sh, filter_li, filter_ca, filter_he, 
                   filter_sw, filter_bo, filter_pa, filter_xr, filter_gr,
-                  filter_hi, filter_fr, affect_vpt);
+                  filter_hi, filter_fr, affect_layers, affect_vpt);
    
       treeFilter = outliner.tree.Filter;
       filter_refs = #(&treeFilter.showGeometry, &treeFilter.showShapes, 

@@ -69,7 +69,7 @@ namespace Outliner
         {
             _tree = tree;
             Enabled = false;
-            AffectLayers = true;
+            AffectLayers = false;
             NameFilter = String.Empty;
             NameFilterCaseSensitive = false;
 
@@ -80,7 +80,7 @@ namespace Outliner
 
         public Boolean ShowNode(OutlinerNode node)
         {
-            if (node == null || node.MarkedForDelete)
+            if (node == null)
                 return false;
 
             Boolean nodeVisible = true;
@@ -171,10 +171,11 @@ namespace Outliner
 
         private Boolean LayerIsVisible(OutlinerLayer layer)
         {
+            if (NameFilter != String.Empty && !Regex.IsMatch(layer.Name, NameFilter, _nameFilterOptions))
+               return false;
+
             if (AffectLayers)
             {
-                if (NameFilter != String.Empty && !Regex.IsMatch(layer.Name, NameFilter, _nameFilterOptions))
-                    return false;
                 if (Enabled && !ShowHidden && layer.IsHidden) return false;
                 if (Enabled && !ShowFrozen && layer.IsFrozen) return false;
             }

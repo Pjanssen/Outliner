@@ -393,9 +393,6 @@ namespace Outliner
          {
             foreach (OutlinerNode n in _selectedNodes)
             {
-               if (n.MarkedForDelete)
-                  continue;
-
                TreeNode cn;
                if (_treeNodes.TryGetValue(n, out cn))
                {
@@ -2717,8 +2714,6 @@ namespace Outliner
 
          foreach (OutlinerNode node in nodes)
          {
-            node.MarkedForDelete = false;
-
             if (!_treeNodes.ContainsKey(node) && Filter.ShowNode(node) && (!(ListMode == OutlinerListMode.Layer) || !HideGroupMembersLayerMode || !(node is OutlinerObject) || !((OutlinerObject)node).IsGroupMember))
             {
                TreeNode tn = CreateTreeNodeForOutlinerNode(node);
@@ -2747,8 +2742,6 @@ namespace Outliner
       {
          if (obj == null)
             return;
-
-         obj.MarkedForDelete = false;
 
          if (!Filter.ShowNode(obj))
             return;
@@ -2807,8 +2800,6 @@ namespace Outliner
          if (layer == null || ListMode != OutlinerListMode.Layer)
             return;
 
-         layer.MarkedForDelete = false;
-
          BeginTimedUpdate();
          BeginTimedSort();
 
@@ -2835,8 +2826,6 @@ namespace Outliner
          if (material == null || ListMode != OutlinerListMode.Material)
             return;
 
-         material.MarkedForDelete = false;
-
          if (Filter.ShowNode(material))
          {
             BeginTimedUpdate();
@@ -2861,7 +2850,7 @@ namespace Outliner
          if (n == null)
             return;
 
-         n.MarkedForDelete = true;
+    //     n.MarkedForDelete = true;
 
          if (ListMode == OutlinerListMode.Hierarchy)
             n = GetHighestParentToRemove(n);
@@ -2879,7 +2868,7 @@ namespace Outliner
       }
       private void RecursiveRemoveTreeNodeIntern(OutlinerNode n, TreeNode tn, Boolean removeReferences)
       {
-         n.MarkedForDelete = true;
+    //     n.MarkedForDelete = true;
 
          if (removeReferences)
          {
@@ -2905,34 +2894,17 @@ namespace Outliner
       {
          if (n is IDisplayable && ((IDisplayable)n).IsHidden != hidden)
          {
-            if (n is OutlinerObject && ((OutlinerObject)n).Layer.IsHidden)
-               return;
-
             ((IDisplayable)n).IsHidden = hidden;
 
-            Boolean showNode = this.Filter.ShowNode(n);
-            TreeNode tn;
-            _treeNodes.TryGetValue(n, out tn);
-
-            if (tn != null && showNode)
-            {
-               Style.SetNodeColorAuto(tn);
-               InvalidateTreeNode(tn);
-            }
-            else if (tn != null && !showNode)
-               RemoveNodeFromTree(n, true);
-            else if (tn == null && showNode)
-            {
-               if (n is OutlinerObject && !(ListMode == OutlinerListMode.Layer || !HideGroupMembersLayerMode || ((OutlinerObject)n).IsGroupMember))
-                  AddObjectToTree((OutlinerObject)n);
-               else if (n is OutlinerLayer && ListMode == OutlinerListMode.Layer)
-                  AddLayerToTree((OutlinerLayer)n);
-            }
+            ApplyFilter(n, ListMode == OutlinerListMode.Hierarchy, 
+                           ListMode == OutlinerListMode.Layer, 
+                           ListMode == OutlinerListMode.Material);
 
             if (_treeViewNodeSorter is Outliner.NodeSorters.VisibilitySorter)
                BeginTimedSort();
          }
       }
+
 
 
       internal void HideNodeRecursive(OutlinerNode n, Boolean hidden)
@@ -2948,29 +2920,11 @@ namespace Outliner
       {
          if (n is IDisplayable && ((IDisplayable)n).IsFrozen != frozen)
          {
-            if (n is OutlinerObject && ((OutlinerObject)n).Layer.IsFrozen)
-               return;
-
             ((IDisplayable)n).IsFrozen = frozen;
 
-            Boolean showNode = this.Filter.ShowNode(n);
-            TreeNode tn;
-            _treeNodes.TryGetValue(n, out tn);
-
-            if (tn != null && showNode)
-            {
-               Style.SetNodeColorAuto(tn);
-               InvalidateTreeNode(tn);
-            }
-            else if (tn != null && !showNode)
-               RemoveNodeFromTree(n, true);
-            else if (tn == null && showNode)
-            {
-               if (n is OutlinerObject)
-                  AddObjectToTree((OutlinerObject)n);
-               else if (n is OutlinerLayer && ListMode == OutlinerListMode.Layer)
-                  AddLayerToTree((OutlinerLayer)n);
-            }
+            ApplyFilter(n, ListMode == OutlinerListMode.Hierarchy,
+                           ListMode == OutlinerListMode.Layer,
+                           ListMode == OutlinerListMode.Material);
          }
       }
 
@@ -2981,6 +2935,42 @@ namespace Outliner
          foreach (OutlinerNode cn in n.ChildNodes)
             FreezeNodeRecursive(cn, frozen);
       }
+
+
+      internal void ApplyFilter(OutlinerNode n, Boolean recurseObjects, Boolean recurseLayers, Boolean recurseMaterials)
+      {
+         Boolean showNode = this.Filter.ShowNode(n);
+         TreeNode tn;
+         _treeNodes.TryGetValue(n, out tn);
+
+         if (tn != null)
+         {
+            if (showNode)
+            {
+               Style.SetNodeColorAuto(tn);
+               InvalidateTreeNode(tn);
+            }
+            else
+               RemoveNodeFromTree(n, true);
+         }
+         else
+         {
+            if (showNode)
+            {
+               if (n is OutlinerObject && (ListMode != OutlinerListMode.Layer || !HideGroupMembersLayerMode || !((OutlinerObject)n).IsGroupMember))
+                  AddObjectToTree((OutlinerObject)n);
+               else if (n is OutlinerLayer && ListMode == OutlinerListMode.Layer)
+                  AddLayerToTree((OutlinerLayer)n);
+            }
+         }
+
+         if ((recurseObjects && n is OutlinerObject) || (recurseLayers && n is OutlinerLayer) || (recurseMaterials && n is OutlinerMaterial))
+         {
+            foreach (OutlinerNode c in n.ChildNodes)
+               ApplyFilter(c, recurseObjects, recurseLayers, recurseMaterials);
+         }
+      }
+
 
 
       internal void SetBoxModeNode(OutlinerNode n, Boolean boxMode)
@@ -3007,7 +2997,12 @@ namespace Outliner
       {
          RemoveNodeFromTree(obj, false);
 
+         OutlinerNode oldParent = obj.Parent;
+
          Scene.SetObjectParentHandle(obj, newParentHandle);
+
+         if (oldParent != null)
+            ApplyFilter(oldParent, true, false, false);
 
          if (group)
             obj.SetIsGroupMemberRec(isGroupMember);
@@ -3683,7 +3678,7 @@ namespace Outliner
       public void SetObjectClass(Int32 handle, String className, String superClassName)
       {
          OutlinerObject obj = Scene.GetObjectByHandle(handle);
-         if (obj == null || obj.MarkedForDelete)
+         if (obj == null)
             return;
 
          obj.Class = className;

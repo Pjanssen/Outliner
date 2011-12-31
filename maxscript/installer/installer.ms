@@ -17,6 +17,7 @@ struct outliner_installer (
 private tempDir              = (GetDir #temp) + "/outliner",
 private strings_file         = tempDir + "/installer/strings.ini",
 private installer_data_file  = tempDir + "/installer/installer_data.ini",
+private userUIDir            = pathConfig.removePathLeaf (GetDir #userIcons),
 private userScriptDir        = (GetDir #userScripts) + "/outliner",
 private userStartupScriptDir = (GetDir #userStartupScripts) + "/outliner",
 private userIconsDir         = (GetDir #userIcons),
@@ -522,6 +523,20 @@ private function loadMacroScripts =
 ),
 
 
+--Returns the currently active cui file if it can be written to,
+--otherwise it saves a new config file in the userUI dir.
+private function getActiveCuiFile =
+(
+   local configFile = cui.getConfigFile();
+   if (not (getFileSecurityInfo configFile #write)) then
+   (
+      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
+   )
+   
+   cui.saveConfigAs configFile;
+   
+   configFile;
+),
 
 private function removeToolbars =
 (
@@ -531,7 +546,7 @@ private function removeToolbars =
    (
       local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
       local cuiFile      = dotnetObject "ScriptCenter.Max.CuiFile" \
-                                        (cuiFileClass.MaxGetActiveCuiFile());
+                                        (getActiveCuiFile());
       
       local removedSortTb   = cuiFile.RemoveToolbar "Outliner SortMode";
       local removedFilterTb = cuiFile.RemoveToolbar "Outliner Filters";
@@ -559,7 +574,7 @@ private function createToolbars =
    (
       local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
       local cuiFile      = dotnetobject "ScriptCenter.Max.CuiFile" \
-                                        (cuiFileClass.MaxGetActiveCuiFile());
+                                        (getActiveCuiFile());
       local mcrCat = "Outliner";
       local writeCuiFile = false;
 
@@ -620,6 +635,21 @@ private function createToolbars =
 
 
 
+
+--Returns the currently active kbd file if it can be written to,
+--otherwise it saves a new config file in the userUI dir.
+private function getActiveKbdFile =
+(
+   local configFile = actionMan.getKeyboardFile();
+   if (not (getFileSecurityInfo configFile #write)) do
+   (
+      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
+   )
+   
+   actionMan.saveKeyboardFile configFile;
+   
+   configFile;
+),
 private function containsHotkeyAction macroName macroCategory =
 (
    local result = false;
@@ -627,7 +657,7 @@ private function containsHotkeyAction macroName macroCategory =
    (
       local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
       local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (kbdFileClass.MaxGetActiveKbdFile());
+                                        (getActiveKbdFile());
                                         
       result = kbdFile.ContainsAction macroName macroCategory;
    )
@@ -647,7 +677,7 @@ private function getHotkeyAction =
       local keysClass    = dotnetClass "System.Windows.Forms.Keys";
       local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
       local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (kbdFileClass.MaxGetActiveKbdFile());
+                                        (getActiveKbdFile());
                                         
       action = kbdFile.GetAction keysClass.H;
    )
@@ -668,7 +698,7 @@ private function assignHotkey =
       local keysClass    = dotnetClass "System.Windows.Forms.Keys";
       local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
       local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (kbdFileClass.MaxGetActiveKbdFile());
+                                        (getActiveKbdFile());
       
       if (kbdFile.AddAction "toggleOutliner" "Outliner" keysClass.H) do
       (

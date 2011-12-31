@@ -1,4 +1,5 @@
 global outliner_update;
+global outlinerInstaller;
 
 rollout outlinerUpdateRollout "Outliner Update Available"
 (

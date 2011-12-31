@@ -1,6 +1,9 @@
 global outlinerInstaller;
 global outliner_restart_required;
 
+--Re-init update.ms to work around update bug in 2.1 (outlinerInstaller is undefined).
+try ( fileIn ((GetDir #userScripts) + "/outliner/update.ms"); ) catch ()
+
 rollout outliner_install ""
 (
    edittext progress_txt height:200 readonly:true width:278 align:#center offset:[-1, 0];

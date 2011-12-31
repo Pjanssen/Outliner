@@ -259,7 +259,8 @@ function nodesAdded evt handles =
    (
       if (processEvent evt) do
       (
-         for h in handles where (isValidNode (n = GetAnimByHandle h)) do
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND
+                                classof n != undefined do
          (
             outliner_addObjectToTreeFn n;
             tree_addObjectToTreeFn h;
@@ -280,7 +281,8 @@ function nodesNameChanged evt handles =
    (
       if (processEvent evt) do
       (
-         for h in handles where isValidNode (n = GetAnimByHandle h) do
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND 
+                                classof n != undefined do
             tree_setObjectNameFn h n.name;
       )
    )
@@ -326,8 +328,11 @@ function nodesGroupChanged evt handles =
    (
       if (processEvent evt) do
       (
-         for h in handles where isValidNode (n = GetAnimByHandle h) do
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND
+                                classof n != undefined do
+         (
             tree_setObjectIsGroupMemberFn h (isGroupMember n);
+         )
       )
    )
    catch
@@ -345,8 +350,11 @@ function nodesLayerChanged evt handles =
    (
       if (processEvent evt) do
       (
-         for h in handles where isValidNode (n = GetAnimByHandle h) do
-            tree_setObjectLayerFn h (GetHandleByAnim n.layer.layerAsRefTarg);
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND
+                                classof n != undefined do
+         (
+            tree_setObjectLayerFn h (GetHandleByAnim n.layer.layerAsRefTarg);            
+         )
       )
    )
    catch
@@ -369,11 +377,11 @@ function modelStructured evt handles =
       --closed (caused a crash before).
       if (tree_setObjectClassFn != undefined AND processEvent evt) do
       (
-         for h in handles where isValidNode (n = GetAnimByHandle h) do
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND
+                                classof n != undefined do
          (
-            if (classof n != undefined) do
-               tree_setObjectClassFn h (getClassName n) \
-                                       ((superClassOf n) as string);
+            tree_setObjectClassFn h (getClassName n) \
+                                    ((superClassOf n) as string);
          )
       )
    )
@@ -393,10 +401,13 @@ function displayPropertiesChanged evt handles =
    (
       if (processEvent evt) do
       (
-         for h in handles where isValidNode (n = GetAnimByHandle h) do
+         for h in handles where isValidNode (n = GetAnimByHandle h) AND
+                                classof n != undefined do
+         (
             tree_SetNodeDisplayPropertiesFn h n.isHiddenInVpt \
                                               n.isFrozen \
                                               n.BoxMode;
+         )
       )
    )
    catch

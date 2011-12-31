@@ -973,12 +973,30 @@ function removeKbdFileWatch =
    )
 ),
 
+
+--Returns the currently active kbd file if it can be written to,
+--otherwise it saves a new config file in the userUI dir.
+function getActiveKbdFile =
+(
+   local configFile = actionMan.getKeyboardFile();
+   if (not (getFileSecurityInfo configFile #read)) do
+   (
+      userUIDir = pathConfig.removePathLeaf (GetDir #userIcons);
+      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
+   )
+   
+   actionMan.saveKeyboardFile configFile;
+   
+   configFile;
+),
+
+
 function loadKbdFile =
 (
    local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
    
    kbdFile = dotnetObject "ScriptCenter.Max.KbdFile" \
-                          (kbdFileClass.MaxGetActiveKbdFile());
+                          (getActiveKbdFile());
                           
    addKbdFileWatch();
 ),

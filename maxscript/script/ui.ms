@@ -215,7 +215,12 @@ function openFilterConfigWindow =
          local height = 55;
          local dialog_pos = GetDialogPos outliner_main;
          local posx = dialog_pos.x + outliner_main.filter_enabled.pos.x - 69;
-         local posy = dialog_pos.y + outliner_main.filter_enabled.pos.y - height - 30;
+         local posy = dialog_pos.y + outliner_main.filter_enabled.pos.y;
+         if (outliner.prefs.getValue #Visual #buttonsAtTop) then
+            posy += height - 30;
+         else
+            posy -= height + 30;
+            
          CreateDialog outliner_filter_config width \
                                              height \
                                              pos:[posx, posy] \
@@ -244,7 +249,12 @@ function openSortModeWindow =
          local height = 31;
          local dialog_pos = GetDialogPos outliner_main;
          local posx = dialog_pos.x + outliner_main.sortmode_btn.pos.x;
-         local posy = dialog_pos.y + outliner_main.sortmode_btn.pos.y - height - 30;
+         local posy = dialog_pos.y + outliner_main.sortmode_btn.pos.y;
+         if (outliner.prefs.getValue #Visual #buttonsAtTop) then
+            posy += height;
+         else
+            posy -= height + 30;
+            
          CreateDialog outliner_sortmode width \
                                         height \
                                         pos:[posx, posy] \

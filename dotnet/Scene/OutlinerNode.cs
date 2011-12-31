@@ -27,18 +27,5 @@ namespace Outliner.Scene
         public abstract List<OutlinerNode> ChildNodes { get; }
 
         public virtual Boolean Filtered { get; set; }
-        private Boolean _markedForDelete;
-        public virtual Boolean MarkedForDelete {
-            get { return _markedForDelete; }
-            set 
-            {
-                _markedForDelete = value;
-                if (!value)
-                {
-                    foreach (OutlinerNode n in ChildNodes)
-                        n.MarkedForDelete = value;
-                }
-            }
-        }
     }
 }

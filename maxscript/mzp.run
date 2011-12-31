@@ -1,7 +1,9 @@
 name "Outliner"
 version 2.0
 
-extract to "$temp/outliner"
+extract to $temp\outliner
 
-run "outliner_install.ms"
-drop "outliner_install.ms"
+run installer\installer_dialog.ms
+drop installer\installer_dialog.ms
+
+clear temp on MAX exit

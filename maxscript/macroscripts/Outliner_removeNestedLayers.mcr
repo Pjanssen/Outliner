@@ -22,33 +22,35 @@ macroScript removeNestedLayers
 				outliner.close();
 			) catch ()
 			
-			--Find the custom attributes definition in the scene.
-			local attrDefs = custAttributes.getSceneDefs();
-			local nestedLayerData;
-			for i = 1 to attrDefs.count do
+			local defName = #outlinerNestedLayerData;
+			--Loop through all CA definitions.
+			for def in custAttributes.getSceneDefs() where (def.name == defName) do
 			(
-				if (attrDefs[i].name == #outlinerNestedLayerData) do
-					nestedLayerData = attrDefs[i];
+				--Remove the CA set from layers.
+				local instances = custAttributes.getDefInstances def;
+				for i in instances \
+						where (owner = custAttributes.getOwner i) != undefined do
+				(
+					--Loop through all ca sets on the owner object and find one that
+					--matches the one we want to remove. Delete has to be done using 
+					--the index, since it has to be made unique first.
+					for caIndex = 1 to (custAttributes.count owner) do
+					(
+						if (((custAttributes.get owner caIndex).name as name) == defName) do
+						(
+							--Make CA set unique first, otherwise delete won't work..
+							custAttributes.makeUnique owner caIndex;
+							custAttributes.delete owner caIndex;
+						)
+					)
+				)
+				
+				--Remove the nested layer custom attributes definition from the scene.
+				custAttributes.deleteDef def;
+				
+				--Remove persistent callbacks for nested layers.
+				callbacks.removeScripts id:#outliner_nestedlayers;
 			)
-			
-			--Remove the nested layer data from layers.
-			local numLayers = LayerManager.count - 1;
-			for i = 0 to numLayers do 
-			(
-				try (
-					local layer = ILayerManager.getLayerObject i;
-					if ((custattributes.get layer nestedLayerData) != undefined) do
-						custAttributes.delete layer nestedLayerData;
-				)catch()
-			)
-			
-			--Remove the nested layer custom attributes definition from the scene.
-			custAttributes.deleteDef nestedLayerData;
-			
-			--Remove persistent callbacks.
-			callbacks.removeScripts #filePostOpen id:#outliner_nestedlayers;
-			callbacks.removeScripts #layerDeleted id:#outliner_nestedlayers;
-			callbacks.removeScripts #filePostOpen id:#outliner_nestedlayers;
 		)
 
 

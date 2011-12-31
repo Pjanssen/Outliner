@@ -20,6 +20,7 @@ namespace Outliner
         public Boolean ShowBones { get; set; }
         public Boolean ShowParticles { get; set; }
         public Boolean ShowXRefs { get; set; }
+        public Boolean ShowGroups { get; set; }
         public Boolean ShowHidden { get; set; }
         public Boolean ShowFrozen { get; set; }
 
@@ -73,13 +74,13 @@ namespace Outliner
             NameFilterCaseSensitive = false;
 
             ShowGeometry = ShowShapes = ShowLights = ShowCameras = ShowHelpers = ShowSpaceWarps =
-            ShowBones = ShowParticles = ShowXRefs = ShowHidden = ShowFrozen = true;
+            ShowBones = ShowParticles = ShowXRefs = ShowGroups = ShowHidden = ShowFrozen = true;
         }
 
 
         public Boolean ShowNode(OutlinerNode node)
         {
-            if (node == null || node.MarkedForDelete)
+            if (node == null)
                 return false;
 
             Boolean nodeVisible = true;
@@ -141,11 +142,12 @@ namespace Outliner
             }
 
             if (!ShowXRefs && obj.Class == OutlinerScene.XrefObjectType) return false;
+            if (!ShowGroups && (obj.IsGroupHead || obj.IsGroupMember)) return false;
 
             if (!ShowShapes && obj.SuperClass == OutlinerScene.ShapeType) return false;
             if (!ShowLights && obj.SuperClass == OutlinerScene.LightType) return false;
             if (!ShowCameras && obj.SuperClass == OutlinerScene.CameraType) return false;
-            if (!ShowHelpers && obj.SuperClass == OutlinerScene.HelperType) return false;
+            if (!ShowHelpers && obj.SuperClass == OutlinerScene.HelperType && !obj.IsGroupHead) return false;
             if (!ShowSpaceWarps && obj.SuperClass == OutlinerScene.SpacewarpType) return false;
 
             if ((!ShowBones || !ShowParticles || !ShowGeometry || !ShowHelpers) && obj.SuperClass == OutlinerScene.GeometryType)
@@ -169,10 +171,11 @@ namespace Outliner
 
         private Boolean LayerIsVisible(OutlinerLayer layer)
         {
+            if (NameFilter != String.Empty && !Regex.IsMatch(layer.Name, NameFilter, _nameFilterOptions))
+               return false;
+
             if (AffectLayers)
             {
-                if (NameFilter != String.Empty && !Regex.IsMatch(layer.Name, NameFilter, _nameFilterOptions))
-                    return false;
                 if (Enabled && !ShowHidden && layer.IsHidden) return false;
                 if (Enabled && !ShowFrozen && layer.IsFrozen) return false;
             }

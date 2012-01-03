@@ -165,13 +165,13 @@ function createCallbacks =
 
 function removeCallbacks = 
 (
+   nodeEventCB.enabled = false;
+   nodeEventCB = undefined;
+   
    callbacks.removeScripts id:#outliner;
    removeLayerChangeHandlers();
    removeMaterialChangeHandlers();
    disposeFunctionCache();
-   
-   nodeEventCB.enabled = false;
-   nodeEventCB = undefined;
 
    --Garbage collection is performed in ui.closeOutliner()
 ),

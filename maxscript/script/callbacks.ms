@@ -529,7 +529,7 @@ function materialNameSet mat =
 (
    try
    (
-      if (not outliner_status.renamedInOutliner AND mat != undefined) do
+      if ((processEvent #nameChanged) AND mat != undefined) do
       (
          tree_setMaterialNameFn (GetHandleByAnim mat) mat.name;
       )

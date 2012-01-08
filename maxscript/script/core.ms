@@ -979,7 +979,7 @@ function removeKbdFileWatch =
 function getActiveKbdFile =
 (
    local configFile = actionMan.getKeyboardFile();
-   if (not (getFileSecurityInfo configFile #read)) do
+   if (not (getFileSecurityInfo configFile #write)) do
    (
       userUIDir = pathConfig.removePathLeaf (GetDir #userIcons);
       configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
@@ -995,10 +995,17 @@ function loadKbdFile =
 (
    local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
    
-   kbdFile = dotnetObject "ScriptCenter.Max.KbdFile" \
-                          (getActiveKbdFile());
-                          
-   addKbdFileWatch();
+   try (
+      kbdFile = dotnetObject "ScriptCenter.Max.KbdFile" (getActiveKbdFile());
+      addKbdFileWatch();
+   ) catch (
+      format "** Outliner exception **\n%\n" (getCurrentException());
+      messageBox ("An error occured while trying to load keyboard shortcuts.\n" \
+                  + "See the maxscript listener (F11) for details.\n" \
+                  + "\nContact me through http://outliner.threesixty.nl if the problem persists.") \
+                 title:"Failed to load shortcuts";
+      kbdFile = dotnetObject "ScriptCenter.Max.KbdFile";
+   )
 ),
 
 

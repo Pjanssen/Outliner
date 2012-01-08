@@ -105,12 +105,12 @@ function openOutliner =
       --Make sure the main window position is within the screen bounds.
       if (posx > sysInfo.DesktopSize[1]) do 
       (
-         posx = (outliner.prefs.getEntry #Window #posx).default;
+         posx = outliner.prefs.getDefault #Window #posx;
          outliner.prefs.setValue #Window #posx posx;
       )
       if (posy > sysInfo.DesktopSize[2]) do 
       (
-         posy = (outliner.prefs.getEntry #Window #posy).default;
+         posy = outliner.prefs.getDefault #Window #posy;
          outliner.prefs.setValue #Window #posy posy;
       )
       

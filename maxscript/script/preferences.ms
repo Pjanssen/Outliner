@@ -89,6 +89,11 @@ public function setValue section key value write:true =
    if (write) do writeEntry entry;
 ),
 
+public function getDefault section key =
+(
+   local entry = getEntry section key;
+   entry.default;
+),
 
 
 

@@ -29,14 +29,14 @@ function createStackSummary stackStream firstLevelOnly:false =
          numLevelsParsed += 1;
          
          --Stop reading if all stack levels have been parsed.
-         if ((skipToString stackStream "**   [stack level:") == undefined) do
+         if ((skipToString stackStream "**\t[stack level:") == undefined) do
             exit;
          
          --Skip the stack level 0.
          if (numLevelsParsed == 1) do
             continue;
          
-         if (skipToString stackStream "** " != undefined) do
+         if (skipToString stackStream "**\t" != undefined) do
          (
             if (stackSummary != "") do
                stackSummary += "\n";
@@ -53,7 +53,7 @@ function createStackSummary stackStream firstLevelOnly:false =
             if (fileNamePos != undefined) do
             (
                stackSummary += " in ";
-               stackSummary += substring fileStr fileNamePos -1;
+               stackSummary += substring fileStr (fileNamePos + 10) -1;
             )
             
             local lineStr = readDelimitedString stackStream "\n";
@@ -446,8 +446,8 @@ function sendReport report_instance fromEmail details =
       local stream = createFile detailsFile;
       if (stream != undefined) do
       (
-         format "Email address:\n%\n\n" fromEmail to:stream;
-         format "Details:\n%" details to:stream;
+         format "Email address: %\n" fromEmail to:stream;
+         format "Details: %" details to:stream;
          close stream;
          append filesToPack detailsFile;
       )
@@ -463,7 +463,7 @@ function sendReport report_instance fromEmail details =
          webClient = dotNetObject "System.Net.WebClient";
          local url = "http://script.threesixty.nl/outliner/crash_report.php?from_email=";
          url += fromEmail;
-         url += "&summary=Outliner version:\r\n";
+         url += "&summary=Outliner version: ";
          try (
             url += getOutlinerVersion();
          ) catch (
@@ -472,13 +472,13 @@ function sendReport report_instance fromEmail details =
          url += "\r\n\r\nException:\r\n";
          url += report_instance.exception;
          url += "\r\n\r\nStack:\r\n";
-         url += report_instance.stackFirstLevel;
-         url += "\r\n\r\nEmail address:\r\n";
+         url += report_instance.stackSummary; --report_instance.stackFirstLevel;
+         url += "\r\n\r\nEmail address: ";
          if (fromEmail != "") then
             url += fromEmail;
          else
             url += "-Not provided-";
-         url += "\r\n\r\nDetails:\r\n";
+         url += "\r\n\r\nDetails: ";
          if (details != "") then
             url += details;
          else

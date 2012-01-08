@@ -165,13 +165,13 @@ function createCallbacks =
 
 function removeCallbacks = 
 (
+   nodeEventCB.enabled = false;
+   nodeEventCB = undefined;
+   
    callbacks.removeScripts id:#outliner;
    removeLayerChangeHandlers();
    removeMaterialChangeHandlers();
    disposeFunctionCache();
-   
-   nodeEventCB.enabled = false;
-   nodeEventCB = undefined;
 
    --Garbage collection is performed in ui.closeOutliner()
 ),
@@ -529,7 +529,7 @@ function materialNameSet mat =
 (
    try
    (
-      if (not outliner_status.renamedInOutliner AND mat != undefined) do
+      if ((processEvent #nameChanged) AND mat != undefined) do
       (
          tree_setMaterialNameFn (GetHandleByAnim mat) mat.name;
       )

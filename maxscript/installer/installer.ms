@@ -601,6 +601,7 @@ private function createToolbars =
       if (not cuiFile.ContainsToolbar tbName) do
       (
          local toolbar = cuiFile.AddToolbar tbName sortmodes.count 0;
+         toolbar.Hidden = true;
          toolbar.Bounds.Y += 80;
       
          for s in sortmodes do
@@ -619,6 +620,7 @@ private function createToolbars =
       if (not cuiFile.ContainsToolbar tbName) do
       (
          local toolbar = cuiFile.AddToolbar tbName (2 + filters.count) 2;
+         toolbar.Hidden = true;
       
          toolbar.AddButton "outliner_filter_toggle" "Outliner";
          toolbar.AddSeparator();

@@ -230,8 +230,9 @@ rollout outliner_options_visual "User Interface"
    
    function setUIValues = 
    (
-      colorScheme.items				= getINISetting (outliner.dir + "colorSchemes.ini");
-      colorScheme.selection			= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
+      colorScheme.items	= join (getINISetting (pathConfig.appendPath outliner.dir "colorSchemes.ini")) \
+                               (getINISetting (pathConfig.appendPath (GetDir #userScripts) "outliner_user_colors.ini"));
+      colorScheme.selection      = findItem colorScheme.items (getPrefFn #Visual #colorScheme);
       iconSet.Items					= outliner.getNamesDotNetEnum "Outliner.IconSet";
       iconSet.selection				= findItem iconSet.items (getPrefFn #Visual #iconSet);
       invertIcons.checked				= getPrefFn #Visual #invertIcons;

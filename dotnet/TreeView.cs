@@ -2175,7 +2175,6 @@ namespace Outliner
 
       private void ContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
       {
-         Console.WriteLine(e.ClickedItem.Text);
          if (e.ClickedItem == ContextMenus.SelectChildnodesItem)
             SelectChildNodes();
          else if (e.ClickedItem == ContextMenus.RenameItem)

@@ -634,6 +634,7 @@ function ContextMenuOpened e =
          local selHandles = outliner.tree.SelectedNodeHandles;
          local selContainsLayers = false;
          local trajectory = true;
+         local frozenInGray = true;
          local seeThrough = true;
          local backFaceCull = true;
          local boxMode = true;
@@ -674,6 +675,7 @@ function ContextMenuOpened e =
                else
                (
                   if (not n.showTrajectory) do trajectory = false;
+                  if (not n.showFrozenInGray) do frozenInGray = false;
                   if (not n.xray) do seeThrough = false;
                   if (not n.backFaceCull) do backFaceCull = false;
                   if (not n.boxMode) do boxMode = false;
@@ -696,12 +698,14 @@ function ContextMenuOpened e =
          menus.DisplayBackfaceCullItem.Checked = backFaceCull;
          menus.DisplayBoxModeItem.Checked      = boxMode;
          menus.DisplayTrajectoryItem.Checked   = trajectory;
+         menus.DisplayFrozenInGrayItem.Checked = frozenInGray;
          menus.DisplayByLayerItem.Checked      = displayByLayer;
          
-         menus.DisplaySeeThroughItem.Enabled   = selContainsLayers OR not displayByLayer;
-         menus.DisplayBackfaceCullItem.Enabled = selContainsLayers OR not displayByLayer;
-         menus.DisplayBoxModeItem.Enabled      = selContainsLayers OR not displayByLayer;
-         menus.DisplayTrajectoryItem.Enabled   = selContainsLayers OR not displayByLayer;
+         menus.DisplaySeeThroughItem.Enabled   = \
+         menus.DisplayBackfaceCullItem.Enabled = \
+         menus.DisplayBoxModeItem.Enabled      = \
+         menus.DisplayTrajectoryItem.Enabled   = \
+         menus.DisplayFrozenInGrayItem.Enabled = selContainsLayers OR not displayByLayer;
          
          menus.RenderableItem.Checked     = renderable;
          menus.VisibleToCamItem.Checked   = visibleToCam;
@@ -710,10 +714,10 @@ function ContextMenuOpened e =
          menus.CastShadowsItem.Checked    = castShadows;
          menus.RenderByLayerItem.Checked  = renderByLayer;
          
-         menus.RenderableItem.Enabled     = selContainsLayers OR not renderByLayer;
-         menus.VisibleToCamItem.Enabled   = selContainsLayers OR not renderByLayer;
-         menus.VisibleToReflItem.Enabled  = selContainsLayers OR not renderByLayer;
-         menus.ReceiveShadowsItem.Enabled = selContainsLayers OR not renderByLayer;
+         menus.RenderableItem.Enabled     = \
+         menus.VisibleToCamItem.Enabled   = \
+         menus.VisibleToReflItem.Enabled  = \
+         menus.ReceiveShadowsItem.Enabled = \
          menus.CastShadowsItem.Enabled    = selContainsLayers OR not renderByLayer;
       )
    )
@@ -879,6 +883,13 @@ function ContextMenuItemClicked e =
          --Display Trajectory
          else if (clickedItem == menus.DisplayTrajectoryItem) then 
             outliner.setPropertyOnSelection #showTrajectory \
+                                            (not clickedItem.Checked) \
+                                            includeObjects:true \
+                                            includeLayers:true;
+                                            
+         --Display Frozen in Gray
+         else if (clickedItem == menus.DisplayFrozenInGrayItem) then 
+            outliner.setPropertyOnSelection #showFrozenInGray \
                                             (not clickedItem.Checked) \
                                             includeObjects:true \
                                             includeLayers:true;

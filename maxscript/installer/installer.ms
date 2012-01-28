@@ -543,7 +543,8 @@ private function loadMacroScripts =
 private function getActiveCuiFile =
 (
    local configFile = cui.getConfigFile();
-   if (not (getFileSecurityInfo configFile #write)) then
+   if (not (doesFileExist configFile) OR 
+       not (getFileSecurityInfo configFile #write)) do
    (
       configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
    )
@@ -658,7 +659,8 @@ private function createToolbars =
 private function getActiveKbdFile =
 (
    local configFile = actionMan.getKeyboardFile();
-   if (not (getFileSecurityInfo configFile #write)) do
+   if (not (doesFileExist configFile) OR
+       not (getFileSecurityInfo configFile #write)) do
    (
       configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
    )

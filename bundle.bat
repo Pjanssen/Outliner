@@ -8,6 +8,7 @@ SET output=%dir%outliner.mzp
 
 ECHO Checking bundle prerequisites...
 CALL :GetZip zip
+IF "%zip%"=="" goto :ZipNotFoundError
 dir "%zip%" > nul || goto :ZipNotFoundError
 ECHO Found 7Zip.
 
@@ -55,13 +56,12 @@ rmdir /Q /S %targetDir% || goto :error
 ECHO Done.
 goto :eof
 
-
 :GetZip
 SET KEY_NAME=HKEY_LOCAL_MACHINE\SOFTWARE\7-Zip
 SET KEY_VALUE=Path
 
 FOR /F "tokens=2*" %%A IN ('REG QUERY "%KEY_NAME%" /v %KEY_VALUE% 2^>nul') DO (
-   set %~1=%%B7z.exe
+   SET %~1=%%B\7z.exe
 )
 goto :eof
 

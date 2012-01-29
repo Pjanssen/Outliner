@@ -305,11 +305,13 @@ function nodesLinked evt handles =
          --First process objects that became unlinked.
          --This avoids issues when reversing hierarchy. 
          --E.g. x.parent = y ==> y.parent = x.
-         for h in handles where (n = GetAnimByHandle h).parent == undefined do
+         for h in handles where isValidNode (n = GetAnimByHandle h) \
+                                AND n.parent == undefined do
             tree_setObjectParentFn h -1;
          
          --Then process linked objects.
-         for h in handles where (n = GetAnimByHandle h).parent != undefined do
+         for h in handles where isValidNode (n = GetAnimByHandle h) \
+                                AND n.parent != undefined do
             tree_setObjectParentFn h (GetHandleByAnim n.parent);
       )
    )
@@ -434,11 +436,11 @@ function nodeLinkedIntern linkedNode =
    (
       if (isValidNode linkedNode) do
       (
-         local parentHandle = if (linkedNode.parent != undefined) then \
-                                 (GetHandleByAnim linkedNode.parent) else -1;
+         local parentHandle = if (linkedNode.parent != undefined) \
+                                 then (GetHandleByAnim linkedNode.parent) \
+                                 else -1;
          tree_setObjectParentFn (GetHandleByAnim linkedNode) \
-                                 parentHandle \
-                                (isGroupMember linkedNode);
+                                 parentHandle;
       )
    )
    catch

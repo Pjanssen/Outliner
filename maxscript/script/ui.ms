@@ -183,10 +183,10 @@ function closeOutliner =
    try ( destroyDialog outliner_sortmode; ) catch ()
    try ( destroyDialog outliner_filter_config; ) catch ()
 
-   
-   outliner.removeKbdFileWatch();
    if (outliner_callbacks != undefined) do
       outliner_callbacks.removeCallbacks();
+      
+   outliner.removeKbdFileWatch();
    
    --outliner.dispose();
    outliner.disposeFunctionCache();

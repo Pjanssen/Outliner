@@ -150,8 +150,8 @@ function openOutliner =
       if (outliner_status.expandedNodeHandles != undefined) do
          outliner.tree.ExpandedNodeHandles = outliner_status.expandedNodeHandles;
 
-      
-      setFocus outliner_main.searchField;
+      if (prefs_getValueFn #General #focusSearchFieldOnOpen) do
+         setFocus outliner_main.searchField;
    )
    catch
    (

@@ -842,8 +842,6 @@ function getColorFromStr colorStr =
 
 function setTreeColorScheme schemeName =
 (
-   local iniFile = dir + "colorSchemes.ini";
-   
    local invIcons = prefs.getValue #Visual #invertIcons;
    
    --Guess scheme name (light or dark) if no name was provided.
@@ -866,9 +864,19 @@ function setTreeColorScheme schemeName =
    
    tree.InvertIcons = invIcons;
    
-   local colorClass = dotNetClass "System.Drawing.Color";
-   local colors = getINISetting iniFile schemeName;
+   local iniFile = pathConfig.appendPath (GetDir #userScripts) "outliner_user_colors.ini";
+   if (not (hasINISetting iniFile schemeName)) do
+   (
+      iniFile = pathConfig.appendPath dir "colorSchemes.ini";
+      if (not (hasINISetting iniFile schemeName)) do
+      (
+         messageBox ("Color scheme '" + schemeName + "' not found.")
+         setTreeColorScheme ""
+      )
+   )      
    
+   local colors = getINISetting iniFile schemeName;
+   local colorClass = dotNetClass "System.Drawing.Color";
    for i in colors do 
    (
       local color = getColorFromStr (getINISetting iniFile schemeName i);

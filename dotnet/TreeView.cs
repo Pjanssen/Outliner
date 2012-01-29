@@ -726,7 +726,7 @@ namespace Outliner
                f = new Font(Font, f.Style | FontStyle.Bold);
 
             SizeF txtSize = graphics.MeasureString(tn.Text, f);
-            txtBgBounds.Width = (int)txtSize.Width - 1;
+            txtBgBounds.Width = (int)txtSize.Width + 1;
 
             txtLocation.Y += (Int32)((float)ItemHeight - txtSize.Height) / 2 + 1;
 
@@ -2175,7 +2175,6 @@ namespace Outliner
 
       private void ContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
       {
-         Console.WriteLine(e.ClickedItem.Text);
          if (e.ClickedItem == ContextMenus.SelectChildnodesItem)
             SelectChildNodes();
          else if (e.ClickedItem == ContextMenus.RenameItem)

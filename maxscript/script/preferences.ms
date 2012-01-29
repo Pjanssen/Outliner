@@ -89,6 +89,11 @@ public function setValue section key value write:true =
    if (write) do writeEntry entry;
 ),
 
+public function getDefault section key =
+(
+   local entry = getEntry section key;
+   entry.default;
+),
 
 
 
@@ -115,6 +120,7 @@ public function createPreferenceEntries =
    (outlinerPrefsEntry section:#General key:#accept_trial                default:false),
    (outlinerPrefsEntry section:#General key:#lastUpdateCheck             default:0L),
    (outlinerPrefsEntry section:#General key:#ignore_update_version       default:0.0),
+   (outlinerPrefsEntry section:#General key:#focusSearchFieldOnOpen      default:true),
    (outlinerPrefsEntry section:#General key:#clearSearchFieldAfterSelect default:true),
    
    --Window section

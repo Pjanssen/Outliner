@@ -65,6 +65,7 @@ namespace Outliner
       public static ToolStripMenuItem DisplayBackfaceCullItem { get; private set; }
       public static ToolStripMenuItem DisplayBoxModeItem { get; private set; }
       public static ToolStripMenuItem DisplayTrajectoryItem { get; private set; }
+      public static ToolStripMenuItem DisplayFrozenInGrayItem { get; private set; }
       public static ToolStripMenuItem DisplayByLayerItem { get; private set; }
       public static ToolStripMenuItem DisplayByLayerAllItem { get; private set; }
 
@@ -282,6 +283,7 @@ namespace Outliner
          DisplayBackfaceCullItem = new ToolStripMenuItem(OutlinerResources.ContextMenuBackfaceCull);
          DisplayBoxModeItem = new ToolStripMenuItem(OutlinerResources.ContextMenuBoxMode);
          DisplayTrajectoryItem = new ToolStripMenuItem(OutlinerResources.ContextMenuDisplayTrajectory);
+         DisplayFrozenInGrayItem = new ToolStripMenuItem(OutlinerResources.ContextMenuFrozenInGray);
          displaySeparator2 = new ToolStripSeparator();
          DisplayByLayerItem = new ToolStripMenuItem(OutlinerResources.ContextMenuInheritFromLayer);
          DisplayByLayerAllItem = new ToolStripMenuItem(OutlinerResources.ContextMenuInheritFromLayerAll);
@@ -296,6 +298,7 @@ namespace Outliner
          DisplayPropertiesMenu.Items.Add(DisplayBoxModeItem);
          DisplayPropertiesMenu.Items.Add(DisplayBackfaceCullItem);
          DisplayPropertiesMenu.Items.Add(DisplayTrajectoryItem);
+         DisplayPropertiesMenu.Items.Add(DisplayFrozenInGrayItem);
          DisplayPropertiesMenu.Items.Add(displaySeparator2);
          DisplayPropertiesMenu.Items.Add(DisplayByLayerItem);
          DisplayPropertiesMenu.Items.Add(DisplayByLayerAllItem);

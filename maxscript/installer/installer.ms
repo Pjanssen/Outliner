@@ -25,6 +25,7 @@ private userScriptDir        = (GetDir #userScripts) + "/outliner",
 private userStartupScriptDir = (GetDir #userStartupScripts) + "/outliner",
 private userIconsDir         = (GetDir #userIcons),
 private prefs_file           = (GetDir #userScripts) + "/outliner_prefs.ini",
+private user_colors_file     = (GetDir #userScripts) + "/outliner_user_colors.ini",
 private product_info_file    = (GetDir #userScripts) + "/outliner_product_info.ini",
 
 
@@ -274,10 +275,17 @@ private function removeWorkflowTools =
 
 private function removePreferencesFile =
 (
+   success = true
+   
    if (doesFileExist prefs_file) then
-      deleteFile prefs_file;
-   else
-      true;
+      if (not (deleteFile prefs_file)) then
+         success = false
+   
+   if (doesFileExist user_colors_file) then
+      if (not (deleteFile user_colors_file)) then
+         success = false
+         
+   success
 ),
 
 
@@ -492,6 +500,10 @@ private function copyScriptFiles =
          local newIco = (userIconsDir + "/Outliner_" + (filenameFromPath ico));
          File.Move ico newIco;
       )
+      
+      --Copy user color schemes file
+      if (not (doesFileExist user_colors_file)) then
+         copyFile (tempDir + "/user_files/outliner_user_colors.ini") user_colors_file
    )
    catch 
    (
@@ -531,7 +543,8 @@ private function loadMacroScripts =
 private function getActiveCuiFile =
 (
    local configFile = cui.getConfigFile();
-   if (not (getFileSecurityInfo configFile #write)) then
+   if (not (doesFileExist configFile) OR 
+       not (getFileSecurityInfo configFile #write)) do
    (
       configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
    )
@@ -589,6 +602,7 @@ private function createToolbars =
       if (not cuiFile.ContainsToolbar tbName) do
       (
          local toolbar = cuiFile.AddToolbar tbName sortmodes.count 0;
+         toolbar.Hidden = true;
          toolbar.Bounds.Y += 80;
       
          for s in sortmodes do
@@ -607,6 +621,7 @@ private function createToolbars =
       if (not cuiFile.ContainsToolbar tbName) do
       (
          local toolbar = cuiFile.AddToolbar tbName (2 + filters.count) 2;
+         toolbar.Hidden = true;
       
          toolbar.AddButton "outliner_filter_toggle" "Outliner";
          toolbar.AddSeparator();
@@ -644,7 +659,8 @@ private function createToolbars =
 private function getActiveKbdFile =
 (
    local configFile = actionMan.getKeyboardFile();
-   if (not (getFileSecurityInfo configFile #write)) do
+   if (not (doesFileExist configFile) OR
+       not (getFileSecurityInfo configFile #write)) do
    (
       configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
    )

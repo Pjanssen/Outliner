@@ -44,6 +44,7 @@ namespace Outliner.Scene
         public const String TargetType          = "Target";
         public const String PowerNurbsPrefixType = "Pwr_";
 
+        public const String ThreeDxConnexionCamName = "3DxStudio Perspective";
         private readonly HashSet<String> hidden_particle_classes = new HashSet<String>() 
         { 
             "Age Test", "Birth", "Birth Paint", "Birth Script", "Cache", "Collision", "Collision Spawn", 
@@ -258,9 +259,16 @@ namespace Outliner.Scene
 
         #region AddObject, AddLayer, AddMaterial
 
+        private Boolean CanAddObject(OutlinerObject obj)
+        {
+           return !objects.ContainsKey(obj.Handle)
+               && (obj.Name != ThreeDxConnexionCamName || obj.SuperClass != CameraType)
+               && !hidden_particle_classes.Contains(obj.Class);
+        }
+
         public void AddObject(OutlinerObject obj)
         {
-            if (!objects.ContainsKey(obj.Handle))
+            if (CanAddObject(obj))
             {
                 objects.Add(obj.Handle, obj);
 
@@ -275,11 +283,8 @@ namespace Outliner.Scene
                               Boolean isGroupHead, Boolean isGroupMember,
                               Boolean isHidden, Boolean isFrozen, Boolean boxMode)
         {
-            if (!hidden_particle_classes.Contains(objClass))
-            {
-                OutlinerObject obj = new OutlinerObject(this, ++objectCounter, handle, parentHandle, layerHandle, materialHandle, name, objClass, objSuperClass, isGroupHead, isGroupMember, isHidden, isFrozen, boxMode);
-                this.AddObject(obj);
-            }
+           OutlinerObject obj = new OutlinerObject(this, ++objectCounter, handle, parentHandle, layerHandle, materialHandle, name, objClass, objSuperClass, isGroupHead, isGroupMember, isHidden, isFrozen, boxMode);
+           this.AddObject(obj);
         }
 
 

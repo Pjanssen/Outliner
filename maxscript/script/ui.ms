@@ -105,12 +105,12 @@ function openOutliner =
       --Make sure the main window position is within the screen bounds.
       if (posx > sysInfo.DesktopSize[1]) do 
       (
-         posx = (outliner.prefs.getEntry #Window #posx).default;
+         posx = outliner.prefs.getDefault #Window #posx;
          outliner.prefs.setValue #Window #posx posx;
       )
       if (posy > sysInfo.DesktopSize[2]) do 
       (
-         posy = (outliner.prefs.getEntry #Window #posy).default;
+         posy = outliner.prefs.getDefault #Window #posy;
          outliner.prefs.setValue #Window #posy posy;
       )
       
@@ -150,8 +150,8 @@ function openOutliner =
       if (outliner_status.expandedNodeHandles != undefined) do
          outliner.tree.ExpandedNodeHandles = outliner_status.expandedNodeHandles;
 
-      
-      setFocus outliner_main.searchField;
+      if (prefs_getValueFn #General #focusSearchFieldOnOpen) do
+         setFocus outliner_main.searchField;
    )
    catch
    (
@@ -183,10 +183,10 @@ function closeOutliner =
    try ( destroyDialog outliner_sortmode; ) catch ()
    try ( destroyDialog outliner_filter_config; ) catch ()
 
-   
-   outliner.removeKbdFileWatch();
    if (outliner_callbacks != undefined) do
       outliner_callbacks.removeCallbacks();
+      
+   outliner.removeKbdFileWatch();
    
    --outliner.dispose();
    outliner.disposeFunctionCache();

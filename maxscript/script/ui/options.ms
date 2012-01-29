@@ -21,11 +21,12 @@ rollout outliner_options_general "General"
    checkbox skipTrialVersions "Skip trial versions (recommended)" pos:[marginX, marginY + chkbxDY];
    
    checkbox openAtStartup "Open at 3dsMax startup" pos:[marginX, marginY + chkbxDY * 2];
-   checkbox clearSearchFieldAfterSelect "Clear search field when selecting found nodes" pos:[marginX, marginY + chkbxDY * 3];
-   dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 4];
-   label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 4 + 3];
-   dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 5];
-   label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 5 + 3];
+   checkbox focusSearchFieldOnOpen "Set focus to search field when opening" pos:[marginX, marginY + chkbxDY * 3];
+   checkbox clearSearchFieldAfterSelect "Clear search field when selecting found nodes" pos:[marginX, marginY + chkbxDY * 4];
+   dropdownlist dragMouseButton "" width:drpDwnW items:#("Left", "Middle") pos:[marginX, marginY + chkbxDY * 5];
+   label dragdropMouseBtnLbl "Drag \x26\x26 Drop Mousebutton" pos:[drpDwnLblX, marginY + chkbxDY * 5 + 3];
+   dropdownlist doubleClickAction "" width:drpDwnW items:#("Expand", "Rename") pos:[marginX, marginY + chkbxDY * 6];
+   label doubleClickActionLbl "Double-Click Action" pos:[drpDwnLblX, marginY + chkbxDY * 6 + 3];
 
    on checkForUpdates changed checked do
       setPrefFn #General #checkForUpdates checked;
@@ -65,6 +66,9 @@ rollout outliner_options_general "General"
    on openAtStartup changed checked do
       setPrefFn #General #openAtStartup checked;
    
+   on focusSearchFieldOnOpen changed checked do
+      setPrefFn #General #focusSearchFieldOnOpen checked;
+      
    on clearSearchFieldAfterSelect changed checked do
       setPrefFn #General #clearSearchFieldAfterSelect checked;
    
@@ -86,6 +90,7 @@ rollout outliner_options_general "General"
       checkUpdatesInterval.value = getPrefFn #General #checkUpdatesInterval;
       skipTrialVersions.checked = not (getPrefFn #General #accept_trial);
       openAtStartup.checked = getPrefFn #General #openAtStartup;
+      focusSearchFieldOnOpen.checked = getPrefFn #General #focusSearchFieldOnOpen;
       clearSearchFieldAfterSelect.checked = getPrefFn #General #clearSearchFieldAfterSelect;
       dragMouseButton.selection = findItem dragMouseButton.items (getPrefFn #Tree #dragMouseButton);
       doubleClickAction.selection = findItem doubleClickAction.items (getPrefFn #Tree #doubleClickAction);
@@ -230,8 +235,9 @@ rollout outliner_options_visual "User Interface"
    
    function setUIValues = 
    (
-      colorScheme.items				= getINISetting (outliner.dir + "colorSchemes.ini");
-      colorScheme.selection			= findItem colorScheme.items (getPrefFn #Visual #colorScheme);
+      colorScheme.items	= join (getINISetting (pathConfig.appendPath outliner.dir "colorSchemes.ini")) \
+                               (getINISetting (pathConfig.appendPath (GetDir #userScripts) "outliner_user_colors.ini"));
+      colorScheme.selection      = findItem colorScheme.items (getPrefFn #Visual #colorScheme);
       iconSet.Items					= outliner.getNamesDotNetEnum "Outliner.IconSet";
       iconSet.selection				= findItem iconSet.items (getPrefFn #Visual #iconSet);
       invertIcons.checked				= getPrefFn #Visual #invertIcons;

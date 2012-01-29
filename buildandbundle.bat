@@ -1,7 +1,7 @@
 @ECHO OFF
 
-::SET MSBuild=%SystemRoot%\Microsoft.NET\Framework\v3.5\MSBuild.exe
 CALL :GetMsBuild MSBuild 3.5
+IF "%MSBuild%"=="" goto :PathError "Could not find MSBuild.exe for .NET 3.5."
 dir "%MSBuild%" > nul || goto :PathError "Could not find MSBuild.exe for .NET 3.5."
 
 
@@ -22,7 +22,7 @@ SET KEY_NAME=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\MSBuild\ToolsVersions\
 SET KEY_VALUE=MSBuildToolsPath
 
 FOR /F "tokens=2*" %%A IN ('REG QUERY "%KEY_NAME%%2" /v %KEY_VALUE% 2^>nul') DO (
-   set %~1=%%BMSBuild.exe
+   set %~1=%%B\MSBuild.exe
 )
 goto :eof
 

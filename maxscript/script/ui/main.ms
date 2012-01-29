@@ -386,6 +386,7 @@ function disposeFunctionCache =
 --Rollout opened.
 on outliner_main open do
 (
+   try (
    outliner.setTreeInst tree;
    getPrefFn = outliner.prefs.getValue;
    setPrefFn = outliner.prefs.setValue;
@@ -442,6 +443,11 @@ on outliner_main open do
    setHideByCategory();
    
    createFunctionCache();
+   )
+   catch
+   (
+      fileIn "crash_report.ms";
+   )
 )
 
 

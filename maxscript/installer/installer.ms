@@ -332,11 +332,8 @@ private function checkMaxVersion =
                                       #Requirements \
                                       #maximum_MaxVersion) as float;
    local actual_version = 1998 + (maxVersion())[1] / 1000;
-  
-   format "% - % : %\n" min_version max_version actual_version;
-  
+    
    (actual_version >= min_version) AND (actual_version <= max_version)
---   ((maxVersion())[1] >= (min_version - 1998) * 1000);
 ),
 
 

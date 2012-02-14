@@ -325,9 +325,18 @@ private function removeHotkeys =
 --Returns true if this max version is equal to or above the required version.
 private function checkMaxVersion =
 (
-   local reqMaxVersion = (getINISetting installer_data_file #Requirements \
-                                                            #maxVersion) as float;
-   ((maxVersion())[1] >= (reqMaxVersion - 1998) * 1000);
+   local min_version = (getINISetting installer_data_file \
+                                      #Requirements \
+                                      #minimal_MaxVersion) as float;
+   local max_version = (getINISetting installer_data_file \
+                                      #Requirements \
+                                      #maximum_MaxVersion) as float;
+   local actual_version = 1998 + (maxVersion())[1] / 1000;
+  
+   format "% - % : %\n" min_version max_version actual_version;
+  
+   (actual_version >= min_version) AND (actual_version <= max_version)
+--   ((maxVersion())[1] >= (min_version - 1998) * 1000);
 ),
 
 

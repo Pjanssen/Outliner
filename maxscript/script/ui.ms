@@ -92,7 +92,7 @@ function openOutliner =
          outliner_status.reset();
 
       --Create keyboard actions object.
-      outliner.loadKbdFile();
+      outliner.loadkbdxFile();
       
       --Load window preferences.
       local prefs_getValueFn = outliner.prefs.getValue;
@@ -186,7 +186,7 @@ function closeOutliner =
    if (outliner_callbacks != undefined) do
       outliner_callbacks.removeCallbacks();
       
-   outliner.removeKbdFileWatch();
+   outliner.removekbdxFileWatch();
    
    --outliner.dispose();
    outliner.disposeFunctionCache();

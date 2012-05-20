@@ -1,14 +1,17 @@
 @ECHO OFF
 
-CALL :GetMsBuild MSBuild 3.5
-IF "%MSBuild%"=="" goto :PathError "Could not find MSBuild.exe for .NET 3.5."
-dir "%MSBuild%" > nul || goto :PathError "Could not find MSBuild.exe for .NET 3.5."
+::Adjust the value of MaxDir to match your local 3dsmax installation directory.
+SET MaxDir=C:\Program Files\Autodesk\3ds Max 2013\
+
+CALL :GetMsBuild MSBuild 4.0
+IF "%MSBuild%"=="" goto :PathError "Could not find MSBuild.exe for .NET 4.0."
+dir "%MSBuild%" > nul || goto :PathError "Could not find MSBuild.exe for .NET 4.0."
 
 
 ::Build Outliner.dll
 ECHO Building Outliner...
-SET Configuration=Release
-%MSBuild% dotnet/Outliner.csproj /nologo || goto :error
+:: SET Configuration=Release
+%MSBuild% dotnet/Outliner.csproj /nologo /verbosity:quiet /ToolsVersion:4.0 /p:ReferencePath="%MaxDir%;" || goto :error
 
 
 ECHO.

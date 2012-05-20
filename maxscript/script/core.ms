@@ -7,7 +7,7 @@ product_info,
 ui,
 
 tree,
-kbdFile,
+kbdxXml,
 
 
 
@@ -910,9 +910,9 @@ function handleKeyUp e =
 (
    try
    (
-      if (kbdFile != undefined) do
+      if (kbdxXml != undefined) do
       (
-         kbdFile.MaxExecuteAction e.KeyData;
+         kbdxXml.MaxExecuteAction e.KeyData;
          setFocus tree;
       )
    ) catch ()
@@ -924,7 +924,7 @@ function handleKeyUp e =
  */
 
 --The .NET FileSystemWatcher object.
-kbdFileWatch,
+kbdxFileWatch,
 
 --Handle the Changed event.
 function fileWatch_Changed sender e =
@@ -955,28 +955,28 @@ function stripTrailingSlashes str =
 --Adds the filesystemwatch changed event.
 --MAKE SURE YOU CALL REMOVEKBDFILEWATCH() WHEN THE KEYACTIONSFILE OBJECT 
 --IS NO LONGER USED!
-function addKbdFileWatch =
+function addKbdxFileWatch =
 (
-   if (kbdFile != undefined) do
+   if (kbdxXml != undefined) do
    (
-      if (doesFileExist kbdFile.File) do
+      if (doesFileExist kbdxXml.File) do
       (
-         kbdFileWatch = dotnetObject "Outliner.MXSFileWatcher";
-         kbdFileWatch.MXSObject = dotNetMXSValue kbdFile;
-         kbdFileWatch.WatchFileChange(kbdFile.file);
+         kbdxFileWatch = dotnetObject "Outliner.MXSFileWatcher";
+         kbdxFileWatch.MXSObject = dotNetMXSValue kbdxXml;
+         kbdxFileWatch.WatchFileChange(kbdxXml.File);
    
-         dotNet.addEventHandler kbdFileWatch "Changed" fileWatch_Changed;
+         dotNet.addEventHandler kbdxFileWatch "Changed" fileWatch_Changed;
       )
    )
 ),
 
-function removeKbdFileWatch =
+function removekbdxFileWatch =
 (
-   if (kbdFileWatch != undefined) do
+   if (kbdxFileWatch != undefined) do
    (
-      dotNet.removeEventHandlers kbdFileWatch "Changed";
-      kbdFileWatch.MXSObject = undefined;
-      kbdFileWatch = undefined;
+      dotNet.removeEventHandlers kbdxFileWatch "Changed";
+      kbdxFileWatch.MXSObject = undefined;
+      kbdxFileWatch = undefined;
       (dotnetclass "System.GC").Collect();
    )
 ),
@@ -984,7 +984,7 @@ function removeKbdFileWatch =
 
 --Returns the currently active kbd file if it can be written to,
 --otherwise it saves a new config file in the userUI dir.
-function getActiveKbdFile =
+function getActiveKbdxFile =
 (
    local configFile = actionMan.getKeyboardFile();
    if (not (getFileSecurityInfo configFile #write)) do
@@ -999,20 +999,21 @@ function getActiveKbdFile =
 ),
 
 
-function loadKbdFile =
+function loadkbdxFile =
 (
-   local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
+   local kbdxFileClass = dotnetClass "Outliner.KbdxFile";
    
    try (
-      kbdFile = dotnetObject "ScriptCenter.Max.KbdFile" (getActiveKbdFile());
-      addKbdFileWatch();
+      kbdxFile = getActiveKbdxFile()
+      kbdxXml = kbdxFileClass.FromXml kbdxFile;
+      addkbdxFileWatch();
    ) catch (
       format "** Outliner exception **\n%\n" (getCurrentException());
       messageBox ("An error occured while trying to load keyboard shortcuts.\n" \
                   + "See the maxscript listener (F11) for details.\n" \
                   + "\nContact me through http://outliner.threesixty.nl if the problem persists.") \
                  title:"Failed to load shortcuts";
-      kbdFile = dotnetObject "ScriptCenter.Max.KbdFile";
+      kbdxXml = dotnetObject "Outliner.KbdxFile";
    )
 ),
 
@@ -1048,7 +1049,6 @@ function init =
       try
       (
          loadAssembly "Outliner.dll";
-         loadAssembly "ScriptCenter.Max.dll";
       )
       catch
       (

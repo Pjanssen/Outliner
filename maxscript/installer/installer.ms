@@ -145,6 +145,22 @@ private function restartRequired =
 
 
 
+--Returns the currently active kbd file if it can be written to,
+--otherwise it saves a new config file in the userUI dir.
+private function getActiveKbdFile =
+(
+   local configFile = actionMan.getKeyboardFile();
+   if (not (doesFileExist configFile) OR
+       not (getFileSecurityInfo configFile #write)) do
+   (
+      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
+   )
+   
+   actionMan.saveKeyboardFile configFile;
+   
+   configFile;
+),
+
 
 /**
  * UNINSTALL FUNCTIONS
@@ -295,14 +311,14 @@ private function removeHotkeys =
    local success = true;
    try
    (
-      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
-      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (kbdFileClass.MaxGetActiveKbdFile());
+      local kbdxFileClass = dotnetClass "Outliner.KbdxFile";
+      local kbdxFile      = getActiveKbdFile(); --kbdxFileClass.MaxGetWriteableKbdxFile();
+      local kbdxXml       = kdbxFileClass.FromXml kbdxFile;
       
-      if ((kbdFile.RemoveAction "Outliner") > 0) do
+      if ((kbdxXml.RemoveShortcut "Outliner") > 0) do
       (
-         kbdFile.Write();
-         kbdFile.MaxLoadKbdFile();
+         kbdxXml.ToXml(kbdxFile);
+         actionMan.loadKeyboardFile kbdxFile;
       )
    )
    catch 
@@ -544,147 +560,21 @@ private function loadMacroScripts =
 ),
 
 
---Returns the currently active cui file if it can be written to,
---otherwise it saves a new config file in the userUI dir.
-private function getActiveCuiFile =
-(
-   local configFile = cui.getConfigFile();
-   if (not (doesFileExist configFile) OR 
-       not (getFileSecurityInfo configFile #write)) do
-   (
-      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
-   )
-   
-   cui.saveConfigAs configFile;
-   
-   configFile;
-),
-
-private function removeToolbars =
-(
-   local success = true;
-   
-   try
-   (
-      local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
-      local cuiFile      = dotnetObject "ScriptCenter.Max.CuiFile" \
-                                        (getActiveCuiFile());
-      
-      local removedSortTb   = cuiFile.RemoveToolbar "Outliner SortMode";
-      local removedFilterTb = cuiFile.RemoveToolbar "Outliner Filters";
-      
-      if (removedSortTb OR removedFilterTb) do
-      (
-         cuiFile.Write();
-         cuiFile.MaxLoadCuiFile();
-      )
-   )
-   catch
-   (
-      printException "removeToolbars" (getCurrentException());
-      success = false;
-   )
-   
-   success;
-),
-
-private function createToolbars =
-(
-   local success = true;
-   
-   try
-   (
-      local cuiFileClass = dotnetClass "ScriptCenter.Max.CuiFile";
-      local cuiFile      = dotnetobject "ScriptCenter.Max.CuiFile" \
-                                        (getActiveCuiFile());
-      local mcrCat = "Outliner";
-      local writeCuiFile = false;
-
-      --Sortmode toolbar.
-      local tbName = "Outliner SortMode";
-      local sortmodes = #("Alphabetical", "Chronological", "Layer", \
-                          "Material", "Type", "Visibility");
-      
-      if (not cuiFile.ContainsToolbar tbName) do
-      (
-         local toolbar = cuiFile.AddToolbar tbName sortmodes.count 0;
-         toolbar.Hidden = true;
-         toolbar.Bounds.Y += 80;
-      
-         for s in sortmodes do
-            toolbar.AddButton ("outliner_sortmode_" + s) mcrCat;
-         
-         writeCuiFile = true;
-      )
-
-
-      --Filter toolbar.
-      tbName = "Outliner Filters";
-      local filters = #("Geometry", "Shapes", "Lights", "Cameras", "Helpers", \
-                        "SpaceWarps", "Bones", "Particles", "Xrefs", "Groups", \
-                        "Hidden", "Frozen");
-      
-      if (not cuiFile.ContainsToolbar tbName) do
-      (
-         local toolbar = cuiFile.AddToolbar tbName (2 + filters.count) 2;
-         toolbar.Hidden = true;
-      
-         toolbar.AddButton "outliner_filter_toggle" "Outliner";
-         toolbar.AddSeparator();
-      
-         for f in filters do
-            toolbar.AddButton ("outliner_filter_" + f) mcrCat;
-      
-         toolbar.AddSeparator();
-         toolbar.AddButton "outliner_filter_affectvpt" "Outliner";
-      
-         writeCuiFile = true;
-      )
-      
-      --Write and reload cui file.
-      if (writeCuiFile) do 
-      (
-         cuiFile.Write();
-         cuiFile.MaxLoadCuiFile();
-      )
-   )
-   catch
-   (
-      printException "createToolbars" (getCurrentException());
-      success = false;
-   )
-   
-   success;
-),
 
 
 
 
---Returns the currently active kbd file if it can be written to,
---otherwise it saves a new config file in the userUI dir.
-private function getActiveKbdFile =
-(
-   local configFile = actionMan.getKeyboardFile();
-   if (not (doesFileExist configFile) OR
-       not (getFileSecurityInfo configFile #write)) do
-   (
-      configFile = pathConfig.appendPath userUIDir (filenameFromPath configFile);
-   )
-   
-   actionMan.saveKeyboardFile configFile;
-   
-   configFile;
-),
+
 private function containsHotkeyAction macroName macroCategory =
 (
    local result = false;
    try
    (
-      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
-      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (getActiveKbdFile());
+      local kbdxFileClass = dotnetClass "Outliner.KbdxFile";
+      local kbdxFile      = getActiveKbdFile(); --kbdxFileClass.MaxGetWriteableKbdxFile();
+      local kbdxXml       = kbdxFileClass.FromXml kbdxFile;
                                         
-      result = kbdFile.ContainsAction macroName macroCategory;
+      result = kbdxXml.ContainsShortcut macroName macroCategory;
    )
    catch 
    (
@@ -699,12 +589,12 @@ private function getHotkeyAction =
    local action;
    try
    (
-      local keysClass    = dotnetClass "System.Windows.Forms.Keys";
-      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
-      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (getActiveKbdFile());
+      local keysClass     = dotnetClass "System.Windows.Forms.Keys";
+      local kbdxFileClass = dotnetClass "Outliner.KbdxFile";
+      local kbdxFile      = getActiveKbdFile(); --kbdxFileClass.MaxGetWriteableKbdxFile();
+      local kbdxXml       = kbdxFileClass.FromXml kbdxFile;
                                         
-      action = kbdFile.GetAction keysClass.H;
+      action = kbdxXml.GetShortcut keysClass.H;
    )
    catch 
    (
@@ -720,15 +610,15 @@ private function assignHotkey =
    local success = true;
    try
    (  
-      local keysClass    = dotnetClass "System.Windows.Forms.Keys";
-      local kbdFileClass = dotnetClass "ScriptCenter.Max.KbdFile";
-      local kbdFile      = dotnetObject "ScriptCenter.Max.KbdFile" \
-                                        (getActiveKbdFile());
+      local keysClass     = dotnetClass "System.Windows.Forms.Keys";
+      local kbdxFileClass = dotnetClass "Outliner.KbdxFile";
+      local kbdxFile      = getActiveKbdFile(); --kbdxFileClass.MaxGetWriteableKbdxFile();
+      local kbdxXml       = kbdxFileClass.FromXml kbdxFile;
       
-      if (kbdFile.AddAction "toggleOutliner" "Outliner" keysClass.H) do
+      if (kbdxXml.AddShortcut "toggleOutliner" "Outliner" keysClass.H) do
       (
-         kbdFile.Write();
-         kbdFile.MaxLoadKbdFile();
+         kbdxXml.ToXml kbdxFile;
+         actionMan.loadKeyboardFile kbdxFile;
       )
    )
    catch
@@ -890,19 +780,6 @@ public function uninstall silent:false =
    )
    
    
-   --Remove toolbars.
-   addStatusText (getString #remToolbars);
-   if (removeToolbars()) then
-      addStatusText (getString #done) newline:false progress:progressDelta;
-   else
-   (
-      addStatusText (getString #failed) newline:false;
-      installation_failed (getString #uninst) \
-                          (getString #remToolbars section:#Error);
-      return false;
-   )
-   
-   
    --Remove hotkey.
    addStatusText (getString #remHotkeys);
    if (removeHotkeys()) then
@@ -1039,19 +916,7 @@ public function install silent:false =
                           silent:silent;
       return false;
    )
-      
-      
-   --Create toolbars.
-   addStatusText (getString #createToolbars);
-   if (createToolbars()) then
-      addStatusText (getString #done) newline:false progress:progressDelta;
-   else
-   (
-      addStatusText (getString #failed) newline:false;
-      installation_failed (getString #inst) \
-                          (getString #createToolbars section:#Error);
-      return false;
-   )
+
       
    
    --Assign hotkey.
@@ -1126,7 +991,7 @@ public function install silent:false =
 on create do
 (
    clearTempDir();
-   loadAssembly (tempDir + "/script/ScriptCenter.Max.dll");
+   loadAssembly (tempDir + "/script/Outliner.dll");
 )
 
 

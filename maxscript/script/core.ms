@@ -7,6 +7,7 @@ product_info,
 ui,
 
 tree,
+scene,
 kbdFile,
 
 
@@ -64,9 +65,10 @@ tree_GetSelectedNodeHandles,
 function setTreeInst t =
 (
    tree = t;
-   tree_Scene_AddObjectFn     = tree.Scene.AddObject;
-   tree_Scene_AddLayerFn      = tree.Scene.AddLayer;
-   tree_Scene_AddMaterialFn   = tree.Scene.AddMaterial;
+   scene = t.Scene;
+   tree_Scene_AddObjectFn     = scene.AddObject;
+   tree_Scene_AddLayerFn      = scene.AddLayer;
+   tree_Scene_AddMaterialFn   = scene.AddMaterial;
    tree_setObjectLayerFn      = tree.SetObjectLayer;
    tree_setLayerActiveFn      = tree.SetLayerActive;
    tree_setLayerParentFn      = tree.SetLayerParent;
@@ -143,7 +145,7 @@ function addMaterialToTree mat parentHandle =
 
 function pushMaterialsToTree =
 (
-   tree.Scene.ClearMaterials();
+   scene.ClearMaterials();
    for mat in scenematerials where ((superclassof mat) == material) do
       addMaterialToTree mat -1;
 ),
@@ -152,7 +154,7 @@ function pushSceneToTree =
 (
    try
    (
-      tree.Scene.Clear();
+      scene.Clear();
 
       --Add layers to tree.
       local layerCount = LayerManager.count - 1;

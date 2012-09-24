@@ -84,11 +84,11 @@ function createFunctionCache =
    tree_setObjectLayerFn         = outliner.tree.SetObjectLayer;
    tree_setObjectClassFn         = outliner.tree.SetObjectClass;
    tree_SetLayerNameFn           = outliner.tree.SetLayerName;
-   scene_IsValidLayerNameFn      = outliner.tree.Scene.IsValidLayerName;
+   scene_IsValidLayerNameFn      = outliner.scene.IsValidLayerName;
    tree_SetLayerActiveFn         = outliner.tree.SetLayerActive;
    tree_DeleteLayerFn            = outliner.tree.DeleteLayer;
    tree_SetNodeDisplayPropertiesFn  = outliner.tree.SetNodeDisplayProperties;
-   tree_containsMaterialFn       = outliner.tree.Scene.ContainsMaterial;
+   tree_containsMaterialFn       = outliner.scene.ContainsMaterial;
    tree_addMaterialToTreeFn      = outliner.tree.AddMaterialToTree;
    tree_setMaterialNameFn        = outliner.tree.SetMaterialName;
 ),
@@ -717,7 +717,7 @@ function filePreOpen =
    outliner.tree.ClearTree();
    --Clear the outlinerscene. I suspect that garbagecollections might occur 
    --when there's a dotnetmxsvalue that has no scene representation anymore.
-   outliner.tree.Scene.Clear();
+   outliner.scene.Clear();
    removeCallbacks();
    callbacks.addScript #filePostOpen "outliner_callbacks.filePostOpen()" id:#outliner;
 ),

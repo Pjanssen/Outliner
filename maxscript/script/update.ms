@@ -14,7 +14,12 @@ button install_btn "Download \x26 install now" pos:[361, 270] height:22;
 
 function onChangelogDownloadCompleted s e =
 (
-   outlinerUpdateRollout.changelog_txt.text = e.result;
+   if (e.Cancelled) then
+      outlinerUpdateRollout.changelog_txt.text = "Changelog download was cancelled.";
+   else if (e.Error != undefined) then
+      outlinerUpdateRollout.changelog_txt.text = "Changelog download error.\r\n" + e.Error.Message;
+   else
+      outlinerUpdateRollout.changelog_txt.text = e.result;      
 )
 
 function getChangelog =
@@ -62,8 +67,8 @@ on later_btn pressed do
 
 on install_btn pressed do
 (
-   outliner_update.installUpdate();
    close();
+   outliner_update.installUpdate(); 
 )
 
 )--End rollout.

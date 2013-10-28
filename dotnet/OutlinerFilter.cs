@@ -44,8 +44,8 @@ namespace Outliner
                     // Escape the filter value.
                     _nameFilter = "^" + Regex.Escape(value);
                     
-                    // Replace all escaped occurrences of * with [\w\s]*.
-                    _nameFilter = Regex.Replace(_nameFilter, @"(\\\*)", @"[\w\s]*");
+                    // Replace all escaped occurrences of * with [\w\s-]*.
+                    _nameFilter = Regex.Replace(_nameFilter, @"(\\\*)", @"[\w\s-]*");
                 }
             }
         }
